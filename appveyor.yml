@@ -1,0 +1,17 @@
+version: 3.0.0.{build}-beta
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+build_script:
+- cmd: >-
+    powershell .\install-android-sdk.ps1
+
+    powershell .\bootstrapper.ps1 -Target Default -Verbosity diagnostic
+artifacts:
+- path: ./Build/nuget/*.nupkg
+  name: NuGet
+- path: ./component/*.xam
+  name: Component
