@@ -3,44 +3,55 @@
    <metadata minClientVersion="2.8.1">
        <id>Plugin.InAppBilling</id>
        <version>$version$</version>
-       <title>In-App Billing Plugin for Xamarin and Windows</title>
-       <authors>James Montemagno</authors>
-       <owners>James Montemagno</owners>
+       <title>In-App Billing Plugin for Xamarin</title>
+       <authors>James Montemagno, Redth</authors>
+       <owners>James Montemagno, Redth</owners>
        <licenseUrl>https://github.com/jamesmontemagno/InAppBillingPlugin/blob/master/LICENSE</licenseUrl>
        <projectUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</projectUrl>
        <iconUrl>http://refractored.com/images/InAppBilling_icon_large.png</iconUrl>
        <requireLicenseAcceptance>false</requireLicenseAcceptance>
        <description>
-         Xamarin and Windows plugin to InAppBilling your devices. 
+         Xamarin plugin to In-App Billing. 
          Read the full documenation on the projects page.
        </description>
      <releaseNotes>
      </releaseNotes>
        <summary>
-         Xamarin and Windows plugin to InAppBilling your device.
+         Xamarin and Windows plugin to In-App Billing .
        </summary>
-       <tags>xamarin, xamarin.forms, android, ios, windows phone, InAppBilling</tags>
+       <tags>xamarin, xamarin.forms, android, ios, windows phone, In-App Billing, purchases, plugin</tags>
        <dependencies>
-			<group targetFramework="net">
-			</group>
-			<group targetFramework="win">
-			</group>
-			<group targetFramework="wp">
-			</group>
-			<group targetFramework="wpa">
-			</group>
-			<group targetFramework="MonoAndroid">
-			</group>
-			<group targetFramework="Xamarin.iOS10">
-			</group>
-			<group targetFramework="Xamarin.Mac20">
-			</group>
-			<group targetFramework="portable-net45+win+wpa81+wp80">
-			</group>
-			<group targetFramework="uap">
-			</group>
-			<group targetFramework="dotnet">
-			</group>
+			  <group targetFramework="net">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="win">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="wp">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="wpa">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="MonoAndroid10">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+          <dependency id="Plugin.CurrentActivity" version="1.0.1"/>
+			  </group>
+			  <group targetFramework="Xamarin.iOS10">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="Xamarin.Mac20">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="portable-net45+win+wpa81+wp80">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="uap">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
+			  <group targetFramework="dotnet">
+          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+			  </group>
 		</dependencies>
    </metadata>
    <files>
