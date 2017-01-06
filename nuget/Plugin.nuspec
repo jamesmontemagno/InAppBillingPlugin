@@ -95,8 +95,8 @@
      <!--Xamarin.iOS Unified-->
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.dll" target="lib\Xamarin.iOS10\Plugin.InAppBilling.Abstractions.dll" />
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.xml" target="lib\Xamarin.iOS10\Plugin.InAppBilling.Abstractions.xml" />
-     <file src="src\Plugin.InAppBilling.iOSUnified\bin\iPhone\Release\Plugin.InAppBilling.dll" target="lib\Xamarin.iOS10\Plugin.InAppBilling.dll" />
-     <file src="src\Plugin.InAppBilling.iOSUnified\bin\iPhone\Release\Plugin.InAppBilling.xml" target="lib\Xamarin.iOS10\Plugin.InAppBilling.xml" />
+     <file src="src\Plugin.InAppBilling.iOS\bin\iPhone\Release\Plugin.InAppBilling.dll" target="lib\Xamarin.iOS10\Plugin.InAppBilling.dll" />
+     <file src="src\Plugin.InAppBilling.iOS\bin\iPhone\Release\Plugin.InAppBilling.xml" target="lib\Xamarin.iOS10\Plugin.InAppBilling.xml" />
 
    
 
