@@ -64,20 +64,20 @@
      <!--Win Phone-->
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.dll" target="lib\wp8\Plugin.InAppBilling.Abstractions.dll" />
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.xml" target="lib\wp8\Plugin.InAppBilling.Abstractions.xml" />
-     <file src="src\Plugin.InAppBilling.WinPhone\bin\Release\Plugin.InAppBilling.dll" target="lib\wp8\Plugin.InAppBilling.dll" />
-     <file src="src\Plugin.InAppBilling.WinPhone\bin\Release\Plugin.InAppBilling.xml" target="lib\wp8\Plugin.InAppBilling.xml" />
+     <file src="src\Plugin.InAppBilling.WindowsPhone8\bin\Release\Plugin.InAppBilling.dll" target="lib\wp8\Plugin.InAppBilling.dll" />
+     <file src="src\Plugin.InAppBilling.WindowsPhone8\bin\Release\Plugin.InAppBilling.xml" target="lib\wp8\Plugin.InAppBilling.xml" />
      
      <!--Win Phone RT-->
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.dll" target="lib\wpa81\Plugin.InAppBilling.Abstractions.dll" />
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.xml" target="lib\wpa81\Plugin.InAppBilling.Abstractions.xml" />
-     <file src="src\Plugin.InAppBilling.WinPhoneRT\bin\Release\Plugin.InAppBilling.dll" target="lib\wpa81\Plugin.InAppBilling.dll" />
-     <file src="src\Plugin.InAppBilling.WinPhoneRT\bin\Release\Plugin.InAppBilling.xml" target="lib\wpa81\Plugin.InAppBilling.xml" />
+     <file src="src\Plugin.InAppBilling.WindowsPhone81\bin\Release\Plugin.InAppBilling.dll" target="lib\wpa81\Plugin.InAppBilling.dll" />
+     <file src="src\Plugin.InAppBilling.WindowsPhone81\bin\Release\Plugin.InAppBilling.xml" target="lib\wpa81\Plugin.InAppBilling.xml" />
     
      <!--Win Store-->
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.dll" target="lib\win8\Plugin.InAppBilling.Abstractions.dll" />
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.xml" target="lib\win8\Plugin.InAppBilling.Abstractions.xml" />
-     <file src="src\Plugin.InAppBilling.WinStore\bin\Release\Plugin.InAppBilling.dll" target="lib\win8\Plugin.InAppBilling.dll" />
-     <file src="src\Plugin.InAppBilling.WinStore\bin\Release\Plugin.InAppBilling.xml" target="lib\win8\Plugin.InAppBilling.xml" />
+     <file src="src\Plugin.InAppBilling.WindowsStore\bin\Release\Plugin.InAppBilling.dll" target="lib\win8\Plugin.InAppBilling.dll" />
+     <file src="src\Plugin.InAppBilling.WindowsStore\bin\Release\Plugin.InAppBilling.xml" target="lib\win8\Plugin.InAppBilling.xml" />
 
      <!--UWP-->
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.dll" target="lib\UAP10\Plugin.InAppBilling.Abstractions.dll" />
@@ -98,13 +98,7 @@
      <file src="src\Plugin.InAppBilling.iOSUnified\bin\iPhone\Release\Plugin.InAppBilling.dll" target="lib\Xamarin.iOS10\Plugin.InAppBilling.dll" />
      <file src="src\Plugin.InAppBilling.iOSUnified\bin\iPhone\Release\Plugin.InAppBilling.xml" target="lib\Xamarin.iOS10\Plugin.InAppBilling.xml" />
 
-    
-      <!--Net 4.5-->
-     <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.dll" target="lib\net45\Plugin.InAppBilling.Abstractions.dll" />
-     <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.xml" target="lib\net45\Plugin.InAppBilling.Abstractions.xml" />
-     <file src="src\Plugin.InAppBilling.Net45\bin\Release\Plugin.InAppBilling.dll" target="lib\net45\Plugin.InAppBilling.dll" />
-     <file src="src\Plugin.InAppBilling.Net45\bin\Release\Plugin.InAppBilling.xml" target="lib\net45\Plugin.InAppBilling.xml" />
-    
+   
 
    </files>
 </package>
