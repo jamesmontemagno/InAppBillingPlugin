@@ -53,7 +53,9 @@ namespace Plugin.InAppBilling
             {
                 LocalizedPrice = p.LocalizedPrice(),
                 Name = p.LocalizedTitle,
-                ProductId = p.ProductIdentifier
+                ProductId = p.ProductIdentifier,
+                Description = p.LocalizedDescription,
+                CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty
             };
         }
 
@@ -85,7 +87,8 @@ namespace Plugin.InAppBilling
             {
                 TransactionDateUtc = NSDateToDateTimeUtc(p.OriginalTransaction.TransactionDate),
                 Id = p.OriginalTransaction.TransactionIdentifier,
-                ProductId = p.OriginalTransaction.Payment.ProductIdentifier
+                ProductId = p.OriginalTransaction.Payment.ProductIdentifier,
+                State = p.OriginalTransaction.PurchaseState()
             });
         }
 
@@ -135,7 +138,9 @@ namespace Plugin.InAppBilling
             return new InAppBillingPurchase
             {
                 TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
-                Id = p.TransactionIdentifier
+                Id = p.TransactionIdentifier,
+                ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
+                State = p.PurchaseState()                
             };
         }
 
@@ -262,6 +267,28 @@ namespace Plugin.InAppBilling
         }
     }
 
+
+    static class SKTransactionExtensions
+    {
+        public static PurchaseState PurchaseState(this SKPaymentTransaction transaction)
+        {
+            switch (transaction.TransactionState)
+            {
+                case SKPaymentTransactionState.Restored:
+                    return Abstractions.PurchaseState.Restored;
+                case SKPaymentTransactionState.Purchasing:
+                    return Abstractions.PurchaseState.Purchasing;
+                case SKPaymentTransactionState.Purchased:
+                    return Abstractions.PurchaseState.Purchased;
+                case SKPaymentTransactionState.Failed:
+                    return Abstractions.PurchaseState.Failed;
+                case SKPaymentTransactionState.Deferred:
+                    return Abstractions.PurchaseState.Deferred;
+            }
+
+            return Abstractions.PurchaseState.Unknown;
+        }
+    }
     static class SKProductExtension
     {
         /// <remarks>

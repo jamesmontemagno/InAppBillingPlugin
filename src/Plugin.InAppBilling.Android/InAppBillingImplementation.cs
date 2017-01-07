@@ -79,9 +79,11 @@ namespace Plugin.InAppBilling
 
             return new InAppBillingProduct
             {
-                Name = product.Description,
+                Name = product.Title,
+                Description = product.Description,
+                CurrencyCode = product.CurrencyCode,
                 LocalizedPrice = product.Price,
-                ProductId = product.ProductId
+                ProductId = product.ProductId,
             };
         }
 
@@ -140,6 +142,9 @@ namespace Plugin.InAppBilling
                 TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(p.PurchaseTime),
                 Id = p.OrderId,
                 ProductId = p.ProductId,
+                AutoRenewing = p.AutoRenewing,
+                PurchaseToken = p.PurchaseToken,
+                State = p.State
             });
 
         }
@@ -222,16 +227,20 @@ namespace Plugin.InAppBilling
             return new InAppBillingPurchase
             {
                 TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(purchase.PurchaseTime),
-                Id = purchase.OrderId
+                Id = purchase.OrderId,
+                AutoRenewing = purchase.AutoRenewing,
+                PurchaseToken = purchase.PurchaseToken,
+                State = purchase.State,
+                ProductId = purchase.ProductId
             };
         }
 
         async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload)
         {
-            if (tcsSubscribe != null)
+            if (tcsPurchase != null)
                 return null;
 
-            tcsSubscribe = new TaskCompletionSource<object>();
+            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
 
             Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
             var response = GetResponseCodeFromBundle(buyIntentBundle);
@@ -246,11 +255,21 @@ namespace Plugin.InAppBilling
             if (pendingIntent != null)
                 Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
 
-            await tcsSubscribe.Task;
+            var result = await tcsPurchase.Task;
 
-            var purchases = await GetPurchasesAsync(itemType);
+            if (result == null)
+                return null;
 
-            return purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+            var product = JsonConvert.DeserializeObject<Purchase>(result.PurchaseData);
+
+            if (product.ProductId == productSku && product.DeveloperPayload == payload)
+                return product;
+
+            return null;
+
+            //var purchases = await GetPurchasesAsync(itemType);
+
+            //return purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
         }
 
         /// <summary>
@@ -273,17 +292,40 @@ namespace Plugin.InAppBilling
         /// <param name="data"></param>
         public static void HandleActivityResult(int requestCode, Result resultCode, Intent data)
         {
+
             if (PURCHASE_REQUEST_CODE != requestCode || data == null)
             {
                 return;
             }
 
-            tcsSubscribe?.TrySetResult(null);
+            int responseCode = data.GetIntExtra(RESPONSE_CODE, 0);
+
+            if (responseCode == (int)Result.Ok)
+            {
+                var purchaseData = data.GetStringExtra(RESPONSE_IAP_DATA);
+                var dataSignature = data.GetStringExtra(RESPONSE_IAP_DATA_SIGNATURE);
+                tcsPurchase?.TrySetResult(new PurchaseResponse
+                {
+                    PurchaseData = purchaseData,
+                    DataSignature = dataSignature
+                })
+            }
+            else
+            {
+                tcsPurchase?.TrySetResult(null);
+            }
+            
+        }
+
+        class PurchaseResponse
+        {
+            public string PurchaseData { get; set; }
+            public string DataSignature { get; set; }
         }
 
 
         InAppBillingServiceConnection serviceConnection;
-        static TaskCompletionSource<object> tcsSubscribe;
+        static TaskCompletionSource<PurchaseResponse> tcsPurchase;
         
         static bool ValidOwnedItems(Bundle purchased)
         {
@@ -381,6 +423,9 @@ namespace Plugin.InAppBilling
             public string Description { get; set; }
             public string ProductId { get; set; }
 
+            [JsonProperty(PropertyName ="price_currenty_code")]
+            public string CurrencyCode { get; set; }
+
             public override string ToString()
             {
                 return string.Format("[Product: Title={0}, Price={1}, Type={2}, Description={3}, ProductId={4}]", Title, Price, Type, Description, ProductId);
@@ -389,6 +434,7 @@ namespace Plugin.InAppBilling
 
         class Purchase
         {
+            public bool AutoRenewing { get; set; }
             public string PackageName { get; set; }
             public string OrderId { get; set; }
             public string ProductId { get; set; }
@@ -397,6 +443,22 @@ namespace Plugin.InAppBilling
             public int PurchaseState { get; set; }
             public string PurchaseToken { get; set; }
 
+
+            [JsonIgnore]
+            public PurchaseState State
+            {
+                get
+                {
+                    if (PurchaseState == 0)
+                        return Abstractions.PurchaseState.Purchased;
+                    else if (PurchaseState == 1)
+                        return Abstractions.PurchaseState.Canceled;
+                    else if (PurchaseState == 2)
+                        return Abstractions.PurchaseState.Refunded;
+
+                    return Abstractions.PurchaseState.Unknown;
+                }
+            }
             public override string ToString()
             {
                 return string.Format("[Purchase: PackageName={0}, OrderId={1}, ProductId={2}, DeveloperPayload={3}, PurchaseTime={4}, PurchaseState={5}, PurchaseToken={6}]", PackageName, OrderId, ProductId, DeveloperPayload, PurchaseTime, PurchaseState, PurchaseToken);
