@@ -38,6 +38,7 @@
     <Compile Include="IInAppBilling.cs" />
     <Compile Include="InAppBillingProduct.cs" />
     <Compile Include="InAppBillingPurchase.cs" />
+    <Compile Include="ItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -39,31 +39,56 @@ namespace Plugin.InAppBilling
 
         const int PURCHASE_REQUEST_CODE = 1001;
 
+        Activity Context => CrossCurrentActivity.Current.Activity;
+        
+        /// <summary>
+        /// Default Constructor for In App Billing Implemenation on Android
+        /// </summary>
         public InAppBillingImplementation()
         {
             serviceConnection = new InAppBillingServiceConnection(Context);
         }
-        
+
+        /// <summary>
+        /// Validation public key from App Store
+        /// </summary>
         public string ValidationPublicKey { get; set; }
 
-        public Activity Context => CrossCurrentActivity.Current.Activity;
-
-        InAppBillingServiceConnection serviceConnection;
-        static TaskCompletionSource<object> tcsSubscribe;
-
-        public Task<bool> ConnectAsync()
+        /// <summary>
+        /// Get product information of a specific product
+        /// </summary>
+        /// <param name="productId">Sku or Id of the product</param>
+        /// <param name="itemType">Type of product offering</param>
+        /// <returns></returns>
+        public async Task<InAppBillingProduct> GetProductInfoAsync(string productId, ItemType itemType)
         {
-            return serviceConnection.ConnectAsync();
+
+            Product product = null;
+            switch (itemType)
+            {
+                case ItemType.InAppPurchase:
+                    product = await GetProductInfoAsync(productId, ITEM_TYPE_INAPP);
+                    break;
+                case ItemType.Subscription:
+                    product = await GetProductInfoAsync(productId, ITEM_TYPE_SUBSCRIPTION);
+                    break;
+            }
+
+            if (product == null)
+                return null;
+
+            return new InAppBillingProduct
+            {
+                Name = product.Description,
+                LocalizedPrice = product.Price,
+                ProductId = product.ProductId
+            };
         }
 
-        public Task DisconnectAsync()
+        Task<Product> GetProductInfoAsync(string productSku, string itemType)
         {
-            return serviceConnection.DisconnectAsync();
-        }
-
-        public Task<Product> GetProductInfoAsync(string productSku, string itemType)
-        {
-            var getSkuDetailsTask = Task.Factory.StartNew<Product>(() => {
+            var getSkuDetailsTask = Task.Factory.StartNew<Product>(() =>
+            {
 
                 var querySku = new Bundle();
                 querySku.PutStringArrayList(SKU_ITEM_ID_LIST, new string[] { productSku });
@@ -87,46 +112,42 @@ namespace Plugin.InAppBilling
             return getSkuDetailsTask;
         }
 
-        public async Task<Purchase> PurchaseAsync(string sku, string itemType, string payload)
+        /// <summary>
+        /// Get all current purhcase for a specifiy product type.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
+        /// <returns>The current purchases</returns>
+        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
-            if (tcsSubscribe != null)
-                return null;
-
-            tcsSubscribe = new TaskCompletionSource<object>();
-
-            Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, sku, itemType, payload);
-            var response = GetResponseCodeFromBundle(buyIntentBundle);
-
-            // 0=OK, 1=UserCancelled, 3=BillingUnavailable, 4=ItemUnavailable, 5=DeveloperError, 6=Error, 7=AlreadyDownloaded
-            if (response != 0)
+            List<Purchase> purchases = null;
+            switch (itemType)
             {
-                return null;
+                case ItemType.InAppPurchase:
+                    purchases = await GetPurchasesAsync(ITEM_TYPE_INAPP);
+                    break;
+                case ItemType.Subscription:
+                    purchases = await GetPurchasesAsync(ITEM_TYPE_SUBSCRIPTION);
+                    break;
             }
 
-            var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
-            if (pendingIntent != null)
-                Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
+            if (purchases == null)
+                return null;
 
-            await tcsSubscribe.Task;
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            var purchases = await GetPurchasesAsync(itemType);
-
-            return purchases.FirstOrDefault(p => p.ProductId == sku && p.DeveloperPayload == payload);
-        }
-
-        public static void HandleActivityResult(int requestCode, Result resultCode, Intent data)
-        {
-            if (PURCHASE_REQUEST_CODE != requestCode || data == null)
+            return purchases.Select(p => new InAppBillingPurchase
             {
-                return;
-            }
+                TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(p.PurchaseTime),
+                Id = p.OrderId,
+                ProductId = p.ProductId,
+            });
 
-            tcsSubscribe?.TrySetResult(null);
         }
 
-        public Task<List<Purchase>> GetPurchasesAsync(string itemType)
+        Task<List<Purchase>> GetPurchasesAsync(string itemType)
         {
-            var getPurchasesTask = Task.Run(() => {
+            var getPurchasesTask = Task.Run(() =>
+            {
                 string continuationToken = string.Empty;
                 var purchases = new List<Purchase>();
 
@@ -173,6 +194,97 @@ namespace Plugin.InAppBilling
             return getPurchasesTask;
         }
 
+        /// <summary>
+        /// Purchase a specific product or subscription
+        /// </summary>
+        /// <param name="productId">Sku or ID of product</param>
+        /// <param name="itemType">Type of product being requested</param>
+        /// <param name="payload">Developer specific payload</param>
+        /// <returns></returns>
+        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload)
+        {
+            Purchase purchase = null;
+            switch (itemType)
+            {
+                case ItemType.InAppPurchase:
+                    purchase = await PurchaseAsync(productId, ITEM_TYPE_INAPP, payload);
+                    break;
+                case ItemType.Subscription:
+                    purchase = await PurchaseAsync(productId, ITEM_TYPE_SUBSCRIPTION, payload);
+                    break;
+            }
+
+            if (purchase == null)
+                return null;
+
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            
+            return new InAppBillingPurchase
+            {
+                TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(purchase.PurchaseTime),
+                Id = purchase.OrderId
+            };
+        }
+
+        async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload)
+        {
+            if (tcsSubscribe != null)
+                return null;
+
+            tcsSubscribe = new TaskCompletionSource<object>();
+
+            Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
+            var response = GetResponseCodeFromBundle(buyIntentBundle);
+
+            // 0=OK, 1=UserCancelled, 3=BillingUnavailable, 4=ItemUnavailable, 5=DeveloperError, 6=Error, 7=AlreadyDownloaded
+            if (response != 0)
+            {
+                return null;
+            }
+
+            var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
+            if (pendingIntent != null)
+                Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
+
+            await tcsSubscribe.Task;
+
+            var purchases = await GetPurchasesAsync(itemType);
+
+            return purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+        }
+
+        /// <summary>
+        /// Connect to billing service
+        /// </summary>
+        /// <returns>If Success</returns>
+        public Task<bool> ConnectAsync() => serviceConnection.ConnectAsync();
+
+        /// <summary>
+        /// Disconnect from the billing service
+        /// </summary>
+        /// <returns>Task to disconnect</returns>
+        public Task DisconnectAsync() => serviceConnection.DisconnectAsync();
+        
+        /// <summary>
+        /// Must override handle activity and pass back results here.
+        /// </summary>
+        /// <param name="requestCode"></param>
+        /// <param name="resultCode"></param>
+        /// <param name="data"></param>
+        public static void HandleActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            if (PURCHASE_REQUEST_CODE != requestCode || data == null)
+            {
+                return;
+            }
+
+            tcsSubscribe?.TrySetResult(null);
+        }
+
+
+        InAppBillingServiceConnection serviceConnection;
+        static TaskCompletionSource<object> tcsSubscribe;
+        
         static bool ValidOwnedItems(Bundle purchased)
         {
             return purchased.ContainsKey(RESPONSE_IAP_PURCHASE_ITEM_LIST)
@@ -193,45 +305,6 @@ namespace Plugin.InAppBilling
                 return ((Java.Lang.Number)response).IntValue();
             }
             return 6; // Unknown error
-        }
-
-        public async Task<InAppBillingProduct> GetProductInfoAsync(string productId)
-        {
-            var p = await GetProductInfoAsync(productId, ITEM_TYPE_SUBSCRIPTION);
-
-            return new InAppBillingProduct
-            {
-                Name = p.Description,
-                LocalizedPrice = p.Price,
-                ProductId = p.ProductId
-            };
-        }
-
-        public async Task<List<InAppBillingPurchase>> GetPurchasesAsync()
-        {
-            var purchases = await GetPurchasesAsync(ITEM_TYPE_SUBSCRIPTION);
-
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-            return purchases.Select(p => new InAppBillingPurchase
-            {
-                TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(p.PurchaseTime),
-                Id = p.OrderId,
-                ProductId = p.ProductId,
-            }).ToList();
-        }
-
-        public async Task<InAppBillingPurchase> SubscribeAsync(string productId)
-        {
-            var p = await PurchaseAsync(productId, ITEM_TYPE_SUBSCRIPTION, "tfp");
-
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-            return new InAppBillingPurchase
-            {
-                TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(p.PurchaseTime),
-                Id = p.OrderId
-            };
         }
 
         class InAppBillingServiceConnection : Java.Lang.Object, IServiceConnection
@@ -300,7 +373,7 @@ namespace Plugin.InAppBilling
             }
         }
 
-        public class Product
+        class Product
         {
             public string Title { get; set; }
             public string Price { get; set; }
@@ -314,7 +387,7 @@ namespace Plugin.InAppBilling
             }
         }
 
-        public class Purchase
+        class Purchase
         {
             public string PackageName { get; set; }
             public string OrderId { get; set; }
@@ -333,7 +406,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Utility security class to verify the purchases
         /// </summary>
-        public sealed class Security
+        sealed class Security
         {
             /// <summary>
             /// Verifies the purchase.

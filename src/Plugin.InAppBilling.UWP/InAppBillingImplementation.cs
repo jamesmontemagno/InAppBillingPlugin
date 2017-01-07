@@ -10,29 +10,69 @@ namespace Plugin.InAppBilling
     /// </summary>
     public class InAppBillingImplementation : IInAppBilling
     {
-        public string ValidationPublicKey { get; set; }
+        /// <summary>
+        /// Validation public key from App Store
+        /// </summary>
+        public string ValidationPublicKey
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
 
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Connect to billing service
+        /// </summary>
+        /// <returns>If Success</returns>
         public Task<bool> ConnectAsync()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Disconnect from the billing service
+        /// </summary>
+        /// <returns>Task to disconnect</returns>
         public Task DisconnectAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<InAppBillingProduct> GetProductInfoAsync(string productId)
+        /// <summary>
+        /// Get product information of a specific product
+        /// </summary>
+        /// <param name="productId">Sku or Id of the product</param>
+        /// <param name="itemType">Type of product offering</param>
+        /// <returns></returns>
+        public Task<InAppBillingProduct> GetProductInfoAsync(string productId, ItemType itemType)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<InAppBillingPurchase>> GetPurchasesAsync()
+        /// <summary>
+        /// Get all current purhcase for a specifiy product type.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
+        /// <returns>The current purchases</returns>
+        public Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
             throw new NotImplementedException();
         }
 
-        public Task<InAppBillingPurchase> SubscribeAsync(string productId)
+        /// <summary>
+        /// Purchase a specific product or subscription
+        /// </summary>
+        /// <param name="productId">Sku or ID of product</param>
+        /// <param name="itemType">Type of product being requested</param>
+        /// <param name="payload">Developer specific payload</param>
+        /// <returns></returns>
+        public Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload)
         {
             throw new NotImplementedException();
         }

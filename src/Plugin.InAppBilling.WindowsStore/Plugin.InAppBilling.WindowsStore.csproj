@@ -109,10 +109,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Plugin.InAppBilling.UWP\InAppBillingImplementation.cs">
+      <Link>InAppBillingImplementation.cs</Link>
+    </Compile>
     <Compile Include="..\Plugin.InAppBilling\CrossInAppBilling.cs">
       <Link>CrossInAppBilling.cs</Link>
     </Compile>
-    <Compile Include="InAppBillingImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

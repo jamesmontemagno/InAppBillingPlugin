@@ -13,37 +13,51 @@ namespace Plugin.InAppBilling
   /// </summary>
   public class InAppBillingImplementation : IInAppBilling
   {
+        /// <summary>
+        /// Default constructor for In App Billing on iOS
+        /// </summary>
         public InAppBillingImplementation()
         {
             paymentObserver = new PaymentObserver();
             SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
         }
 
+        /// <summary>
+        /// Validation public key from App Store
+        /// </summary>
         public string ValidationPublicKey { get; set; }
 
-        PaymentObserver paymentObserver;
+        /// <summary>
+        /// Connect to billing service
+        /// </summary>
+        /// <returns>If Success</returns>
+        public Task<bool> ConnectAsync() => Task.FromResult(true);
 
-        public DateTime NSDateToDateTimeUtc(NSDate date)
+        /// <summary>
+        /// Disconnect from the billing service
+        /// </summary>
+        /// <returns>Task to disconnect</returns>
+        public Task DisconnectAsync() => Task.CompletedTask;
+
+        /// <summary>
+        /// Get product information of a specific product
+        /// </summary>
+        /// <param name="productId">Sku or Id of the product</param>
+        /// <param name="itemType">Type of product offering</param>
+        /// <returns></returns>
+        public async Task<InAppBillingProduct> GetProductInfoAsync(string productId, ItemType itemType)
         {
-            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var p = await GetProductAsync(productId);
 
-            return reference.AddSeconds(date.SecondsSinceReferenceDate);
-        }
-
-        public async Task<InAppBillingPurchase> SubscribeAsync(string productId)
-        {
-            var p = await PurchaseAsync(productId);
-
-            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-
-            return new InAppBillingPurchase
+            return new InAppBillingProduct
             {
-                TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
-                Id = p.TransactionIdentifier
+                LocalizedPrice = p.LocalizedPrice(),
+                Name = p.LocalizedTitle,
+                ProductId = p.ProductIdentifier
             };
         }
 
-        public Task<SKProduct> GetProductAsync(string productId)
+        Task<SKProduct> GetProductAsync(string productId)
         {
             var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(new NSString[] { new NSString(productId) });
 
@@ -57,12 +71,75 @@ namespace Plugin.InAppBilling
             return productRequestDelegate.WaitForResponse();
         }
 
-        public Task<SKPaymentTransaction> PurchaseAsync(SKProduct product)
+
+        /// <summary>
+        /// Get all current purhcase for a specifiy product type.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
+        /// <returns>The current purchases</returns>
+        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
-            return PurchaseAsync(product.ProductIdentifier);
+            var purchases = await RestoreAsync();
+
+            return purchases.Select(p => new InAppBillingPurchase
+            {
+                TransactionDateUtc = NSDateToDateTimeUtc(p.OriginalTransaction.TransactionDate),
+                Id = p.OriginalTransaction.TransactionIdentifier,
+                ProductId = p.OriginalTransaction.Payment.ProductIdentifier
+            });
         }
 
-        public Task<SKPaymentTransaction> PurchaseAsync(string productId)
+
+
+        Task<SKPaymentTransaction[]> RestoreAsync()
+        {
+            var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
+
+            Action<SKPaymentTransaction[]> handler = null;
+            handler = new Action<SKPaymentTransaction[]>(transactions => {
+
+                // Unsubscribe from future events
+                paymentObserver.TransactionsRestored -= handler;
+
+                if (transactions == null)
+                    tcsTransaction.TrySetException(new Exception("Restore Transactions Failed"));
+                else
+                    tcsTransaction.TrySetResult(transactions);
+            });
+
+            paymentObserver.TransactionsRestored += handler;
+
+            // Start receiving restored transactions
+            SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
+
+            return tcsTransaction.Task;
+        }
+
+
+
+
+
+        /// <summary>
+        /// Purchase a specific product or subscription
+        /// </summary>
+        /// <param name="productId">Sku or ID of product</param>
+        /// <param name="itemType">Type of product being requested</param>
+        /// <param name="payload">Developer specific payload</param>
+        /// <returns></returns>
+        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload)
+        {
+            var p = await PurchaseAsync(productId);
+
+            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+            return new InAppBillingPurchase
+            {
+                TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
+                Id = p.TransactionIdentifier
+            };
+        }
+
+        Task<SKPaymentTransaction> PurchaseAsync(string productId)
         {
             TaskCompletionSource<SKPaymentTransaction> tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
 
@@ -90,66 +167,21 @@ namespace Plugin.InAppBilling
             return tcsTransaction.Task;
         }
 
-        public Task<SKPaymentTransaction[]> RestoreAsync()
+        PaymentObserver paymentObserver;
+
+        DateTime NSDateToDateTimeUtc(NSDate date)
         {
-            var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
+            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-            Action<SKPaymentTransaction[]> handler = null;
-            handler = new Action<SKPaymentTransaction[]>(transactions => {
-
-                // Unsubscribe from future events
-                paymentObserver.TransactionsRestored -= handler;
-
-                if (transactions == null)
-                    tcsTransaction.TrySetException(new Exception("Restore Transactions Failed"));
-                else
-                    tcsTransaction.TrySetResult(transactions);
-            });
-
-            paymentObserver.TransactionsRestored += handler;
-
-            // Start receiving restored transactions
-            SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
-
-            return tcsTransaction.Task;
+            return reference.AddSeconds(date.SecondsSinceReferenceDate);
         }
+        
 
-        public Task<bool> ConnectAsync()
-        {
-            return Task.FromResult(true);
-        }
-
-        public Task DisconnectAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-        public async Task<InAppBillingProduct> GetProductInfoAsync(string productId)
-        {
-            var p = await GetProductAsync(productId);
-
-            return new InAppBillingProduct
-            {
-                LocalizedPrice = p.LocalizedPrice(),
-                Name = p.LocalizedTitle,
-                ProductId = p.ProductIdentifier
-            };
-        }
-
-        public async Task<List<InAppBillingPurchase>> GetPurchasesAsync()
-        {
-            var purchases = await RestoreAsync();
-
-            return purchases.Select(p => new InAppBillingPurchase
-            {
-                TransactionDateUtc = this.NSDateToDateTimeUtc(p.OriginalTransaction.TransactionDate),
-                Id = p.OriginalTransaction.TransactionIdentifier,
-                ProductId = p.OriginalTransaction.Payment.ProductIdentifier
-            }).ToList();
-        }
+    
+ 
     }
 
-    public class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
+    class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
     {
         TaskCompletionSource<SKProduct> tcsResponse = new TaskCompletionSource<SKProduct>();
 
@@ -179,7 +211,7 @@ namespace Plugin.InAppBilling
     }
 
 
-    public class PaymentObserver : SKPaymentTransactionObserver
+    class PaymentObserver : SKPaymentTransactionObserver
     {
         public event Action<SKPaymentTransaction, bool> TransactionCompleted;
         public event Action<SKPaymentTransaction[]> TransactionsRestored;
@@ -230,7 +262,7 @@ namespace Plugin.InAppBilling
         }
     }
 
-    public static class SKProductExtension
+    static class SKProductExtension
     {
         /// <remarks>
         /// Use Apple's sample code for formatting a SKProduct price
