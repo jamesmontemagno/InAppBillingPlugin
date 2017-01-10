@@ -304,11 +304,13 @@ namespace Plugin.InAppBilling
             {
                 var purchaseData = data.GetStringExtra(RESPONSE_IAP_DATA);
                 var dataSignature = data.GetStringExtra(RESPONSE_IAP_DATA_SIGNATURE);
+
                 tcsPurchase?.TrySetResult(new PurchaseResponse
                 {
                     PurchaseData = purchaseData,
                     DataSignature = dataSignature
                 });
+
             }
             else
             {

@@ -1,4 +1,7 @@
 ## In-App Billing Plugin for Xamarin
+
+# This is a work in progress, not ready for production use.
+
 Simple cross platform in app purchase plugin for Xamarin.iOS and Xamarin.Android
 
 ### Setup
