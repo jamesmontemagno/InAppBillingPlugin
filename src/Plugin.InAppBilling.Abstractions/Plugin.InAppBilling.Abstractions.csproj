@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="IInAppBilling.cs" />
+    <Compile Include="IInAppBillingVerifyPurchase.cs" />
     <Compile Include="InAppBillingExceptions.cs" />
     <Compile Include="InAppBillingProduct.cs" />
     <Compile Include="InAppBillingPurchase.cs" />

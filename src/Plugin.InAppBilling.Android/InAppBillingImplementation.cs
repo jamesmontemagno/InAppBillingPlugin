@@ -50,11 +50,6 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
-        /// Validation public key from App Store
-        /// </summary>
-        public string ValidationPublicKey { get; set; }
-
-        /// <summary>
         /// Get product information of a specific product
         /// </summary>
         /// <param name="productId">Sku or Id of the product</param>
@@ -118,17 +113,18 @@ namespace Plugin.InAppBilling
         /// Get all current purhcase for a specifiy product type.
         /// </summary>
         /// <param name="itemType">Type of product</param>
+        /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns>The current purchases</returns>
-        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             List<Purchase> purchases = null;
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
-                    purchases = await GetPurchasesAsync(ITEM_TYPE_INAPP);
+                    purchases = await GetPurchasesAsync(ITEM_TYPE_INAPP, verifyPurchase);
                     break;
                 case ItemType.Subscription:
-                    purchases = await GetPurchasesAsync(ITEM_TYPE_SUBSCRIPTION);
+                    purchases = await GetPurchasesAsync(ITEM_TYPE_SUBSCRIPTION, verifyPurchase);
                     break;
             }
 
@@ -151,9 +147,9 @@ namespace Plugin.InAppBilling
 
         }
 
-        Task<List<Purchase>> GetPurchasesAsync(string itemType)
+        Task<List<Purchase>> GetPurchasesAsync(string itemType, IInAppBillingVerifyPurchase verifyPurchase)
         {
-            var getPurchasesTask = Task.Run(() =>
+            var getPurchasesTask = Task.Run(async () =>
             {
                 string continuationToken = string.Empty;
                 var purchases = new List<Purchase>();
@@ -184,7 +180,7 @@ namespace Plugin.InAppBilling
                         string data = dataList[i];
                         string sign = signatures[i];
 
-                        if (!string.IsNullOrEmpty(ValidationPublicKey) && Security.VerifyPurchase(ValidationPublicKey, data, sign))
+                        if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
                         {
                             var purchase = JsonConvert.DeserializeObject<Purchase>(data);
                             purchases.Add(purchase);
@@ -207,17 +203,18 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
         /// <param name="payload">Developer specific payload</param>
+        /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns></returns>
-        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload)
+        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             Purchase purchase = null;
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
-                    purchase = await PurchaseAsync(productId, ITEM_TYPE_INAPP, payload);
+                    purchase = await PurchaseAsync(productId, ITEM_TYPE_INAPP, payload, verifyPurchase);
                     break;
                 case ItemType.Subscription:
-                    purchase = await PurchaseAsync(productId, ITEM_TYPE_SUBSCRIPTION, payload);
+                    purchase = await PurchaseAsync(productId, ITEM_TYPE_SUBSCRIPTION, payload, verifyPurchase);
                     break;
             }
 
@@ -237,7 +234,7 @@ namespace Plugin.InAppBilling
             };
         }
 
-        async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload)
+        async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
             if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
@@ -275,7 +272,7 @@ namespace Plugin.InAppBilling
 
                     if(consume == 5)
                     {
-                        var ps = await GetPurchasesAsync(itemType);
+                        var ps = await GetPurchasesAsync(itemType, verifyPurchase);
 
                         var pu = ps.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
 
@@ -284,7 +281,7 @@ namespace Plugin.InAppBilling
                     }
                     return null;
 #endif
-                    var purchases = await GetPurchasesAsync(itemType);
+                    var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
                     var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
 
@@ -303,20 +300,28 @@ namespace Plugin.InAppBilling
             if (result == null)
                 return null;
 
+
+
+            var data = result.PurchaseData;
+            var sign = result.DataSignature;
+
             //for some reason the data didn't come back
-            if(string.IsNullOrWhiteSpace(result.PurchaseData))
+            if (string.IsNullOrWhiteSpace(data))
             {
-                var purchases = await GetPurchasesAsync(itemType);
+                var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
                 var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
 
                 return purchase;
             }
 
-            var product = JsonConvert.DeserializeObject<Purchase>(result.PurchaseData);
 
-            if (product.ProductId == productSku && product.DeveloperPayload == payload)
-                return product;
+            if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
+            {
+                var purchase = JsonConvert.DeserializeObject<Purchase>(data);
+                if (purchase.ProductId == productSku && purchase.DeveloperPayload == payload)
+                    return purchase;
+            }
 
             return null;
 
@@ -520,7 +525,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Utility security class to verify the purchases
         /// </summary>
-        sealed class Security
+        public static class InAppBillingSecurity
         {
             /// <summary>
             /// Verifies the purchase.
@@ -539,8 +544,8 @@ namespace Plugin.InAppBilling
 
                 if (!string.IsNullOrEmpty(signature))
                 {
-                    var key = Security.GeneratePublicKey(publicKey);
-                    bool verified = Security.Verify(key, signedData, signature);
+                    var key = InAppBillingSecurity.GeneratePublicKey(publicKey);
+                    bool verified = InAppBillingSecurity.Verify(key, signedData, signature);
 
                     if (!verified)
                     {

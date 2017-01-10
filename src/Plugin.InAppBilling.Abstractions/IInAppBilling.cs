@@ -34,7 +34,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+        Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 
         /// <summary>
         /// Purchase a specific product or subscription
@@ -44,11 +44,6 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="payload">Developer specific payload</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload);
-
-        /// <summary>
-        /// Validation public key from App Store
-        /// </summary>
-        string ValidationPublicKey { get; set; }
+        Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
     }
 }

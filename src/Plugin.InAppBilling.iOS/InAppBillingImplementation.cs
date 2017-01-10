@@ -23,11 +23,6 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
-        /// Validation public key from App Store
-        /// </summary>
-        public string ValidationPublicKey { get; set; }
-
-        /// <summary>
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
@@ -78,8 +73,9 @@ namespace Plugin.InAppBilling
         /// Get all current purhcase for a specifiy product type.
         /// </summary>
         /// <param name="itemType">Type of product</param>
+        /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns>The current purchases</returns>
-        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var purchases = await RestoreAsync();
 
@@ -128,8 +124,9 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
         /// <param name="payload">Developer specific payload</param>
+        /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns></returns>
-        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload)
+        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var p = await PurchaseAsync(productId);
 
@@ -180,10 +177,6 @@ namespace Plugin.InAppBilling
 
             return reference.AddSeconds(date.SecondsSinceReferenceDate);
         }
-        
-
-    
- 
     }
 
     class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
