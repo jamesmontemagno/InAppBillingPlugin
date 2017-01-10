@@ -612,6 +612,21 @@ namespace Plugin.InAppBilling
                 return false;
             }
 
+            /// <summary>
+            /// Simple string transform via:
+            /// http://stackoverflow.com/questions/11671865/how-to-protect-google-play-public-key-when-doing-inapp-billing
+            /// </summary>
+            /// <param name="key">key to transform</param>
+            /// <param name="i">XOR Offset</param>
+            /// <returns></returns>
+            public static string TransformString(string key, int i)
+            {
+                var chars = key.ToCharArray();;
+                for (int j = 0; j < chars.Length; j++)
+                    chars[j] = (char)(chars[j] ^ i);
+                return new string(chars);
+            }
+
             const string KeyFactoryAlgorithm = "RSA";
             const string SignatureAlgorithm = "SHA1withRSA";
 
