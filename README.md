@@ -1,6 +1,19 @@
 ## In-App Billing Plugin for Xamarin
 
-# This is a work in progress, not ready for production use.
+# This is a work in progress
+
+Work to be done for v1:
+* [x] Verify Android In App Purchase 
+* [x] Verity Android Subscriptions
+* [ ] Verify Android Getting All Items
+* [x] Document Android APIs
+* [ ] Verify iOS  In App Purchase 
+* [ ] Verity iOS Subscriptions
+* [ ] Verify iOS Getting All Items
+* [x] Document iOS APIs
+
+Coming in v2:
+* [ ] Consumable API
 
 Simple cross platform in app purchase plugin for Xamarin.iOS and Xamarin.Android
 
