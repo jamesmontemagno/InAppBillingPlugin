@@ -43,6 +43,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="itemType">Type of product being requested</param>
         /// <param name="payload">Developer specific payload</param>
         /// <returns></returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload);
 
         /// <summary>

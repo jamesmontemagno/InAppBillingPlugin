@@ -137,7 +137,7 @@ namespace Plugin.InAppBilling
 
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            return purchases.Select(p => new InAppBillingPurchase
+            var results = purchases.Select(p => new InAppBillingPurchase
             {
                 TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(p.PurchaseTime),
                 Id = p.OrderId,
@@ -146,6 +146,8 @@ namespace Plugin.InAppBilling
                 PurchaseToken = p.PurchaseToken,
                 State = p.State
             });
+
+            return results;
 
         }
 
@@ -240,16 +242,57 @@ namespace Plugin.InAppBilling
             if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
 
-            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
-
+           
             Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
             var response = GetResponseCodeFromBundle(buyIntentBundle);
 
-            // 0=OK, 1=UserCancelled, 3=BillingUnavailable, 4=ItemUnavailable, 5=DeveloperError, 6=Error, 7=AlreadyDownloaded
-            if (response != 0)
+            
+            switch(response)
             {
-                return null;
+                case 0:
+                    //OK to purchase
+                    break;
+                case 1:
+                    //User Cancelled, should try again
+                    break;
+                case 3:
+                    //Billing Unavailable
+                    throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
+                case 4:
+                    //Item Unavailable
+                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
+                case 5:
+                    //Developer Error
+                    throw new InAppBillingPurchaseException(PurchaseError.DeveloperError);
+                case 6:
+                    //Generic Error
+                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                case 7:
+
+#if DEBUG
+                    var purchaseToken = $"inapp:{Context.PackageName}:{productSku}";
+                    var consume = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchaseToken);
+
+                    if(consume == 5)
+                    {
+                        var ps = await GetPurchasesAsync(itemType);
+
+                        var pu = ps.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+
+                        consume = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, pu.PurchaseToken);
+
+                    }
+                    return null;
+#endif
+                    var purchases = await GetPurchasesAsync(itemType);
+
+                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+
+                    return purchase;
+                    //already purchased
             }
+
+            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
 
             var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
             if (pendingIntent != null)
@@ -260,6 +303,16 @@ namespace Plugin.InAppBilling
             if (result == null)
                 return null;
 
+            //for some reason the data didn't come back
+            if(string.IsNullOrWhiteSpace(result.PurchaseData))
+            {
+                var purchases = await GetPurchasesAsync(itemType);
+
+                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+
+                return purchase;
+            }
+
             var product = JsonConvert.DeserializeObject<Purchase>(result.PurchaseData);
 
             if (product.ProductId == productSku && product.DeveloperPayload == payload)
@@ -267,9 +320,6 @@ namespace Plugin.InAppBilling
 
             return null;
 
-            //var purchases = await GetPurchasesAsync(itemType);
-
-            //return purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
         }
 
         /// <summary>
@@ -300,7 +350,8 @@ namespace Plugin.InAppBilling
 
             int responseCode = data.GetIntExtra(RESPONSE_CODE, 0);
 
-            if (responseCode == (int)Result.Ok)
+            //Reponse returned OK
+            if (responseCode == 0)
             {
                 var purchaseData = data.GetStringExtra(RESPONSE_IAP_DATA);
                 var dataSignature = data.GetStringExtra(RESPONSE_IAP_DATA_SIGNATURE);
@@ -440,8 +491,8 @@ namespace Plugin.InAppBilling
             public string OrderId { get; set; }
             public string ProductId { get; set; }
             public string DeveloperPayload { get; set; }
-            public int PurchaseTime { get; set; }
-            public int PurchaseState { get; set; }
+            public Int64 PurchaseTime { get; set; }
+            public Int64 PurchaseState { get; set; }
             public string PurchaseToken { get; set; }
 
 
