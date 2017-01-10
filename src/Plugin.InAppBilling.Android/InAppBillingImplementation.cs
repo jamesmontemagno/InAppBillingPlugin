@@ -237,7 +237,7 @@ namespace Plugin.InAppBilling
 
         async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload)
         {
-            if (tcsPurchase != null)
+            if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
 
             tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
@@ -308,7 +308,7 @@ namespace Plugin.InAppBilling
                 {
                     PurchaseData = purchaseData,
                     DataSignature = dataSignature
-                })
+                });
             }
             else
             {
@@ -357,8 +357,7 @@ namespace Plugin.InAppBilling
             }
 
             TaskCompletionSource<bool> tcsConnect;
-            TaskCompletionSource<object> tcsDisconnect;
-
+           
             public Context Context { get; private set; }
             public IInAppBillingService Service { get; private set; }
             public bool IsConnected { get; private set; }
@@ -370,6 +369,8 @@ namespace Plugin.InAppBilling
 
                 tcsConnect = new TaskCompletionSource<bool>();
                 var serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+
+                serviceIntent.SetPackage("com.android.vending");
 
                 if (Context.PackageManager.QueryIntentServices(serviceIntent, 0).Any())
                 {
@@ -384,11 +385,11 @@ namespace Plugin.InAppBilling
             {
                 if (!IsConnected)
                     return;
-
-                tcsDisconnect = new TaskCompletionSource<object>();
+                
                 Context.UnbindService(this);
 
-                await tcsDisconnect.Task;
+                IsConnected = false;
+                Service = null;
             }
 
             public void OnServiceConnected(ComponentName name, IBinder service)
@@ -409,9 +410,7 @@ namespace Plugin.InAppBilling
 
             public void OnServiceDisconnected(ComponentName name)
             {
-                IsConnected = false;
-                Service = null;
-                tcsDisconnect.SetResult(null);
+               
             }
         }
 
