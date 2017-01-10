@@ -140,6 +140,11 @@ protected override void OnActivityResult(int requestCode, Result resultCode, Int
 <AndroidSigningKeyPass>PASS</AndroidSigningKeyPass>
 ```
 
+#### Android Troubleshooing
+* If you see "You need to sign into your google account". This most likely means that you don't have an items published and active for IAB
+* If you see "This version of the application is not configured for billing through Google Play": This means the versions number don't match or you don't have the app configured to sign correctly with your keystore.
+* If you see "The publisher cannot purchase this item": This means you are trying to buy it on your developer account, and that isn't allowed, you need a different account.
+
 
 #### License
 Under MIT, see LICENSE file.
