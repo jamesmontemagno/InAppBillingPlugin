@@ -90,6 +90,8 @@ try
     {
         //no purchases found
     }
+    
+    await CrossInAppBilling.Current.DisconnectAsync();
 }
 catch (Exception ex)
 {
@@ -98,7 +100,6 @@ catch (Exception ex)
 finally
 {
     busy = false;
-    await CrossInAppBilling.Current.DisconnectAsync();
 }
 ```
 
@@ -124,7 +125,20 @@ protected override void OnActivityResult(int requestCode, Result resultCode, Int
 }
 ```
 
+#### Android Testing Help
+* Ensure you have app in Alpha/Beta with the NuGet installed. This will add "com.android.vending.BILLING" permission for you
+* Create an IAB product, make sure it is **published** and **active**
+* Add a test account to the app, ensure it is the main account on device, and that account is opted-in as tester
+* Validated your version code and number in your development environment match what is in the Play store.
+* You MUST sign the APK even in debug mode. In XS this is in the properties. In VS you must manually add this to your project:
 
+```
+<AndroidKeyStore>True</AndroidKeyStore>
+<AndroidSigningKeyStore>KeystoreLocation</AndroidSigningKeyStore>
+<AndroidSigningStorePass>PASS</AndroidSigningStorePass>
+<AndroidSigningKeyAlias>ALIAS</AndroidSigningKeyAlias>
+<AndroidSigningKeyPass>PASS</AndroidSigningKeyPass>
+```
 
 
 #### License
