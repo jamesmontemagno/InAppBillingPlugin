@@ -24,10 +24,11 @@ namespace Plugin.InAppBilling.Abstractions
         /// <summary>
         /// Get product information of a specific product
         /// </summary>
-        /// <param name="productId">Sku or Id of the product</param>
         /// <param name="itemType">Type of product offering</param>
+        /// <param name="productId">Sku or Id of the product(s)</param>
         /// <returns></returns>
-        Task<InAppBillingProduct> GetProductInfoAsync(string productId, ItemType itemType);
+        Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
+
 
         /// <summary>
         /// Get all current purhcase for a specifiy product type.

@@ -37,26 +37,26 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Get product information of a specific product
         /// </summary>
-        /// <param name="productId">Sku or Id of the product</param>
+        /// <param name="productId">Sku or Id of the product(s)</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
-        public async Task<InAppBillingProduct> GetProductInfoAsync(string productId, ItemType itemType)
+        public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
-            var p = await GetProductAsync(productId);
+            var products = await GetProductAsync(productIds);
 
-            return new InAppBillingProduct
+            return products.Select(p => new InAppBillingProduct
             {
                 LocalizedPrice = p.LocalizedPrice(),
                 Name = p.LocalizedTitle,
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
                 CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty
-            };
+            });
         }
 
-        Task<SKProduct> GetProductAsync(string productId)
+        Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
         {
-            var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(new NSString[] { new NSString(productId) });
+            var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(productId.Select(i => new NSString(i)).ToArray());
 
             var productRequestDelegate = new ProductRequestDelegate();
 
@@ -181,9 +181,9 @@ namespace Plugin.InAppBilling
 
     class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
     {
-        TaskCompletionSource<SKProduct> tcsResponse = new TaskCompletionSource<SKProduct>();
+        TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new TaskCompletionSource<IEnumerable<SKProduct>>();
 
-        public Task<SKProduct> WaitForResponse()
+        public Task<IEnumerable<SKProduct>> WaitForResponse()
         {
             return tcsResponse.Task;
         }
@@ -196,7 +196,7 @@ namespace Plugin.InAppBilling
 
         public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
         {
-            var product = response.Products.FirstOrDefault();
+            var product = response.Products;
 
             if (product != null)
             {

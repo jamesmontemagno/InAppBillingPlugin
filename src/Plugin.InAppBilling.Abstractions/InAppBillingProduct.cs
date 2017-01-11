@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Plugin.InAppBilling.Abstractions
 {
 
@@ -31,6 +33,13 @@ namespace Plugin.InAppBilling.Abstractions
         /// ISO 4217 currency code for price. For example, if price is specified in British pounds sterling is "GBP".
         /// </summary>
         public string CurrencyCode { get; set; }
+
+        /// <summary>
+        /// Price in micro-units, where 1,000,000 micro-units equal one unit of the 
+        /// currency. For example, if price is "€7.99", price_amount_micros is "7990000". 
+        /// This value represents the localized, rounded price for a particular currency.
+        /// </summary>
+        public Int64 MicrosPrice { get; set; }
 
     }
 

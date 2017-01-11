@@ -55,40 +55,41 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Sku or Id of the product</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
-        public async Task<InAppBillingProduct> GetProductInfoAsync(string productId, ItemType itemType)
+        public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
 
-            Product product = null;
+            IEnumerable <Product> products = null;
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
-                    product = await GetProductInfoAsync(productId, ITEM_TYPE_INAPP);
+                    products = await GetProductInfoAsync(productIds, ITEM_TYPE_INAPP);
                     break;
                 case ItemType.Subscription:
-                    product = await GetProductInfoAsync(productId, ITEM_TYPE_SUBSCRIPTION);
+                    products = await GetProductInfoAsync(productIds, ITEM_TYPE_SUBSCRIPTION);
                     break;
             }
 
-            if (product == null)
+            if (products == null)
                 return null;
 
-            return new InAppBillingProduct
+            return products.Select(product => new InAppBillingProduct
             {
                 Name = product.Title,
                 Description = product.Description,
                 CurrencyCode = product.CurrencyCode,
                 LocalizedPrice = product.Price,
                 ProductId = product.ProductId,
-            };
+                MicrosPrice = product.MicrosPrice
+            });
         }
 
-        Task<Product> GetProductInfoAsync(string productSku, string itemType)
+        Task<IEnumerable<Product>> GetProductInfoAsync(string[] productIds, string itemType)
         {
-            var getSkuDetailsTask = Task.Factory.StartNew<Product>(() =>
+            var getSkuDetailsTask = Task.Factory.StartNew<IEnumerable<Product>>(() =>
             {
 
                 var querySku = new Bundle();
-                querySku.PutStringArrayList(SKU_ITEM_ID_LIST, new string[] { productSku });
+                querySku.PutStringArrayList(SKU_ITEM_ID_LIST, productIds);
 
 
                 Bundle skuDetails = serviceConnection.Service.GetSkuDetails(3, Context.PackageName, itemType, querySku);
@@ -103,7 +104,12 @@ namespace Plugin.InAppBilling
                 if (products == null || !products.Any())
                     return null;
 
-                return JsonConvert.DeserializeObject<Product>(products.FirstOrDefault());
+                var items = new List<Product>(products.Count);
+                foreach (var item in products)
+                {
+                    items.Add(JsonConvert.DeserializeObject<Product>(item));
+                }
+                return items;
             });
 
             return getSkuDetailsTask;
@@ -480,8 +486,11 @@ namespace Plugin.InAppBilling
             public string Description { get; set; }
             public string ProductId { get; set; }
 
-            [JsonProperty(PropertyName ="price_currenty_code")]
+            [JsonProperty(PropertyName ="price_currency_code")]
             public string CurrencyCode { get; set; }
+
+            [JsonProperty(PropertyName = "price_amount_micros")]
+            public Int64 MicrosPrice { get; set; }
 
             public override string ToString()
             {
