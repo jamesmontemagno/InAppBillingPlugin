@@ -13,12 +13,12 @@ namespace Plugin.InAppBilling
     /// </summary>
     public class InAppBillingImplementation : IInAppBilling
     {
-        private bool testWithSimulator;
+        private bool testingMode;
 
-        /// <param name="testWithSimulator">UWP offers a way to test in-app purchases with the CurrentAppSimulator class instead of CurrentApp.</param>
-        public InAppBillingImplementation(bool testWithSimulator = false)
+        /// <param name="testingMode">UWP offers a way to test in-app purchases with the CurrentAppSimulator class instead of CurrentApp.</param>
+        public InAppBillingImplementation(bool testingMode = false)
         {
-            this.testWithSimulator = testWithSimulator;
+            this.testingMode = testingMode;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Plugin.InAppBilling
         public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
             // Get list of products from store or simulator
-            var listingInformation = testWithSimulator ? await CurrentAppSimulator.LoadListingInformationAsync() : await CurrentApp.LoadListingInformationAsync();
+            var listingInformation = testingMode ? await CurrentAppSimulator.LoadListingInformationAsync() : await CurrentApp.LoadListingInformationAsync();
 
             var products = new List<InAppBillingProduct>();
             foreach (var productId in productIds)
@@ -68,7 +68,7 @@ namespace Plugin.InAppBilling
         public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get list of product receipts from store or simulator
-            var xmlReceipt = testWithSimulator ? await CurrentAppSimulator.GetAppReceiptAsync() : await CurrentApp.GetAppReceiptAsync();
+            var xmlReceipt = testingMode ? await CurrentAppSimulator.GetAppReceiptAsync() : await CurrentApp.GetAppReceiptAsync();
 
             // Transform it to list of InAppBillingPurchase
             return xmlReceipt.ToInAppBillingPurchase(ProductPurchaseStatus.AlreadyPurchased);
@@ -77,7 +77,7 @@ namespace Plugin.InAppBilling
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
-            var purchaseResult = testWithSimulator ? await CurrentAppSimulator.RequestProductPurchaseAsync(productId) : await CurrentApp.RequestProductPurchaseAsync(productId);
+            var purchaseResult = testingMode ? await CurrentAppSimulator.RequestProductPurchaseAsync(productId) : await CurrentApp.RequestProductPurchaseAsync(productId);
 
             // Transform it to InAppBillingPurchase
             return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();
