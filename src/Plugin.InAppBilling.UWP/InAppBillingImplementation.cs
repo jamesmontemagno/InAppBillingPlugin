@@ -31,10 +31,10 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Get product information of a specific product
         /// </summary>
-        /// <param name="productId">Sku or Id of the product(s)</param>
+        /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
-        public Task<InAppBillingProduct> GetProductInfoAsync(ItemType itemType, params string[] productIds)
+        public Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
             throw new NotImplementedException();
         }
