@@ -123,7 +123,8 @@ This is helpful to get translated pricing to display to your users.
 
 ## iOS Setup
 * Read the iOS developer [In App Purchases API Docs](https://developer.apple.com/in-app-purchase/)
-* You must setup an in app purchase and understand what each of them ar.
+* Read all parts of the [setup from Xamarin documentation](https://developer.xamarin.com/guides/ios/application_fundamentals/in-app_purchasing/part_1_-_in-app_purchase_basics_and_configuration/), which are great.
+* You must setup an in app purchase and understand what each of them are.
 * Read through the [testing documentation](https://developer.apple.com/library/content/documentation/LanguagesUtilities/Conceptual/iTunesConnectInAppPurchase_Guide/Chapters/TestingInAppPurchases.html#//apple_ref/doc/uid/TP40013727-CH4-SW1)
 
 ## Android Setup
