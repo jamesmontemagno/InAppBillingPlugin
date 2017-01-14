@@ -7,9 +7,9 @@ Work to be done for v1:
 * [x] Verity Android Subscriptions
 * [x] Verify Android Getting All Items
 * [x] Document Android APIs
-* [ ] Verify iOS  In App Purchase 
-* [ ] Verity iOS Subscriptions
-* [ ] Verify iOS Getting All Items
+* [x] Verify iOS  In App Purchase 
+* [x] Verity iOS Subscriptions
+* [x] Verify iOS Getting All Items
 * [x] Document iOS APIs
 
 Coming in v2:
