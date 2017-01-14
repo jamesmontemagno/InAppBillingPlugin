@@ -20,7 +20,7 @@ Simple cross platform in app purchase plugin for Xamarin.iOS and Xamarin.Android
 ### Setup
 * Please use test NuGet feed: https://ci.appveyor.com/nuget/inappbillingplugin
 
-* Available on NuGet in Future: https://www.nuget.org/packages/Plugin.InAppBilling [![NuGet](https://img.shields.io/nuget/v/Xam.Plugins.InAppBilling.svg?label=NuGet)](https://www.nuget.org/packages/Xam.Plugins.InAppBilling/)
+* Available on NuGet in Future: https://www.nuget.org/packages/Plugin.InAppBilling [![NuGet](https://img.shields.io/nuget/v/Plugin.InAppPurchase.svg?label=NuGet)](https://www.nuget.org/packages/Plugin.InAppPurchase/)
 * Install into your PCL project and Client projects.
 
 Build status: [![Build status](https://ci.appveyor.com/api/projects/status/0tfkgrlq8r2u7wb9?svg=true)](https://ci.appveyor.com/project/JamesMontemagno/inappbillingplugin)
