@@ -8,16 +8,16 @@
        <owners>James Montemagno, Redth</owners>
        <licenseUrl>https://github.com/jamesmontemagno/InAppBillingPlugin/blob/master/LICENSE</licenseUrl>
        <projectUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</projectUrl>
-       <iconUrl>http://refractored.com/images/InAppBilling_icon_large.png</iconUrl>
+       <iconUrl>https://raw.githubusercontent.com/jamesmontemagno/InAppBillingPlugin/master/art/icon_128.png</iconUrl>
        <requireLicenseAcceptance>false</requireLicenseAcceptance>
        <description>
-         Xamarin plugin to In-App Billing. 
+         Xamarin plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
          Read the full documenation on the projects page.
        </description>
      <releaseNotes>
      </releaseNotes>
        <summary>
-         Xamarin and Windows plugin to In-App Billing .
+         Xamarin and Windows plugin to In-App Billing.
        </summary>
        <tags>xamarin, xamarin.forms, android, ios, windows phone, In-App Billing, purchases, plugin</tags>
        <dependencies>
