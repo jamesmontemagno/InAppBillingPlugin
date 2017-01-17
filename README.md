@@ -185,5 +185,17 @@ Plugin.InAppBilling.InAppBillingImplementation.InAppBillingSecurity.VerifyPurcha
 * If you see "The publisher cannot purchase this item": This means you are trying to buy it on your developer account, and that isn't allowed, you need a different account.
 
 
+## UWP Setup
+* Read the UWP developer [In App Purchases API Docs](https://msdn.microsoft.com/en-us/windows/uwp/monetize/in-app-purchases-and-trials)
+* You must setup an in app purchase
+* Read through the [testing documentation](https://msdn.microsoft.com/en-us/windows/uwp/monetize/in-app-purchases-and-trials#testing)
+
+#### UWP Testing
+In UWP, in-app purchases get can be tested by using the `CurrentAppSimulator` class instead of `CurrentApp`. To switch the UWP's `InAppBillingImplementation` to testing mode, set the `testingMode`  boolean in the constructor.
+
+```csharp
+IInAppBilling inAppBilling = new InAppBillingImplementation(true);
+```
+
 #### License
 Under MIT, see LICENSE file.
