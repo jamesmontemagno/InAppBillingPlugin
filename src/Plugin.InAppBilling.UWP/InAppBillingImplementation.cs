@@ -13,7 +13,10 @@ namespace Plugin.InAppBilling
     /// </summary>
     public class InAppBillingImplementation : IInAppBilling
     {
-        public bool IsTestingMode { get { return false; } }
+        /// <summary>
+        /// Gets or sets if in testing mode. Only for UWP
+        /// </summary>
+        public bool InTestingMode { get; set; }
 
         /// <summary>
         /// Validation public key from App Store
@@ -32,10 +35,16 @@ namespace Plugin.InAppBilling
         /// <returns>Task to disconnect</returns>
         public Task DisconnectAsync() => Task.CompletedTask;
 
+        /// <summary>
+        /// Gets product information
+        /// </summary>
+        /// <param name="itemType">Type of item</param>
+        /// <param name="productIds">Product Ids</param>
+        /// <returns></returns>
         public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
             // Get list of products from store or simulator
-            var listingInformation = await CurrentAppMock.LoadListingInformationAsync(IsTestingMode);
+            var listingInformation = await CurrentAppMock.LoadListingInformationAsync(InTestingMode);
 
             var products = new List<InAppBillingProduct>();
             foreach (var productId in productIds)
@@ -63,11 +72,12 @@ namespace Plugin.InAppBilling
         /// Get all current purchase for a specific product type.
         /// </summary>
         /// <param name="itemType">Type of product</param>
+        /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns>The current purchases</returns>
         public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get list of product receipts from store or simulator
-            var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(IsTestingMode);
+            var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
 
             // Transform it to list of InAppBillingPurchase
             return xmlReceipt.ToInAppBillingPurchase(ProductPurchaseStatus.AlreadyPurchased);
@@ -79,12 +89,13 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
         /// <param name="payload">Developer specific payload</param>
+        /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
-            var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(productId, IsTestingMode);
+            var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(productId, InTestingMode);
 
             // Transform it to InAppBillingPurchase
             return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();

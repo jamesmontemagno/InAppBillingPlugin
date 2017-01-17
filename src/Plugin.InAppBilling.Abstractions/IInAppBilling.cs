@@ -25,7 +25,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// Get product information of a specific product
         /// </summary>
         /// <param name="itemType">Type of product offering</param>
-        /// <param name="productId">Sku or Id of the product(s)</param>
+        /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <returns></returns>
         Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
@@ -34,6 +34,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// Get all current purhcase for a specifiy product type.
         /// </summary>
         /// <param name="itemType">Type of product</param>
+        /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns>The current purchases</returns>
         Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 
@@ -43,6 +44,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
         /// <param name="payload">Developer specific payload</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
