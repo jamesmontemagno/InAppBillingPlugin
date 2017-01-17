@@ -79,13 +79,7 @@ namespace Plugin.InAppBilling
         {
             var purchases = await RestoreAsync();
 
-            return purchases.Select(p => new InAppBillingPurchase
-            {
-                TransactionDateUtc = NSDateToDateTimeUtc(p.OriginalTransaction.TransactionDate),
-                Id = p.OriginalTransaction.TransactionIdentifier,
-                ProductId = p.OriginalTransaction.Payment.ProductIdentifier,
-                State = p.OriginalTransaction.PurchaseState()
-            });
+			return purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
         }
 
 
@@ -137,7 +131,7 @@ namespace Plugin.InAppBilling
                 TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
                 Id = p.TransactionIdentifier,
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-                State = p.PurchaseState()                
+                State = p.GetPurchaseState()                
             };
         }
 
@@ -171,11 +165,12 @@ namespace Plugin.InAppBilling
 
         PaymentObserver paymentObserver;
 
-        DateTime NSDateToDateTimeUtc(NSDate date)
+        static DateTime NSDateToDateTimeUtc(NSDate date)
         {
             var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-            return reference.AddSeconds(date.SecondsSinceReferenceDate);
+			
+            return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
         }
     }
 
@@ -261,10 +256,42 @@ namespace Plugin.InAppBilling
     }
 
 
+
     static class SKTransactionExtensions
     {
-        public static PurchaseState PurchaseState(this SKPaymentTransaction transaction)
+
+		public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
+		{
+			var p = transaction.OriginalTransaction;
+			if (p == null)
+				p = transaction;
+
+			if (p == null)
+				return null;
+
+			var newP = new InAppBillingPurchase
+			{
+				TransactionDateUtc = NSDateToDateTimeUtc(p.TransactionDate),
+				Id = p.TransactionIdentifier,
+				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
+				State = p.GetPurchaseState()
+			};
+
+			return newP;
+		}
+
+		static DateTime NSDateToDateTimeUtc(NSDate date)
+		{
+			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+			return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
+		}
+
+		public static PurchaseState GetPurchaseState(this SKPaymentTransaction transaction)
         {
+			if (transaction.TransactionState == null)
+				return Abstractions.PurchaseState.Unknown;
+			
             switch (transaction.TransactionState)
             {
                 case SKPaymentTransactionState.Restored:
@@ -281,6 +308,8 @@ namespace Plugin.InAppBilling
 
             return Abstractions.PurchaseState.Unknown;
         }
+
+
     }
     static class SKProductExtension
     {
