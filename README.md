@@ -1,26 +1,11 @@
 ## In-App Billing Plugin for Xamarin
 
-# This is a work in progress
-
-Work to be done for v1:
-* [x] Verify Android In App Purchase 
-* [x] Verity Android Subscriptions
-* [x] Verify Android Getting All Items
-* [x] Document Android APIs
-* [ ] Verify iOS  In App Purchase 
-* [ ] Verity iOS Subscriptions
-* [ ] Verify iOS Getting All Items
-* [x] Document iOS APIs
-
-Coming in v2:
-* [ ] Consumable API
-
 Simple cross platform in app purchase plugin for Xamarin.iOS and Xamarin.Android
 
 ### Setup
 * Please use test NuGet feed: https://ci.appveyor.com/nuget/inappbillingplugin
 
-* Available on NuGet in Future: https://www.nuget.org/packages/Plugin.InAppBilling [![NuGet](https://img.shields.io/nuget/v/Xam.Plugins.InAppBilling.svg?label=NuGet)](https://www.nuget.org/packages/Xam.Plugins.InAppBilling/)
+* Available on NuGet in Future: https://www.nuget.org/packages/Plugin.InAppBilling [![NuGet](https://img.shields.io/nuget/v/Plugin.InAppBilling.svg?label=NuGet)](https://www.nuget.org/packages/Plugin.InAppBilling/)
 * Install into your PCL project and Client projects.
 
 Build status: [![Build status](https://ci.appveyor.com/api/projects/status/0tfkgrlq8r2u7wb9?svg=true)](https://ci.appveyor.com/project/JamesMontemagno/inappbillingplugin)
@@ -123,7 +108,8 @@ This is helpful to get translated pricing to display to your users.
 
 ## iOS Setup
 * Read the iOS developer [In App Purchases API Docs](https://developer.apple.com/in-app-purchase/)
-* You must setup an in app purchase and understand what each of them ar.
+* Read all parts of the [setup from Xamarin documentation](https://developer.xamarin.com/guides/ios/application_fundamentals/in-app_purchasing/part_1_-_in-app_purchase_basics_and_configuration/), which are great.
+* You must setup an in app purchase and understand what each of them are.
 * Read through the [testing documentation](https://developer.apple.com/library/content/documentation/LanguagesUtilities/Conceptual/iTunesConnectInAppPurchase_Guide/Chapters/TestingInAppPurchases.html#//apple_ref/doc/uid/TP40013727-CH4-SW1)
 
 ## Android Setup

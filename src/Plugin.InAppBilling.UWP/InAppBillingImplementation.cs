@@ -65,6 +65,11 @@ namespace Plugin.InAppBilling
             return products;
         }
 
+        /// <summary>
+        /// Get all current purhcase for a specifiy product type.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
+        /// <returns>The current purchases</returns>
         public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get list of product receipts from store or simulator
@@ -74,6 +79,14 @@ namespace Plugin.InAppBilling
             return xmlReceipt.ToInAppBillingPurchase(ProductPurchaseStatus.AlreadyPurchased);
         }
 
+        /// <summary>
+        /// Purchase a specific product or subscription
+        /// </summary>
+        /// <param name="productId">Sku or ID of product</param>
+        /// <param name="itemType">Type of product being requested</param>
+        /// <param name="payload">Developer specific payload</param>
+        /// <returns></returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
