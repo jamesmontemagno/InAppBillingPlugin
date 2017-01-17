@@ -60,7 +60,7 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
-        /// Get all current purhcase for a specifiy product type.
+        /// Get all current purchase for a specific product type.
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
@@ -80,7 +80,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product being requested</param>
         /// <param name="payload">Developer specific payload</param>
         /// <returns></returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
