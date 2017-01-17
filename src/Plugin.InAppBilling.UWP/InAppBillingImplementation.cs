@@ -13,13 +13,7 @@ namespace Plugin.InAppBilling
     /// </summary>
     public class InAppBillingImplementation : IInAppBilling
     {
-        private bool testingMode;
-
-        /// <param name="testingMode">UWP offers a way to test in-app purchases with the CurrentAppSimulator class instead of CurrentApp.</param>
-        public InAppBillingImplementation(bool testingMode = false)
-        {
-            this.testingMode = testingMode;
-        }
+        public bool IsTestingMode { get { return false; } }
 
         /// <summary>
         /// Validation public key from App Store
@@ -41,7 +35,7 @@ namespace Plugin.InAppBilling
         public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
             // Get list of products from store or simulator
-            var listingInformation = testingMode ? await CurrentAppSimulator.LoadListingInformationAsync() : await CurrentApp.LoadListingInformationAsync();
+            var listingInformation = await CurrentAppMock.LoadListingInformationAsync(IsTestingMode);
 
             var products = new List<InAppBillingProduct>();
             foreach (var productId in productIds)
@@ -68,7 +62,7 @@ namespace Plugin.InAppBilling
         public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get list of product receipts from store or simulator
-            var xmlReceipt = testingMode ? await CurrentAppSimulator.GetAppReceiptAsync() : await CurrentApp.GetAppReceiptAsync();
+            var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(IsTestingMode);
 
             // Transform it to list of InAppBillingPurchase
             return xmlReceipt.ToInAppBillingPurchase(ProductPurchaseStatus.AlreadyPurchased);
@@ -77,10 +71,32 @@ namespace Plugin.InAppBilling
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
-            var purchaseResult = testingMode ? await CurrentAppSimulator.RequestProductPurchaseAsync(productId) : await CurrentApp.RequestProductPurchaseAsync(productId);
+            var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(productId, IsTestingMode);
 
             // Transform it to InAppBillingPurchase
             return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();
+        }
+    }
+
+    /// <summary>
+    /// Unfortunately, CurrentApp and CurrentAppSimulator do not share an interface or base class
+    /// This is why, we use a mocking class here
+    /// </summary>
+    static class CurrentAppMock
+    {
+        public static async Task<ListingInformation> LoadListingInformationAsync(bool isTestingMode)
+        {
+            return isTestingMode ? await CurrentAppSimulator.LoadListingInformationAsync() : await CurrentApp.LoadListingInformationAsync();
+        }
+
+        public static async Task<string> GetAppReceiptAsync(bool isTestingMode)
+        {
+            return isTestingMode ? await CurrentAppSimulator.GetAppReceiptAsync() : await CurrentApp.GetAppReceiptAsync();
+        }
+
+        public static async Task<PurchaseResults> RequestProductPurchaseAsync(string productId, bool isTestingMode)
+        {
+            return isTestingMode ? await CurrentAppSimulator.RequestProductPurchaseAsync(productId) : await CurrentApp.RequestProductPurchaseAsync(productId);
         }
     }
 
