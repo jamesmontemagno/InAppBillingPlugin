@@ -50,9 +50,14 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
+        /// Gets or sets if in testing mode. Only for UWP
+        /// </summary>
+        public bool InTestingMode { get; set; }
+
+        /// <summary>
         /// Get product information of a specific product
         /// </summary>
-        /// <param name="productId">Sku or Id of the product</param>
+        /// <param name="productIds">Sku or Id of the product</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
         public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
@@ -445,6 +450,10 @@ namespace Plugin.InAppBilling
                 return Task.FromResult(false);
             }
 
+            /// <summary>
+            /// Disconnect from payment service
+            /// </summary>
+            /// <returns></returns>
             public async Task DisconnectAsync()
             {
                 if (!IsConnected)

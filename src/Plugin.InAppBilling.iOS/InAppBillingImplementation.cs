@@ -23,6 +23,11 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
+        /// Gets or sets if in testing mode. Only for UWP
+        /// </summary>
+        public bool InTestingMode { get; set; }
+
+        /// <summary>
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
@@ -37,7 +42,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Get product information of a specific product
         /// </summary>
-        /// <param name="productId">Sku or Id of the product(s)</param>
+        /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
         public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
