@@ -43,6 +43,11 @@ namespace Plugin.InAppBilling.Abstractions
         /// Gets the current purchase state
         /// </summary>
         public PurchaseState State { get; set; } 
+
+        /// <summary>
+        /// Developer payload
+        /// </summary>
+        public string Payload { get; set; }
     }
 
 }
