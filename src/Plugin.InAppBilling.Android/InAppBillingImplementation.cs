@@ -341,9 +341,10 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public Task<bool> ConsumePurchaseAsync(string purchaseToken)
+        public Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             var response = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchaseToken);
             return Task.FromResult(ParseConsumeResult(response));

@@ -95,7 +95,7 @@ namespace Plugin.InAppBilling
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
-            var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(productId, InTestingMode);
+            var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
 
             // Transform it to InAppBillingPurchase
             return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();
@@ -104,12 +104,27 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public Task<bool> ConsumePurchaseAsync(string purchaseToken)
+        public async Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
-            throw new NotImplementedException();
+            var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
+            switch(result)
+            {
+                case FulfillmentResult.ServerError:
+                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                case FulfillmentResult.NothingToFulfill:
+                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
+                case FulfillmentResult.PurchasePending:
+                case FulfillmentResult.PurchaseReverted:
+                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                case FulfillmentResult.Succeeded:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         /// <summary>
@@ -121,9 +136,29 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public Task<bool> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async Task<bool> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
-            throw new NotImplementedException();
+            var items = await CurrentAppMock.GetAvailableConsumables(InTestingMode);
+
+            var consumable = items.FirstOrDefault(i => i.ProductId == productId);
+            if(consumable == null)
+                throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
+
+            var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, consumable.TransactionId);
+            switch (result)
+            {
+                case FulfillmentResult.ServerError:
+                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                case FulfillmentResult.NothingToFulfill:
+                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
+                case FulfillmentResult.PurchasePending:
+                case FulfillmentResult.PurchaseReverted:
+                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                case FulfillmentResult.Succeeded:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 
@@ -133,6 +168,16 @@ namespace Plugin.InAppBilling
     /// </summary>
     static class CurrentAppMock
     {
+        public static async Task<IEnumerable<UnfulfilledConsumable>> GetAvailableConsumables(bool isTestingMode)
+        {
+            return isTestingMode ? await CurrentAppSimulator.GetUnfulfilledConsumablesAsync() : await CurrentApp.GetUnfulfilledConsumablesAsync();
+        }
+
+        public static async Task<FulfillmentResult> ReportConsumableFulfillmentAsync(bool isTestingMode, string productId, Guid transactionId)
+        {
+            return isTestingMode ? await CurrentAppSimulator.ReportConsumableFulfillmentAsync(productId, transactionId) : await CurrentApp.ReportConsumableFulfillmentAsync(productId, transactionId);
+        }
+
         public static async Task<ListingInformation> LoadListingInformationAsync(bool isTestingMode)
         {
             return isTestingMode ? await CurrentAppSimulator.LoadListingInformationAsync() : await CurrentApp.LoadListingInformationAsync();
@@ -143,7 +188,7 @@ namespace Plugin.InAppBilling
             return isTestingMode ? await CurrentAppSimulator.GetAppReceiptAsync() : await CurrentApp.GetAppReceiptAsync();
         }
 
-        public static async Task<PurchaseResults> RequestProductPurchaseAsync(string productId, bool isTestingMode)
+        public static async Task<PurchaseResults> RequestProductPurchaseAsync(bool isTestingMode, string productId)
         {
             return isTestingMode ? await CurrentAppSimulator.RequestProductPurchaseAsync(productId) : await CurrentApp.RequestProductPurchaseAsync(productId);
         }

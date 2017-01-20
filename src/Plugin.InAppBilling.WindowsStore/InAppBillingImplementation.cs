@@ -71,10 +71,11 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public Task<bool> ConsumePurchaseAsync(string purchaseToken)
+        public Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             throw new NotImplementedException();
         }

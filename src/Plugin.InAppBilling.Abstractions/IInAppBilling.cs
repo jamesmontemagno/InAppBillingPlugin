@@ -52,10 +52,11 @@ namespace Plugin.InAppBilling.Abstractions
         /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<bool> ConsumePurchaseAsync(string purchaseToken);
+        Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken);
 
         /// <summary>
         /// Consume a purchase
