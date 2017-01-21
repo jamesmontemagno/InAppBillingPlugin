@@ -11,7 +11,7 @@ namespace Plugin.InAppBilling
     /// <summary>
     /// Implementation for InAppBilling
     /// </summary>
-    [Preserve]
+    [Preserve(AllMembers = true)]
     public class InAppBillingImplementation : IInAppBilling
     {
         /// <summary>
@@ -183,7 +183,7 @@ namespace Plugin.InAppBilling
     }
 
 
-    [Preserve]
+    [Preserve(AllMembers = true)]
     class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
     {
         TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new TaskCompletionSource<IEnumerable<SKProduct>>();
@@ -214,7 +214,7 @@ namespace Plugin.InAppBilling
     }
 
 
-    [Preserve]
+    [Preserve(AllMembers = true)]
     class PaymentObserver : SKPaymentTransactionObserver
     {
         public event Action<SKPaymentTransaction, bool> TransactionCompleted;
@@ -268,7 +268,7 @@ namespace Plugin.InAppBilling
 
 
 
-    [Preserve]
+    [Preserve(AllMembers = true)]
     static class SKTransactionExtensions
     {
 
@@ -325,7 +325,7 @@ namespace Plugin.InAppBilling
     }
 
 
-    [Preserve]
+    [Preserve(AllMembers = true)]
     static class SKProductExtension
     {
         /// <remarks>

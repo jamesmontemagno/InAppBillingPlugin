@@ -21,7 +21,7 @@ namespace Plugin.InAppBilling
     /// <summary>
     /// Implementation for Feature
     /// </summary>
-    [Preserve]
+    [Preserve(AllMembers = true)]
     public class InAppBillingImplementation : IInAppBilling
     {
         const string SKU_DETAILS_LIST = "DETAILS_LIST";
@@ -388,7 +388,7 @@ namespace Plugin.InAppBilling
             
         }
 
-        [Preserve]
+        [Preserve(AllMembers = true)]
         class PurchaseResponse
         {
             public string PurchaseData { get; set; }
@@ -421,7 +421,7 @@ namespace Plugin.InAppBilling
             return 6; // Unknown error
         }
 
-        [Preserve]
+        [Preserve(AllMembers = true)]
         class InAppBillingServiceConnection : Java.Lang.Object, IServiceConnection
         {
             public InAppBillingServiceConnection(Context context)
@@ -490,17 +490,32 @@ namespace Plugin.InAppBilling
                
             }
         }
-        [Preserve]
-        class Product
+        [Preserve(AllMembers = true)]
+        public class Product
         {
+            [JsonConstructor]
             public Product()
             {
 
             }
+
+            [JsonProperty(PropertyName = "title")]
             public string Title { get; set; }
+
+
+            [JsonProperty(PropertyName = "price")]
             public string Price { get; set; }
+
+
+            [JsonProperty(PropertyName = "type")]
             public string Type { get; set; }
+
+
+            [JsonProperty(PropertyName = "description")]
             public string Description { get; set; }
+
+            
+            [JsonProperty(PropertyName = "productId")]
             public string ProductId { get; set; }
 
             [JsonProperty(PropertyName ="price_currency_code")]
@@ -515,20 +530,43 @@ namespace Plugin.InAppBilling
             }
         }
 
-        [Preserve]
-        class Purchase
+        [Preserve(AllMembers = true)]
+        public class Purchase
         {
+            [JsonConstructor]
             public Purchase()
             {
 
             }
+
+
+            [JsonProperty(PropertyName = "autoRenewing")]
             public bool AutoRenewing { get; set; }
+
+            [JsonProperty(PropertyName="packageName")]
             public string PackageName { get; set; }
+
+
+            [JsonProperty(PropertyName = "orderId")]
             public string OrderId { get; set; }
+
+            [JsonProperty(PropertyName ="productId")]
             public string ProductId { get; set; }
+
+
+            [JsonProperty(PropertyName = "developerPayload")]
             public string DeveloperPayload { get; set; }
+
+
+            [JsonProperty(PropertyName = "purchaseTime")]
             public Int64 PurchaseTime { get; set; }
-            public Int64 PurchaseState { get; set; }
+
+
+            [JsonProperty(PropertyName = "purchaseState")]
+            public int PurchaseState { get; set; }
+
+
+            [JsonProperty(PropertyName = "purchaseToken")]
             public string PurchaseToken { get; set; }
 
 
@@ -556,7 +594,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Utility security class to verify the purchases
         /// </summary>
-        [Preserve]
+        [Preserve(AllMembers = true)]
         public static class InAppBillingSecurity
         {
             /// <summary>
