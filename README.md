@@ -1,4 +1,4 @@
-## In-App Billing Plugin for Xamarin
+## In-App Billing Plugin for Xamarin and Windows
 
 Simple cross platform in app purchase plugin for Xamarin.iOS and Xamarin.Android
 
@@ -19,7 +19,7 @@ Build status: [![Build status](https://ci.appveyor.com/api/projects/status/0tfkg
 |Windows Phone Silverlight|No||
 |Windows Phone RT|No||
 |Windows Store RT|No||
-|Windows 10 UWP|No||
+|Windows 10 UWP|Yes (beta)||
 |Xamarin.Mac|No||
 
 ## Make a purchase
