@@ -14,12 +14,14 @@ using System.Text;
 
 using Plugin.InAppBilling.Abstractions;
 using Plugin.CurrentActivity;
+using Android.Runtime;
 
 namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Implementation for Feature
     /// </summary>
+    [Preserve]
     public class InAppBillingImplementation : IInAppBilling
     {
         const string SKU_DETAILS_LIST = "DETAILS_LIST";
@@ -386,6 +388,7 @@ namespace Plugin.InAppBilling
             
         }
 
+        [Preserve]
         class PurchaseResponse
         {
             public string PurchaseData { get; set; }
@@ -418,6 +421,7 @@ namespace Plugin.InAppBilling
             return 6; // Unknown error
         }
 
+        [Preserve]
         class InAppBillingServiceConnection : Java.Lang.Object, IServiceConnection
         {
             public InAppBillingServiceConnection(Context context)
@@ -486,9 +490,13 @@ namespace Plugin.InAppBilling
                
             }
         }
-
+        [Preserve]
         class Product
         {
+            public Product()
+            {
+
+            }
             public string Title { get; set; }
             public string Price { get; set; }
             public string Type { get; set; }
@@ -507,8 +515,13 @@ namespace Plugin.InAppBilling
             }
         }
 
+        [Preserve]
         class Purchase
         {
+            public Purchase()
+            {
+
+            }
             public bool AutoRenewing { get; set; }
             public string PackageName { get; set; }
             public string OrderId { get; set; }
@@ -543,6 +556,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Utility security class to verify the purchases
         /// </summary>
+        [Preserve]
         public static class InAppBillingSecurity
         {
             /// <summary>

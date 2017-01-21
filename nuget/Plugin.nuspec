@@ -22,35 +22,26 @@
        <tags>xamarin, xamarin.forms, android, ios, windows phone, In-App Billing, purchases, plugin</tags>
        <dependencies>
 			  <group targetFramework="net">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="win">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="wp">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="wpa">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="MonoAndroid10">
           <dependency id="Newtonsoft.Json" version="9.0.1"/>
           <dependency id="Plugin.CurrentActivity" version="1.0.1"/>
 			  </group>
 			  <group targetFramework="Xamarin.iOS10">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="Xamarin.Mac20">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="portable-net45+win+wpa81+wp80">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="uap">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 			  <group targetFramework="dotnet">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
 			  </group>
 		</dependencies>
    </metadata>
