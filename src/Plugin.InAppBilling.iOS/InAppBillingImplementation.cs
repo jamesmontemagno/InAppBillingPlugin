@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling
 {
-  /// <summary>
-  /// Implementation for InAppBilling
-  /// </summary>
-  public class InAppBillingImplementation : IInAppBilling
-  {
+    /// <summary>
+    /// Implementation for InAppBilling
+    /// </summary>
+    [Preserve(AllMembers = true)]
+    public class InAppBillingImplementation : IInAppBilling
+    {
         /// <summary>
         /// Default constructor for In App Billing on iOS
         /// </summary>
@@ -84,7 +85,7 @@ namespace Plugin.InAppBilling
         {
             var purchases = await RestoreAsync();
 
-			return purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
+            return purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
         }
 
 
@@ -94,7 +95,8 @@ namespace Plugin.InAppBilling
             var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
             Action<SKPaymentTransaction[]> handler = null;
-            handler = new Action<SKPaymentTransaction[]>(transactions => {
+            handler = new Action<SKPaymentTransaction[]>(transactions =>
+            {
 
                 // Unsubscribe from future events
                 paymentObserver.TransactionsRestored -= handler;
@@ -136,7 +138,7 @@ namespace Plugin.InAppBilling
                 TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
                 Id = p.TransactionIdentifier,
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-                State = p.GetPurchaseState()                
+                State = p.GetPurchaseState()
             };
         }
 
@@ -145,7 +147,8 @@ namespace Plugin.InAppBilling
             TaskCompletionSource<SKPaymentTransaction> tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
 
             Action<SKPaymentTransaction, bool> handler = null;
-            handler = new Action<SKPaymentTransaction, bool>((tran, success) => {
+            handler = new Action<SKPaymentTransaction, bool>((tran, success) =>
+            {
 
                 // Only handle results from this request
                 if (productId != tran.Payment.ProductIdentifier)
@@ -201,11 +204,13 @@ namespace Plugin.InAppBilling
         {
             var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-			
+
             return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
         }
     }
 
+
+    [Preserve(AllMembers = true)]
     class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
     {
         TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new TaskCompletionSource<IEnumerable<SKProduct>>();
@@ -236,6 +241,7 @@ namespace Plugin.InAppBilling
     }
 
 
+    [Preserve(AllMembers = true)]
     class PaymentObserver : SKPaymentTransactionObserver
     {
         public event Action<SKPaymentTransaction, bool> TransactionCompleted;
@@ -289,41 +295,42 @@ namespace Plugin.InAppBilling
 
 
 
+    [Preserve(AllMembers = true)]
     static class SKTransactionExtensions
     {
 
-		public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
-		{
-			var p = transaction.OriginalTransaction;
-			if (p == null)
-				p = transaction;
-
-			if (p == null)
-				return null;
-
-			var newP = new InAppBillingPurchase
-			{
-				TransactionDateUtc = NSDateToDateTimeUtc(p.TransactionDate),
-				Id = p.TransactionIdentifier,
-				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-				State = p.GetPurchaseState()
-			};
-
-			return newP;
-		}
-
-		static DateTime NSDateToDateTimeUtc(NSDate date)
-		{
-			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-
-			return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
-		}
-
-		public static PurchaseState GetPurchaseState(this SKPaymentTransaction transaction)
+        public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
         {
-			if (transaction.TransactionState == null)
-				return Abstractions.PurchaseState.Unknown;
-			
+            var p = transaction.OriginalTransaction;
+            if (p == null)
+                p = transaction;
+
+            if (p == null)
+                return null;
+
+            var newP = new InAppBillingPurchase
+            {
+                TransactionDateUtc = NSDateToDateTimeUtc(p.TransactionDate),
+                Id = p.TransactionIdentifier,
+                ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
+                State = p.GetPurchaseState()
+            };
+
+            return newP;
+        }
+
+        static DateTime NSDateToDateTimeUtc(NSDate date)
+        {
+            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+            return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
+        }
+
+        public static PurchaseState GetPurchaseState(this SKPaymentTransaction transaction)
+        {
+            if (transaction.TransactionState == null)
+                return Abstractions.PurchaseState.Unknown;
+
             switch (transaction.TransactionState)
             {
                 case SKPaymentTransactionState.Restored:
@@ -343,6 +350,9 @@ namespace Plugin.InAppBilling
 
 
     }
+
+
+    [Preserve(AllMembers = true)]
     static class SKProductExtension
     {
         /// <remarks>
