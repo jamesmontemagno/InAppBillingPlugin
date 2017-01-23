@@ -35,7 +35,7 @@ if (!(Test-Path $TOOLS_DIR)) {
 
 # Make sure packages.config exists where we expect it.
 if (!(Test-Path $PACKAGES_CONFIG)) {
-    Invoke-WebRequest -Uri http://cakebuild.net/bootstrapper/packages -OutFile $PACKAGES_CONFIG
+    Invoke-WebRequest -Uri http://cakebuild.net/download/bootstrapper/packages -OutFile $PACKAGES_CONFIG
 }
 
 # Make sure NuGet exists where we expect it.
@@ -55,7 +55,7 @@ if (!(Test-Path $NUGET_EXE)) {
 
 # Make sure xamarin-component exists where we expect it.
 if (!(Test-Path $XC_EXE)) {
-    #Invoke-WebRequest -Uri https://www.dropbox.com/s/mpiesu3nfs5pguu/xamarin-component.exe?dl=1 -OutFile (Join-Path $TOOLS_DIR "xamarin-component.exe")        
+    Invoke-WebRequest -Uri https://www.dropbox.com/s/mpiesu3nfs5pguu/xamarin-component.exe?dl=1 -OutFile (Join-Path $TOOLS_DIR "xamarin-component.exe")        
     #Invoke-WebRequest -Uri https://components.xamarin.com/submit/xpkg -OutFile (Join-Path $TOOLS_DIR "xpkg.zip")    
     #Add-Type -AssemblyName System.IO.Compression.FileSystem
     #[System.IO.Compression.ZipFile]::ExtractToDirectory((Join-Path $TOOLS_DIR "xpkg.zip"), ($TOOLS_DIR))   
