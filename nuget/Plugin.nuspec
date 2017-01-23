@@ -46,6 +46,7 @@
 		</dependencies>
    </metadata>
    <files>
+      <file src="nuget\readme.txt" target="readme.txt" /> 
      <!--Core-->
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.dll" target="lib\portable-net45+wp80+win8+wpa81\Plugin.InAppBilling.Abstractions.dll" />
      <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.Abstractions.xml" target="lib\portable-net45+wp80+win8+wpa81\Plugin.InAppBilling.Abstractions.xml" />

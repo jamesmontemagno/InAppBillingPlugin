@@ -346,10 +346,25 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             var response = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchaseToken);
-            return Task.FromResult(ParseConsumeResult(response));
+            var result = ParseConsumeResult(response);
+            if (!result)
+                return null;
+
+            var purchase = new InAppBillingPurchase
+            {
+                Id = string.Empty,
+                PurchaseToken = purchaseToken,
+                State = PurchaseState.Purchased,
+                AutoRenewing = false,
+                Payload = string.Empty,
+                ProductId = productId,
+                TransactionDateUtc = DateTime.UtcNow
+            };
+
+            return Task.FromResult(purchase);
         }
 
         bool ParseConsumeResult(int response)
@@ -383,7 +398,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product being consumed.</param>
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
-        public async Task<bool> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
+        public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
             var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
@@ -392,11 +407,15 @@ namespace Plugin.InAppBilling
             if(purchase == null)
             {
                 Console.WriteLine("Unable to find a purchase with matching product id and payload");
-                return false;
+                return null;
             }
 
             var response = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchase.PurchaseToken);
-            return ParseConsumeResult(response);
+            var result = ParseConsumeResult(response);
+            if (!result)
+                return null;
+
+            return purchase;
         }
 
         /// <summary>
@@ -505,15 +524,16 @@ namespace Plugin.InAppBilling
             /// Disconnect from payment service
             /// </summary>
             /// <returns></returns>
-            public async Task DisconnectAsync()
+            public Task DisconnectAsync()
             {
                 if (!IsConnected)
-                    return;
+                    return Task.CompletedTask;
                 
                 Context.UnbindService(this);
 
                 IsConnected = false;
                 Service = null;
+                return Task.CompletedTask;
             }
 
             public void OnServiceConnected(ComponentName name, IBinder service)
@@ -538,7 +558,7 @@ namespace Plugin.InAppBilling
             }
         }
         [Preserve(AllMembers = true)]
-        public class Product
+        class Product
         {
             [JsonConstructor]
             public Product()
@@ -578,7 +598,7 @@ namespace Plugin.InAppBilling
         }
 
         [Preserve(AllMembers = true)]
-        public class Purchase
+        class Purchase
         {
             [JsonConstructor]
             public Purchase()

@@ -56,7 +56,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken);
+        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
 
         /// <summary>
         /// Consume a purchase
@@ -67,6 +67,6 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<bool> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
     }
 }

@@ -108,7 +108,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
             switch(result)
@@ -121,9 +121,18 @@ namespace Plugin.InAppBilling
                 case FulfillmentResult.PurchaseReverted:
                     throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
                 case FulfillmentResult.Succeeded:
-                    return true;
+                    return new InAppBillingPurchase
+                    {
+                        Id = purchaseToken,
+                        AutoRenewing = false,
+                        Payload = string.Empty, 
+                        PurchaseToken = purchaseToken,
+                        ProductId = productId,
+                        State = PurchaseState.Purchased,
+                        TransactionDateUtc = DateTime.UtcNow
+                    };
                 default:
-                    return false;
+                    return null;
             }
         }
 
@@ -136,7 +145,7 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async Task<bool> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var items = await CurrentAppMock.GetAvailableConsumables(InTestingMode);
 
@@ -155,9 +164,18 @@ namespace Plugin.InAppBilling
                 case FulfillmentResult.PurchaseReverted:
                     throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
                 case FulfillmentResult.Succeeded:
-                    return true;
+                    return new InAppBillingPurchase
+                    {
+                        AutoRenewing = false,
+                        Id = consumable.TransactionId.ToString(),
+                        Payload = payload,
+                        ProductId = consumable.ProductId,
+                        PurchaseToken = consumable.TransactionId.ToString(),
+                        State = PurchaseState.Purchased,
+                        TransactionDateUtc = DateTime.UtcNow                        
+                    };
                 default:
-                    return false;
+                    return null;
             }
         }
     }
@@ -221,7 +239,7 @@ namespace Plugin.InAppBilling
                 purchase.TransactionDateUtc = Convert.ToDateTime(xmlProductReceipt.Attributes["PurchaseDate"].Value);
                 purchase.ProductId = xmlProductReceipt.Attributes["ProductId"].Value;
                 purchase.AutoRenewing = false; // Not supported by UWP yet
-
+                purchase.PurchaseToken = purchase.Id;
                 // Map native UWP status to PurchaseState
                 switch (status)
                 {
