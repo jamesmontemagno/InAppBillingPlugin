@@ -35,7 +35,7 @@ if (!(Test-Path $TOOLS_DIR)) {
 
 # Make sure packages.config exists where we expect it.
 if (!(Test-Path $PACKAGES_CONFIG)) {
-    Invoke-WebRequest -Uri http://cakebuild.net/bootstrapper/packages -OutFile $PACKAGES_CONFIG
+    Invoke-WebRequest -Uri http://cakebuild.net/download/bootstrapper/packages -OutFile $PACKAGES_CONFIG
 }
 
 # Make sure NuGet exists where we expect it.

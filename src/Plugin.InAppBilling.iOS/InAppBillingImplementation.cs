@@ -171,6 +171,33 @@ namespace Plugin.InAppBilling
             return tcsTransaction.Task;
         }
 
+
+        /// <summary>
+        /// Consume a purchase with a purchase token.
+        /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
+        /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <returns>If consumed successful</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+        {
+            return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty);
+        }
+
+        /// <summary>
+        /// Consume a purchase
+        /// </summary>
+        /// <param name="productId">Id/Sku of the product</param>
+        /// <param name="payload">Developer specific payload of original purchase</param>
+        /// <param name="itemType">Type of product being consumed.</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <returns>If consumed successful</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        {
+            return ConsumePurchaseAsync(productId, string.Empty);
+        }
+
         PaymentObserver paymentObserver;
 
         static DateTime NSDateToDateTimeUtc(NSDate date)

@@ -153,7 +153,8 @@ namespace Plugin.InAppBilling
                 ProductId = p.ProductId,
                 AutoRenewing = p.AutoRenewing,
                 PurchaseToken = p.PurchaseToken,
-                State = p.State
+                State = p.State,
+                Payload = p.DeveloperPayload
             });
 
             return results;
@@ -243,7 +244,8 @@ namespace Plugin.InAppBilling
                 AutoRenewing = purchase.AutoRenewing,
                 PurchaseToken = purchase.PurchaseToken,
                 State = purchase.State,
-                ProductId = purchase.ProductId
+                ProductId = purchase.ProductId,
+                Payload = purchase.DeveloperPayload
             };
         }
 
@@ -278,22 +280,6 @@ namespace Plugin.InAppBilling
                     //Generic Error
                     throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
                 case 7:
-
-#if DEBUG
-                    var purchaseToken = $"inapp:{Context.PackageName}:{productSku}";
-                    var consume = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchaseToken);
-
-                    if(consume == 5)
-                    {
-                        var ps = await GetPurchasesAsync(itemType, verifyPurchase);
-
-                        var pu = ps.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
-
-                        consume = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, pu.PurchaseToken);
-
-                    }
-                    return null;
-#endif
                     var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
                     var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
@@ -351,7 +337,87 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <returns>Task to disconnect</returns>
         public Task DisconnectAsync() => serviceConnection.DisconnectAsync();
-        
+
+        //inapp:{Context.PackageName}:{productSku}
+
+        /// <summary>
+        /// Consume a purchase with a purchase token.
+        /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
+        /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <returns>If consumed successful</returns>
+        public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+        {
+            var response = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchaseToken);
+            var result = ParseConsumeResult(response);
+            if (!result)
+                return null;
+
+            var purchase = new InAppBillingPurchase
+            {
+                Id = string.Empty,
+                PurchaseToken = purchaseToken,
+                State = PurchaseState.Purchased,
+                AutoRenewing = false,
+                Payload = string.Empty,
+                ProductId = productId,
+                TransactionDateUtc = DateTime.UtcNow
+            };
+
+            return Task.FromResult(purchase);
+        }
+
+        bool ParseConsumeResult(int response)
+        {
+            switch (response)
+            {
+                case 0:
+                    return true;
+                case 3:
+                    //Billing Unavailable
+                    throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
+                case 4:
+                    //Item Unavailable
+                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
+                case 5:
+                    //Developer Error
+                    throw new InAppBillingPurchaseException(PurchaseError.DeveloperError);
+                case 6:
+                    //Generic Error
+                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Consume a purchase
+        /// </summary>
+        /// <param name="productId">Id/Sku of the product</param>
+        /// <param name="payload">Developer specific payload of original purchase</param>
+        /// <param name="itemType">Type of product being consumed.</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <returns>If consumed successful</returns>
+        public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
+        {
+            var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
+
+            var purchase = purchases.FirstOrDefault(p => p.ProductId == productId && p.Payload == payload);
+
+            if(purchase == null)
+            {
+                Console.WriteLine("Unable to find a purchase with matching product id and payload");
+                return null;
+            }
+
+            var response = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchase.PurchaseToken);
+            var result = ParseConsumeResult(response);
+            if (!result)
+                return null;
+
+            return purchase;
+        }
+
         /// <summary>
         /// Must override handle activity and pass back results here.
         /// </summary>
@@ -458,15 +524,16 @@ namespace Plugin.InAppBilling
             /// Disconnect from payment service
             /// </summary>
             /// <returns></returns>
-            public async Task DisconnectAsync()
+            public Task DisconnectAsync()
             {
                 if (!IsConnected)
-                    return;
+                    return Task.CompletedTask;
                 
                 Context.UnbindService(this);
 
                 IsConnected = false;
                 Service = null;
+                return Task.CompletedTask;
             }
 
             public void OnServiceConnected(ComponentName name, IBinder service)
@@ -491,7 +558,7 @@ namespace Plugin.InAppBilling
             }
         }
         [Preserve(AllMembers = true)]
-        public class Product
+        class Product
         {
             [JsonConstructor]
             public Product()
@@ -531,7 +598,7 @@ namespace Plugin.InAppBilling
         }
 
         [Preserve(AllMembers = true)]
-        public class Purchase
+        class Purchase
         {
             [JsonConstructor]
             public Purchase()

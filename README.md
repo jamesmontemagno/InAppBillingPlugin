@@ -191,10 +191,12 @@ Plugin.InAppBilling.InAppBillingImplementation.InAppBillingSecurity.VerifyPurcha
 * Read through the [testing documentation](https://msdn.microsoft.com/en-us/windows/uwp/monetize/in-app-purchases-and-trials#testing)
 
 #### UWP Testing
-In UWP, in-app purchases get can be tested by using the `CurrentAppSimulator` class instead of `CurrentApp`. To switch the UWP's `InAppBillingImplementation` to testing mode, set the `testingMode`  boolean in the constructor.
+In UWP, in-app purchases get can be tested by using the `CurrentAppSimulator` class instead of `CurrentApp`. 
+
+To switch the UWP's `InAppBillingImplementation` to testing mode, set the `InTestingMode`  boolean property.
 
 ```csharp
-IInAppBilling inAppBilling = new InAppBillingImplementation(true);
+CrossInAppBilling.Current.InTestingMode = true;
 ```
 
 #### License

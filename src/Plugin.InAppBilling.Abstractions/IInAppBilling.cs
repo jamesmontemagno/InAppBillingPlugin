@@ -26,7 +26,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// </summary>
         /// <param name="itemType">Type of product offering</param>
         /// <param name="productIds">Sku or Id of the product(s)</param>
-        /// <returns></returns>
+        /// <returns>List of products</returns>
         Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
 
@@ -45,8 +45,28 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="itemType">Type of product being requested</param>
         /// <param name="payload">Developer specific payload</param>
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
-        /// <returns></returns>
+        /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+
+        /// <summary>
+        /// Consume a purchase with a purchase token.
+        /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
+        /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <returns>If consumed successful</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
+
+        /// <summary>
+        /// Consume a purchase
+        /// </summary>
+        /// <param name="productId">Id/Sku of the product</param>
+        /// <param name="payload">Developer specific payload of original purchase</param>
+        /// <param name="itemType">Type of product being consumed.</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <returns>If consumed successful</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
     }
 }
