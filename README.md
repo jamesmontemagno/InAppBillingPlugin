@@ -12,15 +12,27 @@ Build status: [![Build status](https://ci.appveyor.com/api/projects/status/0tfkg
 
 **Platform Support**
 
-|Platform|Supported|Version|
+|Platform|Version|
 | ------------------- | :-----------: | :------------------: |
-|Xamarin.iOS|Yes|iOS 8+|
-|Xamarin.Android|Yes|API 14+|
-|Windows Phone Silverlight|No||
-|Windows Phone RT|No||
-|Windows Store RT|No||
-|Windows 10 UWP|Yes (beta)||
-|Xamarin.Mac|No||
+|Xamarin.iOS|iOS 8+|
+|Xamarin.Android|API 14+|
+|Windows 10 UWP|10+ (beta)|
+
+## Setup
+Android only: You must place this code in your Main/Base Activity where you will be requesting purchases from.
+```csharp
+protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+{
+    base.OnActivityResult(requestCode, resultCode, data);
+    InAppBillingImplementation.HandleActivityResult(requestCode, resultCode, data);
+}
+```
+
+Before making a purchase you must call ```ConnectAsync()``` and then call ```DisconnectAsync()``` before attempting to make another connection. This is used specifically for Android to connect to the billing APIs. It will return a boolean that you can check to see if it was successful. I recommend putting all In App Billing calls in a try/catch/finally as it is highly likely that exceptions could occure during testing and production. Best practice is to call  ```DisconnectAsync()``` in the ```finally```.
+
+
+## Understanding IInAppBillingVerifyPurchase
+There are several calls that take a ```IInAppBillingVerifyPurchase``` as a parameter. This is currently only used in Android projects to do validation with Google Play Services. See the Android Security section below for more inforamtion.
 
 ## Make a purchase
 You must have your IAP setup before testing the code:
@@ -34,7 +46,7 @@ try
 
     if (!connected)
     {
-        //Couldn't connect
+        //Couldn't connect to billing
         return;
     }
 
@@ -55,10 +67,12 @@ catch (Exception ex)
 }
 finally
 {
-    busy = false;
+    //Disconnect, it is okay if we never connected, this will never throw an exception
     await CrossInAppBilling.Current.DisconnectAsync();
 }
 ```
+
+
 
 
 ## Check purchase status
@@ -87,16 +101,14 @@ try
     {
         //no purchases found
     }
-    
-    await CrossInAppBilling.Current.DisconnectAsync();
 }
 catch (Exception ex)
 {
     //Something has gone wrong
 }
 finally
-{
-    busy = false;
+{    
+    await CrossInAppBilling.Current.DisconnectAsync();
 }
 ```
 
@@ -104,7 +116,93 @@ finally
 This is helpful to get translated pricing to display to your users.
 
 ```csharp
+try
+{ 
+    var productIds = new string []{"mysku","mysku2"};
+    var connected = await CrossInAppBilling.Current.ConnectAsync();
+
+    if (!connected)
+    {
+        //Couldn't connect
+        return;
+    }
+
+    //check purchases
+
+    var items = await CrossInAppBilling.Current.GetProductInfoAsync(ItemType.InAppPurchase, productIds);
+
+    foreach(var item in items)
+    {
+        //item info here.
+    }
+}
+catch (Exception ex)
+{
+    //Something has gone wrong
+}
+finally
+{    
+    await CrossInAppBilling.Current.DisconnectAsync();
+}
 ```
+
+## Consumables
+Consumable purchases have a separate API and work a bit different on each platform:
+
+* Android: Must be purchased first and then consumed, recommended to pass in a purchaseToken from the purchase.
+* iOS: Works the same as a purchase, purchased and you track consumption in code
+* UWP: Must be purchased first and then consumed.
+
+
+```csharp
+try
+{ 
+    var productId = "consumable_coins_500";
+    var connected = await CrossInAppBilling.Current.ConnectAsync();
+
+    if (!connected)
+    {
+        //Couldn't connect
+        return;
+    }
+
+    //check purchases
+    //You can use device infor plugin or Xamarin.Forms to check for device
+
+    var purchase = await CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase, "apppayload");
+    if(purchase == null)
+    {
+        //Not purchased
+        return;
+    }
+    else
+    {
+        //Purchased now we can consume
+    }
+
+    //If iOS we are done, else try to consume
+    if(Device.OS == TargetPlatform.iOS)
+        return;
+        
+    var consumedItem = await CrossInAppBilling.Current.ConsumePurchaseAsync(purchase.ProductId, purchase.PurchaseToken);
+
+    if(consumedItem != null)
+    {
+        //Consumed!!
+    }
+
+}
+catch (Exception ex)
+{
+    //Something has gone wrong
+}
+finally
+{    
+    await CrossInAppBilling.Current.DisconnectAsync();
+}
+```
+
+There is another method that you can call that doesn't take in the token. This will find the first purchased item by that Id and attempt to consume it.
 
 ## iOS Setup
 * Read the iOS developer [In App Purchases API Docs](https://developer.apple.com/in-app-purchase/)

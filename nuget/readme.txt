@@ -1,12 +1,14 @@
 In App Billing Plugin for Xamarin & Windows
 
-
-Find the latest setup guides and documentation at: 
+Find the latest setup guides, documentation, and testing instructions at: 
 https://github.com/jamesmontemagno/InAppBillingPlugin
 
 ## Additional Required Setup (Please Read!)
 
 ## Android 
+This Plugin uses the CurrentActivity Plugin and will add a MainApplication.cs file to your Android application. This is extremely important and should not be deleted. Please see 
+http://github.com/jamesmontemagno/CurrentActivityPlugin for more information.
+
 In  your BaseActivity or MainActivity (for Xamarin.Forms) add this code:
 
 protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
