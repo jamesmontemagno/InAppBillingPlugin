@@ -13,7 +13,7 @@ Build status: [![Build status](https://ci.appveyor.com/api/projects/status/0tfkg
 **Platform Support**
 
 |Platform|Version|
-| ------------------- | :-----------: | :------------------: |
+| ------------------- | :------------------: |
 |Xamarin.iOS|iOS 8+|
 |Xamarin.Android|API 14+|
 |Windows 10 UWP|10+ (beta)|
