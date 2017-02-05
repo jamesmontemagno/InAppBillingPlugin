@@ -5,107 +5,125 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UIKit;
 
 namespace Plugin.InAppBilling
 {
-    /// <summary>
-    /// Implementation for InAppBilling
-    /// </summary>
-    [Preserve(AllMembers = true)]
-    public class InAppBillingImplementation : IInAppBilling
-    {
-        /// <summary>
-        /// Default constructor for In App Billing on iOS
-        /// </summary>
-        public InAppBillingImplementation()
-        {
-            paymentObserver = new PaymentObserver();
-            SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
-        }
-
-        /// <summary>
-        /// Gets or sets if in testing mode. Only for UWP
-        /// </summary>
-        public bool InTestingMode { get; set; }
-
-        /// <summary>
-        /// Connect to billing service
-        /// </summary>
-        /// <returns>If Success</returns>
-        public Task<bool> ConnectAsync() => Task.FromResult(true);
-
-        /// <summary>
-        /// Disconnect from the billing service
-        /// </summary>
-        /// <returns>Task to disconnect</returns>
-        public Task DisconnectAsync() => Task.CompletedTask;
-
-        /// <summary>
-        /// Get product information of a specific product
-        /// </summary>
-        /// <param name="productIds">Sku or Id of the product(s)</param>
-        /// <param name="itemType">Type of product offering</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
-        {
-            var products = await GetProductAsync(productIds);
-
-            return products.Select(p => new InAppBillingProduct
-            {
-                LocalizedPrice = p.LocalizedPrice(),
-                Name = p.LocalizedTitle,
-                ProductId = p.ProductIdentifier,
-                Description = p.LocalizedDescription,
-                CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty
-            });
-        }
-
-        Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
-        {
-            var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(productId.Select(i => new NSString(i)).ToArray());
-
-            var productRequestDelegate = new ProductRequestDelegate();
-
-            //set up product request for in-app purchase
-            var productsRequest = new SKProductsRequest(productIdentifiers);
-            productsRequest.Delegate = productRequestDelegate; // SKProductsRequestDelegate.ReceivedResponse
-            productsRequest.Start();
-
-            return productRequestDelegate.WaitForResponse();
-        }
+	/// <summary>
+	/// Implementation for InAppBilling
+	/// </summary>
 
 
-        /// <summary>
-        /// Get all current purhcase for a specifiy product type.
-        /// </summary>
-        /// <param name="itemType">Type of product</param>
-        /// <param name="verifyPurchase">Interface to verify purchase</param>
-        /// <returns>The current purchases</returns>
-        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
-        {
-            var purchases = await RestoreAsync();
+	[Preserve(AllMembers = true)]
+	public class InAppBillingImplementation : IInAppBilling
+	{
+		public static string InAppPurchaseManagerTransactionFailedNotification = "InAppPurchaseManagerTransactionFailedNotification";
+		public static string InAppPurchaseManagerTransactionSucceededNotification = "InAppPurchaseManagerTransactionSucceededNotification";
+		public static string InAppPurchaseManagerProductsFetchedNotification = "InAppPurchaseManagerProductsFetchedNotification";
+		NSObject succeededObserver, failedObserver;
 
-            return purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
-        }
+		/// <summary>
+		/// Default constructor for In App Billing on iOS
+		/// </summary>
+		public InAppBillingImplementation()
+		{
+			paymentObserver = new PaymentObserver();
+			SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
+		}
+
+		/// <summary>
+		/// Gets or sets if in testing mode. Only for UWP
+		/// </summary>
+		public bool InTestingMode { get; set; }
+
+		/// <summary>
+		/// Connect to billing service
+		/// </summary>
+		/// <returns>If Success</returns>
+		public Task<bool> ConnectAsync() => Task.FromResult(true);
+
+		/// <summary>
+		/// Disconnect from the billing service
+		/// </summary>
+		/// <returns>Task to disconnect</returns>
+		public Task DisconnectAsync() => Task.CompletedTask;
+
+		/// <summary>
+		/// Get product information of a specific product
+		/// </summary>
+		/// <param name="productIds">Sku or Id of the product(s)</param>
+		/// <param name="itemType">Type of product offering</param>
+		/// <returns></returns>
+		public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
+		{
+			var products = await GetProductAsync(productIds);
+
+			return products.Select(p => new InAppBillingProduct
+			{
+				LocalizedPrice = p.LocalizedPrice(),
+				Name = p.LocalizedTitle,
+				ProductId = p.ProductIdentifier,
+				Description = p.LocalizedDescription,
+				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty
+			});
+		}
+
+		Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
+		{
+			var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(productId.Select(i => new NSString(i)).ToArray());
+
+			var productRequestDelegate = new ProductRequestDelegate();
+
+			//set up product request for in-app purchase
+			var productsRequest = new SKProductsRequest(productIdentifiers);
+			productsRequest.Delegate = productRequestDelegate; // SKProductsRequestDelegate.ReceivedResponse
+			productsRequest.Start();
+
+			return productRequestDelegate.WaitForResponse();
+		}
+
+
+		/// <summary>
+		/// Get all current purhcase for a specifiy product type.
+		/// </summary>
+		/// <param name="itemType">Type of product</param>
+		/// <param name="verifyPurchase">Interface to verify purchase</param>
+		/// <returns>The current purchases</returns>
+		public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+		{
+			var purchases = await RestoreAsync();
+			//Console.WriteLine(" ** GetPurchasesAsync: purchases = " + purchases.Count());
+
+			return purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
+		}
 
 
 
-        Task<SKPaymentTransaction[]> RestoreAsync()
-        {
-            var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
+		Task<SKPaymentTransaction[]> RestoreAsync()
+		{
+			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
-            Action<SKPaymentTransaction[]> handler = null;
-            handler = new Action<SKPaymentTransaction[]>(transactions =>
-            {
+			Action<SKPaymentTransaction[]> handler = null;
+			handler = new Action<SKPaymentTransaction[]>(transactions =>
+			{
 
-                // Unsubscribe from future events
-                paymentObserver.TransactionsRestored -= handler;
+				// Unsubscribe from future events
+				paymentObserver.TransactionsRestored -= handler;
 
-                if (transactions == null)
-                    tcsTransaction.TrySetException(new Exception("Restore Transactions Failed"));
-                else
-                    tcsTransaction.TrySetResult(transactions);
-            });
+				if (transactions == null)
+				{
+					tcsTransaction.TrySetException(new Exception("Restore Transactions Failed"));
+				}
+				else {
+					tcsTransaction.TrySetResult(transactions);
+					//Console.WriteLine(" ** RestoreAsync: restore transactions = " + transactions.ToString());
+					foreach (var t in transactions)
+					{
+						FinishTransaction(t, true);
+					}
+				}
+
+           });
 
             paymentObserver.TransactionsRestored += handler;
 
@@ -114,10 +132,6 @@ namespace Plugin.InAppBilling
 
             return tcsTransaction.Task;
         }
-
-
-
-
 
         /// <summary>
         /// Purchase a specific product or subscription
@@ -130,8 +144,9 @@ namespace Plugin.InAppBilling
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var p = await PurchaseAsync(productId);
+			//Console.WriteLine(" ** PurchaseAsync: purchase = " + p.Payment.ProductIdentifier);
 
-            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
             return new InAppBillingPurchase
             {
@@ -157,10 +172,15 @@ namespace Plugin.InAppBilling
                 // Unsubscribe from future events
                 paymentObserver.TransactionCompleted -= handler;
 
-                if (!success)
-                    tcsTransaction.TrySetException(new Exception(tran?.Error.LocalizedDescription));
-                else
-                    tcsTransaction.TrySetResult(tran);
+				if (!success)
+				{
+					FinishTransaction(tran, false);
+					tcsTransaction.TrySetException(new Exception(tran?.Error.LocalizedDescription));
+				}
+				else {
+					FinishTransaction(tran, true);
+					tcsTransaction.TrySetResult(tran);
+				}
             });
 
             paymentObserver.TransactionCompleted += handler;
@@ -181,6 +201,7 @@ namespace Plugin.InAppBilling
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
+			//Console.WriteLine(" ** ConsumePurchaseAsync: with token = " + productId);
             return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty);
         }
 
@@ -195,6 +216,7 @@ namespace Plugin.InAppBilling
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
+			//Console.WriteLine(" ** ConsumePurchaseAsync: without token = " + productId);
             return ConsumePurchaseAsync(productId, string.Empty);
         }
 
@@ -207,6 +229,30 @@ namespace Plugin.InAppBilling
 
             return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
         }
+
+		// The last step is to ensure that you notify StoreKit that you have successfully fulfilled the transaction, by calling FinishTransaction:
+		// Once the product is delivered, SKPaymentQueue.DefaultQueue.FinishTransaction must be called to remove the transaction from the payment queue.
+		public void FinishTransaction(SKPaymentTransaction transaction, bool wasSuccessful)
+		{
+			// remove the transaction from the payment queue.
+			SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);  // THIS IS IMPORTANT - LET'S APPLE KNOW WE'RE DONE !!!!
+			//Console.WriteLine(" ** FinishTransaction: " + transaction.TransactionState + " => " + transaction.Payment.ProductIdentifier);
+			using (var pool = new NSAutoreleasePool())
+			{
+				NSDictionary userInfo = NSDictionary.FromObjectsAndKeys(new NSObject[] { transaction }, new NSObject[] { new NSString("transaction") });
+				if (wasSuccessful)
+				{
+					// send out a notification that we've finished the transaction
+					NSNotificationCenter.DefaultCenter.PostNotificationName(InAppPurchaseManagerTransactionSucceededNotification, succeededObserver, userInfo);
+					//Console.WriteLine(" ** FinishTransaction: Success = " + transaction.TransactionState + " => " + transaction.Payment.ProductIdentifier);
+				}
+				else {
+					// send out a notification for the failed transaction
+					NSNotificationCenter.DefaultCenter.PostNotificationName(InAppPurchaseManagerTransactionFailedNotification, failedObserver, userInfo);
+					//Console.WriteLine(" ** FinishTransaction: Failed = " + transaction.TransactionState + " => " + transaction.Payment.ProductIdentifier);
+				}
+			}
+		}
     }
 
 
@@ -261,9 +307,11 @@ namespace Plugin.InAppBilling
 
             foreach (SKPaymentTransaction transaction in transactions)
             {
+				Console.WriteLine(" ** UpdateTransactions: transaction state = " + transaction.TransactionState.ToString() + " => " + transaction.Payment.ProductIdentifier.ToString());
+
                 switch (transaction.TransactionState)
                 {
-                    case SKPaymentTransactionState.Purchased:
+					case SKPaymentTransactionState.Purchased:
                         TransactionCompleted?.Invoke(transaction, true);
                         break;
                     case SKPaymentTransactionState.Failed:
@@ -280,8 +328,18 @@ namespace Plugin.InAppBilling
             // This is called after all restored transactions have hit UpdatedTransactions
             // at this point we are done with the restore request so let's fire up the event
             var rt = restoredTransactions.ToArray();
-            // Clear out the list of incoming restore transactions for future requests
-            restoredTransactions.Clear();
+			// Clear out the list of incoming restore transactions for future requests
+			restoredTransactions.Clear();
+			//Console.WriteLine(" ** RestoreCompletedTransactionsFinished: run = " + queue.Transactions.Count());
+
+			// Below can be used to clean out the payment queue
+/* 			foreach (SKPaymentTransaction transaction in queue.Transactions)
+			{
+				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);  // THIS IS IMPORTANT - LET'S APPLE KNOW WE'RE DONE !!!!
+			}
+*/
+			//for (int i = 0; i < rt.Count(); i++)
+			//	Console.WriteLine(" ** RestoreCompletedTransactionsFinished: restore transaction = " + rt[i].OriginalTransaction.Payment.ProductIdentifier);
 
             TransactionsRestored?.Invoke(rt);
         }
@@ -315,6 +373,7 @@ namespace Plugin.InAppBilling
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 State = p.GetPurchaseState()
             };
+			//Console.WriteLine(" ** ToIABPurchase: new transaction = " + newP.ProductId);
 
             return newP;
         }
@@ -328,8 +387,8 @@ namespace Plugin.InAppBilling
 
         public static PurchaseState GetPurchaseState(this SKPaymentTransaction transaction)
         {
-            if (transaction.TransactionState == null)
-                return Abstractions.PurchaseState.Unknown;
+            //if (transaction.TransactionState == null)
+            //    return Abstractions.PurchaseState.Unknown;
 
             switch (transaction.TransactionState)
             {
