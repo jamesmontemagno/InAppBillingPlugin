@@ -53,6 +53,7 @@ namespace Plugin.InAppBilling
             return products.Select(p => new InAppBillingProduct
             {
                 LocalizedPrice = p.LocalizedPrice(),
+                MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
                 Name = p.LocalizedTitle,
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
