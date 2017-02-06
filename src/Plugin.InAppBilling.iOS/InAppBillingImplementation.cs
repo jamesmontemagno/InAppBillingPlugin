@@ -104,7 +104,13 @@ namespace Plugin.InAppBilling
                 if (transactions == null)
                     tcsTransaction.TrySetException(new Exception("Restore Transactions Failed"));
                 else
+                {
+                    //look through and make sure everything is finished.
+                    foreach(var t in transactions)
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(t);
+                    
                     tcsTransaction.TrySetResult(transactions);
+                }
             });
 
             paymentObserver.TransactionsRestored += handler;
@@ -150,12 +156,16 @@ namespace Plugin.InAppBilling
             handler = new Action<SKPaymentTransaction, bool>((tran, success) =>
             {
 
+                //Make sure we finigh the transaction
+                SKPaymentQueue.DefaultQueue.FinishTransaction(tran);
+
                 // Only handle results from this request
                 if (productId != tran.Payment.ProductIdentifier)
                     return;
 
                 // Unsubscribe from future events
                 paymentObserver.TransactionCompleted -= handler;
+
 
                 if (!success)
                     tcsTransaction.TrySetException(new Exception(tran?.Error.LocalizedDescription));
