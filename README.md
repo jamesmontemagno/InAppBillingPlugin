@@ -240,7 +240,7 @@ The simplest and easiest (not necessarily the most secure) way is to do the foll
 * Save each value out and put them in your app
 * Implement the interface with this funcationality:
 
-```
+```csharp
     public class Verify : IInAppBillingVerifyPurchase
     {
         const string key1 = @"XOR_key1";
