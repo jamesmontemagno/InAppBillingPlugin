@@ -76,7 +76,8 @@ finally
 
 
 ## Check purchase status
-You can easily check the status of any number of skus by scanning the purchased items for the app/user.
+You can easily check the status of any number of skus by scanning the purchased items for the app/user. Note, that on iOS this will only return your non-consumables, consumables are not tracked at all and your app should handle these situations.
+
 ```csharp
 try
 { 
@@ -119,6 +120,7 @@ This is helpful to get translated pricing to display to your users.
 try
 { 
     var productIds = new string []{"mysku","mysku2"};
+    //You must connect
     var connected = await CrossInAppBilling.Current.ConnectAsync();
 
     if (!connected)
