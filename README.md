@@ -10,6 +10,10 @@ Simple cross platform in app purchase plugin for Xamarin.iOS and Xamarin.Android
 
 Build status: [![Build status](https://ci.appveyor.com/api/projects/status/0tfkgrlq8r2u7wb9?svg=true)](https://ci.appveyor.com/project/JamesMontemagno/inappbillingplugin)
 
+### Checkout my podcast on IAP
+I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm), about technology and recently covered IAP and this library:
+<iframe width="560" height="80" scrolling="no" frameborder="no" src="http://www.mergeconflict.fm/57678-merge-conflict-28-demystifying-in-app-purchases/player/iframe"></iframe>
+
 **Platform Support**
 
 |Platform|Version|
