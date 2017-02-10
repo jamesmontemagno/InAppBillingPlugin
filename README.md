@@ -155,7 +155,7 @@ finally
 Consumable purchases have a separate API and work a bit different on each platform:
 
 * Android: Must be purchased first and then consumed, recommended to pass in a purchaseToken from the purchase.
-* iOS: Works the same as a purchase, purchased and you track consumption in code
+* iOS: Simply returns null because when you purchase the item it is instantly consumed.
 * UWP: Must be purchased first and then consumed.
 
 
@@ -214,6 +214,8 @@ There is another method that you can call that doesn't take in the token. This w
 * Read all parts of the [setup from Xamarin documentation](https://developer.xamarin.com/guides/ios/application_fundamentals/in-app_purchasing/part_1_-_in-app_purchase_basics_and_configuration/), which are great.
 * You must setup an in app purchase and understand what each of them are.
 * Read through the [testing documentation](https://developer.apple.com/library/content/documentation/LanguagesUtilities/Conceptual/iTunesConnectInAppPurchase_Guide/Chapters/TestingInAppPurchases.html#//apple_ref/doc/uid/TP40013727-CH4-SW1)
+
+You may optionally implement IInAppBillingVerifyPurchase, where I will pass in the receipt, see: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
 
 ## Android Setup
 It is important to follow these steps for Android:

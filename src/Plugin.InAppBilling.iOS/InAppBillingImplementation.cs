@@ -107,9 +107,9 @@ namespace Plugin.InAppBilling
                 else
                 {
                     //look through and make sure everything is finished.
-                    foreach(var t in transactions)
+                    foreach (var t in transactions)
                         SKPaymentQueue.DefaultQueue.FinishTransaction(t);
-                    
+
                     tcsTransaction.TrySetResult(transactions);
                 }
             });
@@ -140,22 +140,26 @@ namespace Plugin.InAppBilling
 
             var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-			// Get the receipt data for (server-side) validation.
-			// See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
-			NSData r = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
-			string receipt = r.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
-			if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(receipt, string.Empty))
-			{
-				return new InAppBillingPurchase
-				{
-					TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
-					Id = p.TransactionIdentifier,
-					ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-					State = p.GetPurchaseState()
-				};
-			}
+            var purchase = new InAppBillingPurchase
+            {
+                TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
+                Id = p.TransactionIdentifier,
+                ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
+                State = p.GetPurchaseState()
+            };
 
-			return null;
+            if (verifyPurchase == null)
+                return purchase;
+
+            // Get the receipt data for (server-side) validation.
+            // See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
+            var receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
+            string receipt = receiptUrl.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+
+            var validated = await verifyPurchase.VerifyPurchase(receipt, string.Empty);
+           
+
+            return validated ? purchase : null;
         }
 
         Task<SKPaymentTransaction> PurchaseAsync(string productId)
@@ -201,7 +205,7 @@ namespace Plugin.InAppBilling
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
 		public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
-			return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty);
+            return null;
         }
 
         /// <summary>
@@ -215,7 +219,7 @@ namespace Plugin.InAppBilling
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
-			return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty, verifyPurchase);
+            return null;
         }
 
         PaymentObserver paymentObserver;
