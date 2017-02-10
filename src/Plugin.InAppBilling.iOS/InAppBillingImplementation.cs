@@ -140,13 +140,22 @@ namespace Plugin.InAppBilling
 
             var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-            return new InAppBillingPurchase
-            {
-                TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
-                Id = p.TransactionIdentifier,
-                ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-                State = p.GetPurchaseState()
-            };
+			// Get the receipt data for (server-side) validation.
+			// See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
+			NSData r = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
+			string receipt = r.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+			if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(receipt, string.Empty))
+			{
+				return new InAppBillingPurchase
+				{
+					TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
+					Id = p.TransactionIdentifier,
+					ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
+					State = p.GetPurchaseState()
+				};
+			}
+
+			return null;
         }
 
         Task<SKPaymentTransaction> PurchaseAsync(string productId)
@@ -190,9 +199,9 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+		public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
-            return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty);
+			return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty);
         }
 
         /// <summary>
@@ -206,7 +215,7 @@ namespace Plugin.InAppBilling
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
-            return ConsumePurchaseAsync(productId, string.Empty);
+			return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty, verifyPurchase);
         }
 
         PaymentObserver paymentObserver;
