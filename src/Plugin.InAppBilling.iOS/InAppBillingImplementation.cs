@@ -199,9 +199,9 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken, IInAppBillingVerifyPurchase verifyPurchase)
+		public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
-			return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty, verifyPurchase);
+			return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty);
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace Plugin.InAppBilling
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
-			return ConsumePurchaseAsync(productId, string.Empty, verifyPurchase);
+			return PurchaseAsync(productId, ItemType.InAppPurchase, string.Empty, verifyPurchase);
         }
 
         PaymentObserver paymentObserver;
