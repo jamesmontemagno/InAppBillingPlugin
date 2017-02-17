@@ -35,7 +35,7 @@ Before making a purchase you must call ```ConnectAsync()``` and then call ```Dis
 
 
 ## Understanding IInAppBillingVerifyPurchase
-There are several calls that take a ```IInAppBillingVerifyPurchase``` as a parameter. This is currently only used in Android projects to do validation with Google Play Services. See the Android Security section below for more inforamtion.
+There are several calls that take a ```IInAppBillingVerifyPurchase``` as a parameter. This is currently only used in iOS & Android projects to do validation with iTunes servers or Google Play Services. See the iOS & Android Security section below for more inforamtion.
 
 ## Make a purchase
 You must have your IAP setup before testing the code:
@@ -216,6 +216,8 @@ There is another method that you can call that doesn't take in the token. This w
 * Read through the [testing documentation](https://developer.apple.com/library/content/documentation/LanguagesUtilities/Conceptual/iTunesConnectInAppPurchase_Guide/Chapters/TestingInAppPurchases.html#//apple_ref/doc/uid/TP40013727-CH4-SW1)
 
 You may optionally implement IInAppBillingVerifyPurchase, where I will pass in the receipt, see: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
+
+A great implementation using Azure functions can be found here: http://jonathanpeppers.com/Blog/securing-in-app-purchases-for-xamarin-with-azure-functions
 
 ## Android Setup
 It is important to follow these steps for Android:
