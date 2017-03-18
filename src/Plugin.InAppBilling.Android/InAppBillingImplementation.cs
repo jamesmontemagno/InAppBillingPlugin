@@ -64,6 +64,10 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
+            if (serviceConnection.Service == null)
+            {
+                throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
+            }
 
             IEnumerable <Product> products = null;
             switch (itemType)
@@ -130,6 +134,11 @@ namespace Plugin.InAppBilling
         /// <returns>The current purchases</returns>
         public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
+            if (serviceConnection.Service == null)
+            {
+                throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
+            }
+
             List<Purchase> purchases = null;
             switch (itemType)
             {
@@ -221,6 +230,12 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
+
+            if(serviceConnection.Service == null)
+            {
+                throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
+            }
+
             Purchase purchase = null;
             switch (itemType)
             {
@@ -266,6 +281,7 @@ namespace Plugin.InAppBilling
                     break;
                 case 1:
                     //User Cancelled, should try again
+                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
                     break;
                 case 3:
                     //Billing Unavailable
@@ -348,6 +364,11 @@ namespace Plugin.InAppBilling
         /// <returns>If consumed successful</returns>
         public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
+            if (serviceConnection.Service == null)
+            {
+                throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
+            }
+
             var response = serviceConnection.Service.ConsumePurchase(3, Context.PackageName, purchaseToken);
             var result = ParseConsumeResult(response);
             if (!result)
@@ -400,6 +421,11 @@ namespace Plugin.InAppBilling
         /// <returns>If consumed successful</returns>
         public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
+            if (serviceConnection.Service == null)
+            {
+                throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
+            }
+
             var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
             var purchase = purchases.FirstOrDefault(p => p.ProductId == productId && p.Payload == payload);

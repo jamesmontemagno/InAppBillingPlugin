@@ -193,11 +193,39 @@ namespace Plugin.InAppBilling
                 // Unsubscribe from future events
                 paymentObserver.TransactionCompleted -= handler;
 
-
-                if (!success)
-                    tcsTransaction.TrySetException(new Exception(tran?.Error.LocalizedDescription));
-                else
+                if(success)
+                {
                     tcsTransaction.TrySetResult(tran);
+                    return;
+                }
+
+                var errorCode = tran?.Error?.Code ?? -1;
+                var description = tran?.Error?.LocalizedDescription ?? string.Empty;
+                var error = PurchaseError.GeneralError;
+                switch (errorCode)
+                {
+                    case (int)SKError.PaymentCancelled:
+                        error = PurchaseError.UserCancelled;
+                        break;
+                    case (int)SKError.PaymentInvalid:
+                        error = PurchaseError.PaymentInvalid;
+                        break;
+                    case (int)SKError.PaymentNotAllowed:
+                        error = PurchaseError.PaymentNotAllowed;
+                        break;
+                    case (int)SKError.ProductNotAvailable:
+                        error = PurchaseError.ItemUnavailable;
+                        break;
+                    case (int)SKError.Unknown:
+                        error = PurchaseError.GeneralError;
+                        break;
+                    case (int)SKError.ClientInvalid:
+                        error = PurchaseError.BillingUnavailable;
+                        break;
+                }
+
+                tcsTransaction.TrySetException(new InAppBillingPurchaseException(error, description));
+                
             });
 
             paymentObserver.TransactionCompleted += handler;

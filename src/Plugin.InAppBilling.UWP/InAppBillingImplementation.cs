@@ -114,7 +114,7 @@ namespace Plugin.InAppBilling
             switch(result)
             {
                 case FulfillmentResult.ServerError:
-                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                    throw new InAppBillingPurchaseException(PurchaseError.AppStoreUnavailable);
                 case FulfillmentResult.NothingToFulfill:
                     throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
                 case FulfillmentResult.PurchasePending:

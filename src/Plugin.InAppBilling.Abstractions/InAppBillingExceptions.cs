@@ -26,7 +26,23 @@ namespace Plugin.InAppBilling.Abstractions
         /// <summary>
         /// Other error
         /// </summary>
-        GeneralError
+        GeneralError,
+        /// <summary>
+        /// User cancelled the purchase
+        /// </summary>
+        UserCancelled,
+        /// <summary>
+        /// App store unavailable on device
+        /// </summary>
+        AppStoreUnavailable,
+        /// <summary>
+        /// User is not allowed to authorize payments
+        /// </summary>
+        PaymentNotAllowed,
+        /// <summary>
+        /// One of hte payment parameters was not recognized by app store
+        /// </summary>
+        PaymentInvalid
     }
 
     /// <summary>
@@ -52,6 +68,15 @@ namespace Plugin.InAppBilling.Abstractions
         /// </summary>
         /// <param name="error"></param>
         public InAppBillingPurchaseException(PurchaseError error) : base("Unable to process purchase.")
+        {
+            PurchaseError = error;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        public InAppBillingPurchaseException(PurchaseError error, string message) : base(message)
         {
             PurchaseError = error;
         }
