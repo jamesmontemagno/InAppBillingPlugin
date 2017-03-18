@@ -85,8 +85,14 @@ namespace Plugin.InAppBilling
         public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var purchases = await RestoreAsync();
+            
 
-            return purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
+            var converted = purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
+
+            //try to validate purchases
+            var valid = await ValidateReceipt(verifyPurchase, string.Empty, string.Empty);
+
+            return valid ? converted : null;
         }
 
 
@@ -151,15 +157,22 @@ namespace Plugin.InAppBilling
             if (verifyPurchase == null)
                 return purchase;
 
+            var validated = await ValidateReceipt(verifyPurchase, purchase.ProductId, purchase.Id);
+
+            return validated ? purchase : null;
+        }
+
+        Task<bool> ValidateReceipt(IInAppBillingVerifyPurchase verifyPurchase, string productId, string transactionId)
+        {
+            if (verifyPurchase == null)
+                return Task.FromResult(true);
+
             // Get the receipt data for (server-side) validation.
             // See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
             var receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
             string receipt = receiptUrl.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
 
-            var validated = await verifyPurchase.VerifyPurchase(receipt, string.Empty);
-           
-
-            return validated ? purchase : null;
+            return verifyPurchase.VerifyPurchase(receipt, string.Empty, productId, transactionId);
         }
 
         Task<SKPaymentTransaction> PurchaseAsync(string productId)
