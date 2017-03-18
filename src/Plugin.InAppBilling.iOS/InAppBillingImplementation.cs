@@ -3,6 +3,7 @@ using Plugin.InAppBilling.Abstractions;
 using StoreKit;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -182,10 +183,6 @@ namespace Plugin.InAppBilling
             Action<SKPaymentTransaction, bool> handler = null;
             handler = new Action<SKPaymentTransaction, bool>((tran, success) =>
             {
-
-                //Make sure we finigh the transaction
-                SKPaymentQueue.DefaultQueue.FinishTransaction(tran);
-
                 // Only handle results from this request
                 if (productId != tran.Payment.ProductIdentifier)
                     return;
@@ -326,13 +323,17 @@ namespace Plugin.InAppBilling
 
             foreach (SKPaymentTransaction transaction in transactions)
             {
+                Debug.WriteLine($"Updated Transaction | {transaction.ToStatusString()}");
+
                 switch (transaction.TransactionState)
                 {
                     case SKPaymentTransactionState.Purchased:
                         TransactionCompleted?.Invoke(transaction, true);
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
                         break;
                     case SKPaymentTransactionState.Failed:
                         TransactionCompleted?.Invoke(transaction, false);
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
                         break;
                     default:
                         break;
@@ -344,11 +345,14 @@ namespace Plugin.InAppBilling
         {
             // This is called after all restored transactions have hit UpdatedTransactions
             // at this point we are done with the restore request so let's fire up the event
-            var rt = restoredTransactions.ToArray();
+            var allTransactions = restoredTransactions.ToArray();
             // Clear out the list of incoming restore transactions for future requests
             restoredTransactions.Clear();
 
-            TransactionsRestored?.Invoke(rt);
+            TransactionsRestored?.Invoke(allTransactions);
+
+            foreach (var transaction in allTransactions)
+                SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
         }
 
         public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue queue, Foundation.NSError error)
@@ -363,6 +367,9 @@ namespace Plugin.InAppBilling
     [Preserve(AllMembers = true)]
     static class SKTransactionExtensions
     {
+        public static string ToStatusString(this SKPaymentTransaction transaction) =>
+            transaction.ToIABPurchase()?.ToString() ?? string.Empty;
+       
 
         public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
         {
@@ -373,15 +380,13 @@ namespace Plugin.InAppBilling
             if (p == null)
                 return null;
 
-            var newP = new InAppBillingPurchase
+            return new InAppBillingPurchase
             {
                 TransactionDateUtc = NSDateToDateTimeUtc(p.TransactionDate),
                 Id = p.TransactionIdentifier,
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 State = p.GetPurchaseState()
             };
-
-            return newP;
         }
 
         static DateTime NSDateToDateTimeUtc(NSDate date)
@@ -393,8 +398,6 @@ namespace Plugin.InAppBilling
 
         public static PurchaseState GetPurchaseState(this SKPaymentTransaction transaction)
         {
-            if (transaction.TransactionState == null)
-                return Abstractions.PurchaseState.Unknown;
 
             switch (transaction.TransactionState)
             {

@@ -48,6 +48,11 @@ namespace Plugin.InAppBilling.Abstractions
         /// Developer payload
         /// </summary>
         public string Payload { get; set; }
+
+        public override string ToString()
+        {
+            return $"ProductId:{ProductId} | AutoRenewing:{AutoRenewing} | State:{State} | Id:{Id}";
+        }
     }
 
 }

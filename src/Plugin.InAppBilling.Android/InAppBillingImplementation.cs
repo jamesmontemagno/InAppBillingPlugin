@@ -281,8 +281,7 @@ namespace Plugin.InAppBilling
                     break;
                 case 1:
                     //User Cancelled, should try again
-                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
-                    break;
+                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled); 
                 case 3:
                     //Billing Unavailable
                     throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
