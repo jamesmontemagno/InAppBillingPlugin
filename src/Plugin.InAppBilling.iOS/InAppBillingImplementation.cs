@@ -112,13 +112,7 @@ namespace Plugin.InAppBilling
                 if (transactions == null)
                     tcsTransaction.TrySetException(new Exception("Restore Transactions Failed"));
                 else
-                {
-                    //look through and make sure everything is finished.
-                    foreach (var t in transactions)
-                        SKPaymentQueue.DefaultQueue.FinishTransaction(t);
-
                     tcsTransaction.TrySetResult(transactions);
-                }
             });
 
             paymentObserver.TransactionsRestored += handler;
