@@ -272,6 +272,7 @@ The simplest and easiest (not necessarily the most secure) way is to do the foll
 Plugin.InAppBilling.InAppBillingImplementation.InAppBillingSecurity.VerifyPurchase takes in your public key which you now have reversed back to standard and will do proper RSA validation on the signed data.
 
 #### Android Testing Help
+* You MUST use a physical device. Emulators do not work.
 * Ensure you have app in Alpha/Beta with the NuGet installed. This will add "com.android.vending.BILLING" permission for you
 * Create an IAB product, make sure it is **published** and **active**
 * Add a test account to the app, ensure it is the main account on device, and that account is opted-in as tester
