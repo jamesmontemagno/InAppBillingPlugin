@@ -48,7 +48,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         public InAppBillingImplementation()
         {
-            serviceConnection = new InAppBillingServiceConnection(Context);
+            
         }
 
         /// <summary>
@@ -345,13 +345,29 @@ namespace Plugin.InAppBilling
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public Task<bool> ConnectAsync() => serviceConnection.ConnectAsync();
+        public Task<bool> ConnectAsync()
+        {
+            serviceConnection = new InAppBillingServiceConnection(Context);
+            return serviceConnection.ConnectAsync();
+        }
 
         /// <summary>
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        public Task DisconnectAsync() => serviceConnection.DisconnectAsync();
+        public async Task DisconnectAsync()
+        {
+            try
+            {
+                await serviceConnection?.DisconnectAsync();
+                serviceConnection.Dispose();
+                serviceConnection = null;
+            }
+            catch(System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unable to disconned: {ex.Message}");
+            }
+        }
 
         //inapp:{Context.PackageName}:{productSku}
 
