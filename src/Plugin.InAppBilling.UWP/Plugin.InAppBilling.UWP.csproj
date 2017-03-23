@@ -58,7 +58,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
-      <DocumentationFile>bin\Release\Plugin.InAppBilling.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Plugin.InAppBilling.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <PlatformTarget>ARM</PlatformTarget>
@@ -114,7 +114,7 @@
     </Compile>
     <Compile Include="InAppBillingImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\Plugin.InAppBilling.UWP.rd.xml" />
+    <EmbeddedResource Include="Properties\Plugin.InAppBilling.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.InAppBilling.Abstractions\Plugin.InAppBilling.Abstractions.csproj">
