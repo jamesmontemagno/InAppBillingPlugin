@@ -48,7 +48,7 @@
    <files>
       <file src="nuget\readme.txt" target="readme.txt" /> 
      <!--Core-->
-     <file src="src\Plugin.InAppBilling.Abstractions\bin\Release\Plugin.InAppBilling.*" target="lib\portable-net45+wp80+win8+wpa81" />
+     <file src="src\Plugin.InAppBilling\bin\Release\Plugin.InAppBilling.*" target="lib\portable-net45+wp80+win8+wpa81" />
 
 
      <!--UWP-->
