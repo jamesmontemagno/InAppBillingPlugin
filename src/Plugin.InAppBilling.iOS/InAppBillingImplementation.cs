@@ -13,7 +13,7 @@ namespace Plugin.InAppBilling
     /// Implementation for InAppBilling
     /// </summary>
     [Preserve(AllMembers = true)]
-    public class InAppBillingImplementation : IInAppBilling
+    public class InAppBillingImplementation : BaseInAppBilling
     {
         /// <summary>
         /// Default constructor for In App Billing on iOS
@@ -27,19 +27,19 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets or sets if in testing mode. Only for UWP
         /// </summary>
-        public bool InTestingMode { get; set; }
+        public override bool InTestingMode { get; set; }
 
         /// <summary>
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public Task<bool> ConnectAsync() => Task.FromResult(true);
+        public override Task<bool> ConnectAsync() => Task.FromResult(true);
 
         /// <summary>
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        public Task DisconnectAsync() => Task.CompletedTask;
+        public override Task DisconnectAsync() => Task.CompletedTask;
 
         /// <summary>
         /// Get product information of a specific product
@@ -47,7 +47,7 @@ namespace Plugin.InAppBilling
         /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
-        public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
+        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
             var products = await GetProductAsync(productIds);
 
@@ -69,8 +69,10 @@ namespace Plugin.InAppBilling
             var productRequestDelegate = new ProductRequestDelegate();
 
             //set up product request for in-app purchase
-            var productsRequest = new SKProductsRequest(productIdentifiers);
-            productsRequest.Delegate = productRequestDelegate; // SKProductsRequestDelegate.ReceivedResponse
+            var productsRequest = new SKProductsRequest(productIdentifiers)
+            {
+                Delegate = productRequestDelegate // SKProductsRequestDelegate.ReceivedResponse
+            };
             productsRequest.Start();
 
             return productRequestDelegate.WaitForResponse();
@@ -83,7 +85,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product</param>
         /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns>The current purchases</returns>
-        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var purchases = await RestoreAsync();
             
@@ -135,7 +137,7 @@ namespace Plugin.InAppBilling
         /// <param name="payload">Developer specific payload</param>
         /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns></returns>
-        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var p = await PurchaseAsync(productId);
 
@@ -235,7 +237,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             return null;
         }
@@ -249,7 +251,7 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             return null;
         }
@@ -262,6 +264,40 @@ namespace Plugin.InAppBilling
 
 
             return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
+        }
+
+        private bool disposed = false;
+
+
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        /// <param name="disposing"></param>
+        public override void Dispose(bool disposing)
+        {
+            if(disposed)
+            {
+                base.Dispose(disposing);
+                return;
+            }
+
+            disposed = true;
+
+            if (!disposing)
+            {
+                base.Dispose(disposing);
+                return;
+            }
+            
+            if (paymentObserver != null)
+            {
+                SKPaymentQueue.DefaultQueue.RemoveTransactionObserver(paymentObserver);
+                paymentObserver.Dispose();
+                paymentObserver = null;
+            }
+
+
+            base.Dispose(disposing);
         }
     }
 
@@ -396,18 +432,18 @@ namespace Plugin.InAppBilling
             switch (transaction.TransactionState)
             {
                 case SKPaymentTransactionState.Restored:
-                    return Abstractions.PurchaseState.Restored;
+                    return PurchaseState.Restored;
                 case SKPaymentTransactionState.Purchasing:
-                    return Abstractions.PurchaseState.Purchasing;
+                    return PurchaseState.Purchasing;
                 case SKPaymentTransactionState.Purchased:
-                    return Abstractions.PurchaseState.Purchased;
+                    return PurchaseState.Purchased;
                 case SKPaymentTransactionState.Failed:
-                    return Abstractions.PurchaseState.Failed;
+                    return PurchaseState.Failed;
                 case SKPaymentTransactionState.Deferred:
-                    return Abstractions.PurchaseState.Deferred;
+                    return PurchaseState.Deferred;
             }
 
-            return Abstractions.PurchaseState.Unknown;
+            return PurchaseState.Unknown;
         }
 
 
@@ -429,10 +465,12 @@ namespace Plugin.InAppBilling
         /// </remarks>
         public static string LocalizedPrice(this SKProduct product)
         {
-            var formatter = new NSNumberFormatter();
-            formatter.FormatterBehavior = NSNumberFormatterBehavior.Version_10_4;
-            formatter.NumberStyle = NSNumberFormatterStyle.Currency;
-            formatter.Locale = product.PriceLocale;
+            var formatter = new NSNumberFormatter()
+            {
+                FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
+                NumberStyle = NSNumberFormatterStyle.Currency,
+                Locale = product.PriceLocale
+            };
             var formattedString = formatter.StringFromNumber(product.Price);
             Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
             return formattedString;

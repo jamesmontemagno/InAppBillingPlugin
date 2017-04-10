@@ -22,7 +22,7 @@ namespace Plugin.InAppBilling
     /// Implementation for Feature
     /// </summary>
     [Preserve(AllMembers = true)]
-    public class InAppBillingImplementation : IInAppBilling
+    public class InAppBillingImplementation : BaseInAppBilling
     {
         const string SKU_DETAILS_LIST = "DETAILS_LIST";
         const string SKU_ITEM_ID_LIST = "ITEM_ID_LIST";
@@ -54,7 +54,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets or sets if in testing mode. Only for UWP
         /// </summary>
-        public bool InTestingMode { get; set; }
+        public override bool InTestingMode { get; set; }
 
         /// <summary>
         /// Get product information of a specific product
@@ -62,7 +62,7 @@ namespace Plugin.InAppBilling
         /// <param name="productIds">Sku or Id of the product</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
-        public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
+        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
             if (serviceConnection.Service == null)
             {
@@ -132,7 +132,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product</param>
         /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns>The current purchases</returns>
-        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             if (serviceConnection.Service == null)
             {
@@ -228,7 +228,7 @@ namespace Plugin.InAppBilling
         /// <param name="payload">Developer specific payload</param>
         /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns></returns>
-        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
 
             if(serviceConnection.Service == null)
@@ -345,7 +345,7 @@ namespace Plugin.InAppBilling
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public Task<bool> ConnectAsync()
+        public override Task<bool> ConnectAsync()
         {
             serviceConnection = new InAppBillingServiceConnection(Context);
             return serviceConnection.ConnectAsync();
@@ -355,11 +355,14 @@ namespace Plugin.InAppBilling
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        public async Task DisconnectAsync()
+        public async override Task DisconnectAsync()
         {
             try
             {
-                await serviceConnection?.DisconnectAsync();
+                if (serviceConnection == null)
+                    return;
+
+                await serviceConnection.DisconnectAsync();
                 serviceConnection.Dispose();
                 serviceConnection = null;
             }
@@ -377,7 +380,7 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             if (serviceConnection.Service == null)
             {
@@ -434,7 +437,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product being consumed.</param>
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
-        public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
+        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
             if (serviceConnection.Service == null)
             {

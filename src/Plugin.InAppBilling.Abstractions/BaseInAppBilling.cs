@@ -1,31 +1,30 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling.Abstractions
 {
     /// <summary>
-    /// Interface for InAppBilling
+    /// Base implementation for In App Billing, handling disposables
     /// </summary>
-    public interface IInAppBilling : IDisposable
+    public abstract class BaseInAppBilling : IInAppBilling, IDisposable
     {
         /// <summary>
         /// Gets or sets if in testing mode
         /// </summary>
-        bool InTestingMode { get; set; }
+        public abstract bool InTestingMode { get; set; }
 
         /// <summary>
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        Task<bool> ConnectAsync();
+        public abstract Task<bool> ConnectAsync();
 
         /// <summary>
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        Task DisconnectAsync();
+        public abstract Task DisconnectAsync();
 
         /// <summary>
         /// Get product information of a specific product
@@ -33,7 +32,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="itemType">Type of product offering</param>
         /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <returns>List of products</returns>
-        Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
+        public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
 
         /// <summary>
@@ -42,7 +41,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="itemType">Type of product</param>
         /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns>The current purchases</returns>
-        Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
+        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 
         /// <summary>
         /// Purchase a specific product or subscription
@@ -53,7 +52,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
 
         /// <summary>
         /// Consume a purchase with a purchase token.
@@ -62,7 +61,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
+        public abstract Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
 
         /// <summary>
         /// Consume a purchase
@@ -73,6 +72,41 @@ namespace Plugin.InAppBilling.Abstractions
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+        public abstract Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+
+        /// <summary>
+        /// Dispose of class and parent classes
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Dispose up
+        /// </summary>
+        ~BaseInAppBilling()
+        {
+            Dispose(false);
+        }
+
+        private bool disposed = false;
+        /// <summary>
+        /// Dispose method
+        /// </summary>
+        /// <param name="disposing"></param>
+        public virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    //dispose only
+                }
+
+                disposed = true;
+            }
+        }
     }
 }

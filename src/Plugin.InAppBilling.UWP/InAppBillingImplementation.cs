@@ -11,29 +11,31 @@ namespace Plugin.InAppBilling
     /// <summary>
     /// Implementation for Feature
     /// </summary>
-    public class InAppBillingImplementation : IInAppBilling
+    public class InAppBillingImplementation : BaseInAppBilling
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public InAppBillingImplementation()
+        {
+        }
         /// <summary>
         /// Gets or sets if in testing mode. Only for UWP
         /// </summary>
-        public bool InTestingMode { get; set; }
+        public override bool InTestingMode { get; set; }
 
-        /// <summary>
-        /// Validation public key from App Store
-        /// </summary>
-        public string ValidationPublicKey { get; set; }
 
         /// <summary>
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public Task<bool> ConnectAsync() => Task.FromResult(true);
+        public override Task<bool> ConnectAsync() => Task.FromResult(true);
 
         /// <summary>
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        public Task DisconnectAsync() => Task.CompletedTask;
+        public override Task DisconnectAsync() => Task.CompletedTask;
 
         /// <summary>
         /// Gets product information
@@ -41,7 +43,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of item</param>
         /// <param name="productIds">Product Ids</param>
         /// <returns></returns>
-        public async Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
+        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
             // Get list of products from store or simulator
             var listingInformation = await CurrentAppMock.LoadListingInformationAsync(InTestingMode);
@@ -74,7 +76,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product</param>
         /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns>The current purchases</returns>
-        public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
@@ -92,7 +94,7 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
@@ -108,7 +110,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
             switch(result)
@@ -145,7 +147,7 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var items = await CurrentAppMock.GetAvailableConsumables(InTestingMode);
 
@@ -234,11 +236,13 @@ namespace Plugin.InAppBilling
                 var xmlProductReceipt = xmlProductReceipts[i];
 
                 // Create new InAppBillingPurchase with values from the xml element
-                var purchase = new InAppBillingPurchase();
-                purchase.Id = xmlProductReceipt.Attributes["Id"].Value;
-                purchase.TransactionDateUtc = Convert.ToDateTime(xmlProductReceipt.Attributes["PurchaseDate"].Value);
-                purchase.ProductId = xmlProductReceipt.Attributes["ProductId"].Value;
-                purchase.AutoRenewing = false; // Not supported by UWP yet
+                var purchase = new InAppBillingPurchase()
+                {
+                    Id = xmlProductReceipt.Attributes["Id"].Value,
+                    TransactionDateUtc = Convert.ToDateTime(xmlProductReceipt.Attributes["PurchaseDate"].Value),
+                    ProductId = xmlProductReceipt.Attributes["ProductId"].Value,
+                    AutoRenewing = false // Not supported by UWP yet
+                };
                 purchase.PurchaseToken = purchase.Id;
                 // Map native UWP status to PurchaseState
                 switch (status)

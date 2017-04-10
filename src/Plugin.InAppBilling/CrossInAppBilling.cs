@@ -39,5 +39,18 @@ namespace Plugin.InAppBilling
         {
             return new NotImplementedException("This functionality is not implemented in the portable version of this assembly.  You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
         }
+
+        /// <summary>
+        /// Dispose of everything 
+        /// </summary>
+        public static void Dispose()
+        {
+            if (Implementation != null && Implementation.IsValueCreated)
+            {
+                Implementation.Value.Dispose();
+
+                Implementation = new Lazy<IInAppBilling>(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            }
+        }
     }
 }
