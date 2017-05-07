@@ -230,6 +230,7 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
+            payload = payload ?? string.Empty;
 
             if(serviceConnection.Service == null)
             {
@@ -269,11 +270,12 @@ namespace Plugin.InAppBilling
             if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
 
+            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
            
             Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
             var response = GetResponseCodeFromBundle(buyIntentBundle);
-
             
+
             switch(response)
             {
                 case 0:
@@ -303,8 +305,6 @@ namespace Plugin.InAppBilling
                     //already purchased
             }
 
-            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
-
             var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
             if (pendingIntent != null)
                 Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
@@ -324,7 +324,7 @@ namespace Plugin.InAppBilling
             {
                 var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
 
                 return purchase;
             }
@@ -333,7 +333,7 @@ namespace Plugin.InAppBilling
             if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
             {
                 var purchase = JsonConvert.DeserializeObject<Purchase>(data);
-                if (purchase.ProductId == productSku && purchase.DeveloperPayload == payload)
+                if (purchase.ProductId == productSku && payload.Equals(purchase.DeveloperPayload ?? string.Empty))
                     return purchase;
             }
 
@@ -495,7 +495,7 @@ namespace Plugin.InAppBilling
             {
                 tcsPurchase?.TrySetResult(null);
             }
-            
+
         }
 
         [Preserve(AllMembers = true)]
