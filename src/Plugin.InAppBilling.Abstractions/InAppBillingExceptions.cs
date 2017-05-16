@@ -42,7 +42,19 @@ namespace Plugin.InAppBilling.Abstractions
         /// <summary>
         /// One of hte payment parameters was not recognized by app store
         /// </summary>
-        PaymentInvalid
+        PaymentInvalid,
+        /// <summary>
+        /// The requested product is invalid
+        /// </summary>
+        InvalidProduct,
+        /// <summary>
+        /// The product request failed
+        /// </summary>
+        ProductRequestFailed,
+        /// <summary>
+        /// Restoring the transaction failed
+        /// </summary>
+        RestoreFailed
     }
 
     /// <summary>

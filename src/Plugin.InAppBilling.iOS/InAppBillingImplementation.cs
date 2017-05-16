@@ -88,7 +88,7 @@ namespace Plugin.InAppBilling
         public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             var purchases = await RestoreAsync();
-            
+
 
             var converted = purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
 
@@ -112,7 +112,7 @@ namespace Plugin.InAppBilling
                 paymentObserver.TransactionsRestored -= handler;
 
                 if (transactions == null)
-                    tcsTransaction.TrySetException(new Exception("Restore Transactions Failed"));
+                    tcsTransaction.TrySetException(new InAppBillingPurchaseException(PurchaseError.RestoreFailed, "Restore Transactions Failed"));
                 else
                     tcsTransaction.TrySetResult(transactions);
             });
@@ -186,7 +186,7 @@ namespace Plugin.InAppBilling
                 // Unsubscribe from future events
                 paymentObserver.TransactionCompleted -= handler;
 
-                if(success)
+                if (success)
                 {
                     tcsTransaction.TrySetResult(tran);
                     return;
@@ -218,7 +218,7 @@ namespace Plugin.InAppBilling
                 }
 
                 tcsTransaction.TrySetException(new InAppBillingPurchaseException(error, description));
-                
+
             });
 
             paymentObserver.TransactionCompleted += handler;
@@ -275,7 +275,7 @@ namespace Plugin.InAppBilling
         /// <param name="disposing"></param>
         public override void Dispose(bool disposing)
         {
-            if(disposed)
+            if (disposed)
             {
                 base.Dispose(disposing);
                 return;
@@ -288,7 +288,7 @@ namespace Plugin.InAppBilling
                 base.Dispose(disposing);
                 return;
             }
-            
+
             if (paymentObserver != null)
             {
                 SKPaymentQueue.DefaultQueue.RemoveTransactionObserver(paymentObserver);
@@ -315,7 +315,7 @@ namespace Plugin.InAppBilling
         [Export("request:didFailWithError:")]
         public void RequestFailed(SKRequest request, NSError error)
         {
-            tcsResponse.TrySetException(new Exception(error.LocalizedDescription));
+            tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.ProductRequestFailed, error.LocalizedDescription));
         }
 
         public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
@@ -328,7 +328,7 @@ namespace Plugin.InAppBilling
                 return;
             }
 
-            tcsResponse.TrySetException(new Exception("Invalid Product"));
+            tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.InvalidProduct, "Invalid Product"));
         }
     }
 
@@ -399,7 +399,7 @@ namespace Plugin.InAppBilling
     {
         public static string ToStatusString(this SKPaymentTransaction transaction) =>
             transaction.ToIABPurchase()?.ToString() ?? string.Empty;
-       
+
 
         public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
         {
