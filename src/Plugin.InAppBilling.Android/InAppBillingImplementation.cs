@@ -270,10 +270,10 @@ namespace Plugin.InAppBilling
             if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
 
+            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
 
             Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
             var response = GetResponseCodeFromBundle(buyIntentBundle);
-
 
             switch (response)
             {
@@ -303,8 +303,6 @@ namespace Plugin.InAppBilling
                     return purchase;
                     //already purchased
             }
-
-            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
 
             var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
             if (pendingIntent != null)
