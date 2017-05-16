@@ -298,7 +298,7 @@ namespace Plugin.InAppBilling
                 case 7:
                     var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty);
 
                     return purchase;
                     //already purchased
