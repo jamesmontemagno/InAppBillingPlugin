@@ -41,6 +41,8 @@ namespace Plugin.InAppBilling
 
         const int PURCHASE_REQUEST_CODE = 1001;
 
+        const int RESPONSE_CODE_RESULT_USER_CANCELED = 1;
+
         Activity Context => CrossCurrentActivity.Current.Activity;
 
         /// <summary>
@@ -486,6 +488,10 @@ namespace Plugin.InAppBilling
                     DataSignature = dataSignature
                 });
 
+            }
+            else if (responseCode == RESPONSE_CODE_RESULT_USER_CANCELED)
+            {
+                tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.UserCancelled));
             }
             else
             {
