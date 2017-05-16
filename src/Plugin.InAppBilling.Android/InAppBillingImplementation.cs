@@ -315,8 +315,6 @@ namespace Plugin.InAppBilling
             if (result == null)
                 return null;
 
-
-
             var data = result.PurchaseData;
             var sign = result.DataSignature;
 
@@ -329,7 +327,6 @@ namespace Plugin.InAppBilling
 
                 return purchase;
             }
-
 
             if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
             {
@@ -572,7 +569,7 @@ namespace Plugin.InAppBilling
             public Task DisconnectAsync()
             {
                 if (!IsConnected)
-                    return Task.C                ompletedTask;
+                    return Task.CompletedTask;
 
                 Context.UnbindService(this);
 
@@ -630,7 +627,7 @@ namespace Plugin.InAppBilling
             [JsonProperty(PropertyName = "productId")]
             public string ProductId { get; set; }
 
-            [JsonProperty(ropertyName = "price_currency_code")]
+            [JsonProperty(PropertyName = "price_currency_code")]
             public string CurrencyCode { get; set; }
 
             [JsonProperty(PropertyName = "price_amount_micros")]
@@ -655,14 +652,14 @@ namespace Plugin.InAppBilling
             [JsonProperty(PropertyName = "autoRenewing")]
             public bool AutoRenewing { get; set; }
 
-            [JsonPropert=ropertyName = "packageName")]
+            [JsonProperty(PropertyName = "packageName")]
             public string PackageName { get; set; }
 
 
             [JsonProperty(PropertyName = "orderId")]
             public string OrderId { get; set; }
 
-            [JsonProperty(ropertyName = "productId")]
+            [JsonProperty(PropertyName = "productId")]
             public string ProductId { get; set; }
 
 
@@ -803,7 +800,7 @@ namespace Plugin.InAppBilling
             /// <returns></returns>
             public static string TransformString(string key, int i)
             {
-                var chars = key.oCharArray(); ;
+                var chars = key.ToCharArray(); ;
                 for (int j = 0; j < chars.Length; j++)
                     chars[j] = (char)(chars[j] ^ i);
                 return new string(chars);
