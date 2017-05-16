@@ -41,14 +41,16 @@ namespace Plugin.InAppBilling
 
         const int PURCHASE_REQUEST_CODE = 1001;
 
+        const int RESPONSE_CODE_RESULT_USER_CANCELED = 1;
+
         Activity Context => CrossCurrentActivity.Current.Activity;
-        
+
         /// <summary>
         /// Default Constructor for In App Billing Implemenation on Android
         /// </summary>
         public InAppBillingImplementation()
         {
-            
+
         }
 
         /// <summary>
@@ -69,7 +71,7 @@ namespace Plugin.InAppBilling
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
             }
 
-            IEnumerable <Product> products = null;
+            IEnumerable<Product> products = null;
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
@@ -230,8 +232,9 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
+            payload = payload ?? string.Empty;
 
-            if(serviceConnection.Service == null)
+            if (serviceConnection.Service == null)
             {
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
             }
@@ -251,7 +254,7 @@ namespace Plugin.InAppBilling
                 return null;
 
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            
+
             return new InAppBillingPurchase
             {
                 TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(purchase.PurchaseTime),
@@ -269,19 +272,19 @@ namespace Plugin.InAppBilling
             if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
 
-           
+            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
+
             Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
             var response = GetResponseCodeFromBundle(buyIntentBundle);
 
-            
-            switch(response)
+            switch (response)
             {
                 case 0:
                     //OK to purchase
                     break;
                 case 1:
                     //User Cancelled, should try again
-                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled); 
+                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
                 case 3:
                     //Billing Unavailable
                     throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
@@ -297,13 +300,11 @@ namespace Plugin.InAppBilling
                 case 7:
                     var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
 
                     return purchase;
                     //already purchased
             }
-
-            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
 
             var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
             if (pendingIntent != null)
@@ -314,8 +315,6 @@ namespace Plugin.InAppBilling
             if (result == null)
                 return null;
 
-
-
             var data = result.PurchaseData;
             var sign = result.DataSignature;
 
@@ -324,16 +323,15 @@ namespace Plugin.InAppBilling
             {
                 var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && p.DeveloperPayload == payload);
+                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
 
                 return purchase;
             }
 
-
             if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
             {
                 var purchase = JsonConvert.DeserializeObject<Purchase>(data);
-                if (purchase.ProductId == productSku && purchase.DeveloperPayload == payload)
+                if (purchase.ProductId == productSku && payload.Equals(purchase.DeveloperPayload ?? string.Empty))
                     return purchase;
             }
 
@@ -366,7 +364,7 @@ namespace Plugin.InAppBilling
                 serviceConnection.Dispose();
                 serviceConnection = null;
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Unable to disconned: {ex.Message}");
             }
@@ -448,7 +446,7 @@ namespace Plugin.InAppBilling
 
             var purchase = purchases.FirstOrDefault(p => p.ProductId == productId && p.Payload == payload);
 
-            if(purchase == null)
+            if (purchase == null)
             {
                 Console.WriteLine("Unable to find a purchase with matching product id and payload");
                 return null;
@@ -491,11 +489,15 @@ namespace Plugin.InAppBilling
                 });
 
             }
+            else if (responseCode == RESPONSE_CODE_RESULT_USER_CANCELED)
+            {
+                tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.UserCancelled));
+            }
             else
             {
                 tcsPurchase?.TrySetResult(null);
             }
-            
+
         }
 
         [Preserve(AllMembers = true)]
@@ -508,7 +510,7 @@ namespace Plugin.InAppBilling
 
         InAppBillingServiceConnection serviceConnection;
         static TaskCompletionSource<PurchaseResponse> tcsPurchase;
-        
+
         static bool ValidOwnedItems(Bundle purchased)
         {
             return purchased.ContainsKey(RESPONSE_IAP_PURCHASE_ITEM_LIST)
@@ -540,7 +542,7 @@ namespace Plugin.InAppBilling
             }
 
             TaskCompletionSource<bool> tcsConnect;
-           
+
             public Context Context { get; private set; }
             public IInAppBillingService Service { get; private set; }
             public bool IsConnected { get; private set; }
@@ -572,7 +574,7 @@ namespace Plugin.InAppBilling
             {
                 if (!IsConnected)
                     return Task.CompletedTask;
-                
+
                 Context.UnbindService(this);
 
                 IsConnected = false;
@@ -598,7 +600,7 @@ namespace Plugin.InAppBilling
 
             public void OnServiceDisconnected(ComponentName name)
             {
-               
+
             }
         }
         [Preserve(AllMembers = true)]
@@ -625,11 +627,11 @@ namespace Plugin.InAppBilling
             [JsonProperty(PropertyName = "description")]
             public string Description { get; set; }
 
-            
+
             [JsonProperty(PropertyName = "productId")]
             public string ProductId { get; set; }
 
-            [JsonProperty(PropertyName ="price_currency_code")]
+            [JsonProperty(PropertyName = "price_currency_code")]
             public string CurrencyCode { get; set; }
 
             [JsonProperty(PropertyName = "price_amount_micros")]
@@ -654,14 +656,14 @@ namespace Plugin.InAppBilling
             [JsonProperty(PropertyName = "autoRenewing")]
             public bool AutoRenewing { get; set; }
 
-            [JsonProperty(PropertyName="packageName")]
+            [JsonProperty(PropertyName = "packageName")]
             public string PackageName { get; set; }
 
 
             [JsonProperty(PropertyName = "orderId")]
             public string OrderId { get; set; }
 
-            [JsonProperty(PropertyName ="productId")]
+            [JsonProperty(PropertyName = "productId")]
             public string ProductId { get; set; }
 
 
@@ -802,7 +804,7 @@ namespace Plugin.InAppBilling
             /// <returns></returns>
             public static string TransformString(string key, int i)
             {
-                var chars = key.ToCharArray();;
+                var chars = key.ToCharArray(); ;
                 for (int j = 0; j < chars.Length; j++)
                     chars[j] = (char)(chars[j] ^ i);
                 return new string(chars);
