@@ -34,6 +34,14 @@
         /// </summary>
         Deferred,
         /// <summary>
+        /// In free trial
+        /// </summary>
+        FreeTrial,
+        /// <summary>
+        /// Pending Purchase
+        /// </summary>
+        PaymentPending,
+        /// <summary>
         /// Purchase state unknown
         /// </summary>
         Unknown

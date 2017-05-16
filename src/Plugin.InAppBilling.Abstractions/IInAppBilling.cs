@@ -49,7 +49,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
-        /// <param name="payload">Developer specific payload</param>
+        /// <param name="payload">Developer specific payload (can not be null)</param>
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
@@ -68,7 +68,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// Consume a purchase
         /// </summary>
         /// <param name="productId">Id/Sku of the product</param>
-        /// <param name="payload">Developer specific payload of original purchase</param>
+        /// <param name="payload">Developer specific payload of original purchase (can not be null)</param>
         /// <param name="itemType">Type of product being consumed.</param>
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>If consumed successful</returns>

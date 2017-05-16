@@ -164,8 +164,9 @@ namespace Plugin.InAppBilling
                 ProductId = p.ProductId,
                 AutoRenewing = p.AutoRenewing,
                 PurchaseToken = p.PurchaseToken,
-                State = p.State,
-                Payload = p.DeveloperPayload
+                State = itemType == ItemType.InAppPurchase ? p.State : p.SubscriptionState,
+                ConsumptionState = p.ConsumedState,
+                Payload = p.DeveloperPayload ?? string.Empty
             });
 
             return results;
@@ -227,12 +228,14 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
-        /// <param name="payload">Developer specific payload</param>
+        /// <param name="payload">Developer specific payload (can not be null)</param>
         /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <returns></returns>
         public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
-            payload = payload ?? string.Empty;
+            if (payload == null)
+                throw new ArgumentNullException(nameof(payload), "Payload can not be null");
+           
 
             if (serviceConnection.Service == null)
             {
@@ -261,14 +264,16 @@ namespace Plugin.InAppBilling
                 Id = purchase.OrderId,
                 AutoRenewing = purchase.AutoRenewing,
                 PurchaseToken = purchase.PurchaseToken,
-                State = purchase.State,
+                State = itemType == ItemType.InAppPurchase ? purchase.State : purchase.SubscriptionState,
+                ConsumptionState = purchase.ConsumedState,
                 ProductId = purchase.ProductId,
-                Payload = purchase.DeveloperPayload
+                Payload = purchase.DeveloperPayload ?? string.Empty
             };
         }
 
         async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
+
             if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
 
@@ -300,7 +305,7 @@ namespace Plugin.InAppBilling
                 case 7:
                     var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
+                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload));
 
                     return purchase;
                     //already purchased
@@ -323,7 +328,7 @@ namespace Plugin.InAppBilling
             {
                 var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
+                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload));
 
                 return purchase;
             }
@@ -331,7 +336,7 @@ namespace Plugin.InAppBilling
             if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
             {
                 var purchase = JsonConvert.DeserializeObject<Purchase>(data);
-                if (purchase.ProductId == productSku && payload.Equals(purchase.DeveloperPayload ?? string.Empty))
+                if (purchase.ProductId == productSku && payload.Equals(purchase.DeveloperPayload))
                     return purchase;
             }
 
@@ -395,6 +400,7 @@ namespace Plugin.InAppBilling
                 Id = string.Empty,
                 PurchaseToken = purchaseToken,
                 State = PurchaseState.Purchased,
+                ConsumptionState = ConsumptionState.Consumed,
                 AutoRenewing = false,
                 Payload = string.Empty,
                 ProductId = productId,
@@ -438,9 +444,11 @@ namespace Plugin.InAppBilling
         public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
             if (serviceConnection.Service == null)
-            {
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
-            }
+            
+
+            if (payload == null)
+                throw new ArgumentNullException(nameof(payload), "Payload can not be null");
 
             var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
@@ -675,12 +683,25 @@ namespace Plugin.InAppBilling
             public Int64 PurchaseTime { get; set; }
 
 
+            /// <summary>
+            /// purchase state
+            /// </summary>
             [JsonProperty(PropertyName = "purchaseState")]
             public int PurchaseState { get; set; }
 
 
             [JsonProperty(PropertyName = "purchaseToken")]
             public string PurchaseToken { get; set; }
+
+            [JsonProperty(PropertyName = "consumptionState")]
+            public int ConsumptionState { get; set; }
+
+
+            /// <summary>
+            /// for subscriptions
+            /// </summary>
+            [JsonProperty(PropertyName = "paymentState")]
+            public int PaymentState { get; set; }
 
 
             [JsonIgnore]
@@ -698,6 +719,26 @@ namespace Plugin.InAppBilling
                     return Abstractions.PurchaseState.Unknown;
                 }
             }
+
+            [JsonIgnore]
+            public ConsumptionState ConsumedState => ConsumptionState == 0 ? Abstractions.ConsumptionState.NoYetConsumed : Abstractions.ConsumptionState.Consumed; 
+
+            [JsonIgnore]
+            public PurchaseState SubscriptionState
+            {
+                get
+                {
+                    if (PaymentState == 0)
+                        return Abstractions.PurchaseState.PaymentPending;
+                    else if (PaymentState == 1)
+                        return Abstractions.PurchaseState.Purchased;
+                    else if (PaymentState == 2)
+                        return Abstractions.PurchaseState.FreeTrial;
+
+                    return Abstractions.PurchaseState.Unknown;
+                }
+            }
+
             public override string ToString()
             {
                 return string.Format("[Purchase: PackageName={0}, OrderId={1}, ProductId={2}, DeveloperPayload={3}, PurchaseTime={4}, PurchaseState={5}, PurchaseToken={6}]", PackageName, OrderId, ProductId, DeveloperPayload, PurchaseTime, PurchaseState, PurchaseToken);
