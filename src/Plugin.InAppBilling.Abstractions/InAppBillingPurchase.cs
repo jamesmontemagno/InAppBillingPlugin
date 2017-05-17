@@ -40,9 +40,14 @@ namespace Plugin.InAppBilling.Abstractions
         public string PurchaseToken { get; set; }
 
         /// <summary>
-        /// Gets the current purchase state
+        /// Gets the current purchase/subscription state
         /// </summary>
-        public PurchaseState State { get; set; } 
+        public PurchaseState State { get; set; }
+
+        /// <summary>
+        /// Gets the current consumption state
+        /// </summary>
+        public ConsumptionState ConsumptionState { get; set; }
 
         /// <summary>
         /// Developer payload
