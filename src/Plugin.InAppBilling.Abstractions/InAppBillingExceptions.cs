@@ -54,7 +54,11 @@ namespace Plugin.InAppBilling.Abstractions
         /// <summary>
         /// Restoring the transaction failed
         /// </summary>
-        RestoreFailed
+        RestoreFailed,
+        /// <summary>
+        /// Network connection is down
+        /// </summary>
+        ServiceUnavailable
     }
 
     /// <summary>
