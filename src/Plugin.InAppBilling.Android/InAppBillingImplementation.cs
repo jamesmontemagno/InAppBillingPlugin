@@ -42,6 +42,7 @@ namespace Plugin.InAppBilling
         const int PURCHASE_REQUEST_CODE = 1001;
 
         const int RESPONSE_CODE_RESULT_USER_CANCELED = 1;
+        const int RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE = 2;
 
         Activity Context => CrossCurrentActivity.Current.Activity;
 
@@ -235,7 +236,7 @@ namespace Plugin.InAppBilling
         {
             if (payload == null)
                 throw new ArgumentNullException(nameof(payload), "Payload can not be null");
-           
+
 
             if (serviceConnection.Service == null)
             {
@@ -290,6 +291,9 @@ namespace Plugin.InAppBilling
                 case 1:
                     //User Cancelled, should try again
                     throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
+                case 2:
+                    //Network connection is down
+                    throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable);
                 case 3:
                     //Billing Unavailable
                     throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
@@ -416,6 +420,12 @@ namespace Plugin.InAppBilling
             {
                 case 0:
                     return true;
+                case 1:
+                    //User Cancelled, should try again
+                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
+                case 2:
+                    //Network connection is down
+                    throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable);
                 case 3:
                     //Billing Unavailable
                     throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
@@ -445,7 +455,7 @@ namespace Plugin.InAppBilling
         {
             if (serviceConnection.Service == null)
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
-            
+
 
             if (payload == null)
                 throw new ArgumentNullException(nameof(payload), "Payload can not be null");
@@ -484,28 +494,29 @@ namespace Plugin.InAppBilling
 
             int responseCode = data.GetIntExtra(RESPONSE_CODE, 0);
 
-            //Reponse returned OK
-            if (responseCode == 0)
+            switch (responseCode)
             {
-                var purchaseData = data.GetStringExtra(RESPONSE_IAP_DATA);
-                var dataSignature = data.GetStringExtra(RESPONSE_IAP_DATA_SIGNATURE);
+                case 0:
+                    //Reponse returned OK
+                    var purchaseData = data.GetStringExtra(RESPONSE_IAP_DATA);
+                    var dataSignature = data.GetStringExtra(RESPONSE_IAP_DATA_SIGNATURE);
 
-                tcsPurchase?.TrySetResult(new PurchaseResponse
-                {
-                    PurchaseData = purchaseData,
-                    DataSignature = dataSignature
-                });
-
+                    tcsPurchase?.TrySetResult(new PurchaseResponse
+                    {
+                        PurchaseData = purchaseData,
+                        DataSignature = dataSignature
+                    });
+                    break;
+                case RESPONSE_CODE_RESULT_USER_CANCELED:
+                    tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.UserCancelled));
+                    break;
+                case RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE:
+                    tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable));
+                    break;
+                default:
+                    tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.GeneralError, responseCode.ToString()));
+                    break;
             }
-            else if (responseCode == RESPONSE_CODE_RESULT_USER_CANCELED)
-            {
-                tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.UserCancelled));
-            }
-            else
-            {
-                tcsPurchase?.TrySetResult(null);
-            }
-
         }
 
         [Preserve(AllMembers = true)]
@@ -721,7 +732,7 @@ namespace Plugin.InAppBilling
             }
 
             [JsonIgnore]
-            public ConsumptionState ConsumedState => ConsumptionState == 0 ? Abstractions.ConsumptionState.NoYetConsumed : Abstractions.ConsumptionState.Consumed; 
+            public ConsumptionState ConsumedState => ConsumptionState == 0 ? Abstractions.ConsumptionState.NoYetConsumed : Abstractions.ConsumptionState.Consumed;
 
             [JsonIgnore]
             public PurchaseState SubscriptionState
