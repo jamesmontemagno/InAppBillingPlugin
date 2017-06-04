@@ -215,6 +215,13 @@ There is another method that you can call that doesn't take in the token. This w
 * You must setup an in app purchase and understand what each of them are.
 * Read through the [testing documentation](https://developer.apple.com/library/content/documentation/LanguagesUtilities/Conceptual/iTunesConnectInAppPurchase_Guide/Chapters/TestingInAppPurchases.html#//apple_ref/doc/uid/TP40013727-CH4-SW1)
 
+How to test purchase from TestFlight:
+* Don't try to sign in Settings > iTunes & App Stores
+* Log out of iTunes & App Stores (make sure you're not logged into any account)
+* Just open the app you're trying to test
+* Your app will prompt you to sign in
+* Enter your credentials for your sandbox test account
+
 You may optionally implement IInAppBillingVerifyPurchase, where I will pass in the receipt, see: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
 
 A great implementation using Azure functions can be found here: http://jonathanpeppers.com/Blog/securing-in-app-purchases-for-xamarin-with-azure-functions
