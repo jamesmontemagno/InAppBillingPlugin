@@ -30,8 +30,8 @@
 			  <group targetFramework="wpa">
 			  </group>
 			  <group targetFramework="MonoAndroid10">
-          <dependency id="Newtonsoft.Json" version="9.0.1"/>
-          <dependency id="Plugin.CurrentActivity" version="1.0.1"/>
+		          <dependency id="Newtonsoft.Json" version="9.0.1"/>
+		          <dependency id="Plugin.CurrentActivity" version="1.0.1"/>
 			  </group>
 			  <group targetFramework="Xamarin.iOS10">
 			  </group>
@@ -42,13 +42,17 @@
 			  <group targetFramework="uap">
 			  </group>
 			  <group targetFramework="dotnet">
-			  </group>
+			  </group>         
+		      <group targetFramework="xamarintvos">
+		      </group>
+		      <group targetFramework="xamarinwatchos">
+		      </group>
 		</dependencies>
    </metadata>
    <files>
       <file src="nuget\readme.txt" target="readme.txt" /> 
      <!--Core-->
-     <file src="src\Plugin.InAppBilling\bin\Release\Plugin.InAppBilling.*" target="lib\portable-net45+wp80+win8+wpa81" />
+     <file src="src\Plugin.InAppBilling\bin\Release\Plugin.InAppBilling.*" target="lib\netstandard1.0" />
 
 
      <!--UWP-->

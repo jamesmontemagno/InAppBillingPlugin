@@ -114,7 +114,9 @@
     </Compile>
     <Compile Include="InAppBillingImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\Plugin.InAppBilling.rd.xml" />
+    <EmbeddedResource Include="Properties\Plugin.InAppBilling.rd.xml" >
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.InAppBilling.Abstractions\Plugin.InAppBilling.Abstractions.csproj">
