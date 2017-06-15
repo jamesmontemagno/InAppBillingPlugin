@@ -555,6 +555,16 @@ namespace Plugin.InAppBilling
         [Preserve(AllMembers = true)]
         class InAppBillingServiceConnection : Java.Lang.Object, IServiceConnection
         {
+            public InAppBillingServiceConnection(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+                Context = Application.Context;
+            }
+
+            public InAppBillingServiceConnection()
+            {
+                Context = Application.Context;
+            }
+
             public InAppBillingServiceConnection(Context context)
             {
                 Context = context;
