@@ -58,10 +58,9 @@ namespace Plugin.InAppBilling.Abstractions
         /// Prints out product
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return $"ProductId:{ProductId} | AutoRenewing:{AutoRenewing} | State:{State} | Id:{Id}";
-        }
+        public override string ToString() => 
+			$"ProductId:{ProductId} | AutoRenewing:{AutoRenewing} | State:{State} | Id:{Id}";
+        
     }
 
 }
