@@ -90,7 +90,9 @@ namespace Plugin.InAppBilling
             var purchases = await RestoreAsync();
 
 
-            var converted = purchases.Where(p => p != null).Select(p => p.ToIABPurchase());
+            var converted = purchases
+				.Where(p => p != null)
+				.Select(p2 => p2.ToIABPurchase());
 
             //try to validate purchases
             var valid = await ValidateReceipt(verifyPurchase, string.Empty, string.Empty);
@@ -167,14 +169,14 @@ namespace Plugin.InAppBilling
             // Get the receipt data for (server-side) validation.
             // See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
             var receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
-            string receipt = receiptUrl.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+            var receipt = receiptUrl.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
 
             return verifyPurchase.VerifyPurchase(receipt, string.Empty, productId, transactionId);
         }
 
         Task<SKPaymentTransaction> PurchaseAsync(string productId)
         {
-            TaskCompletionSource<SKPaymentTransaction> tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
+            var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
 
             Action<SKPaymentTransaction, bool> handler = null;
             handler = new Action<SKPaymentTransaction, bool>((tran, success) =>
@@ -230,31 +232,27 @@ namespace Plugin.InAppBilling
         }
 
 
-        /// <summary>
-        /// Consume a purchase with a purchase token.
-        /// </summary>
-        /// <param name="productId">Id or Sku of product</param>
-        /// <param name="purchaseToken">Original Purchase Token</param>
-        /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
-        {
-            return null;
-        }
+		/// <summary>
+		/// Consume a purchase with a purchase token.
+		/// </summary>
+		/// <param name="productId">Id or Sku of product</param>
+		/// <param name="purchaseToken">Original Purchase Token</param>
+		/// <returns>If consumed successful</returns>
+		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken) =>
+			null;
 
-        /// <summary>
-        /// Consume a purchase
-        /// </summary>
-        /// <param name="productId">Id/Sku of the product</param>
-        /// <param name="payload">Developer specific payload of original purchase</param>
-        /// <param name="itemType">Type of product being consumed.</param>
-        /// <param name="verifyPurchase">Verify Purchase implementation</param>
-        /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
-        {
-            return null;
-        }
+		/// <summary>
+		/// Consume a purchase
+		/// </summary>
+		/// <param name="productId">Id/Sku of the product</param>
+		/// <param name="payload">Developer specific payload of original purchase</param>
+		/// <param name="itemType">Type of product being consumed.</param>
+		/// <param name="verifyPurchase">Verify Purchase implementation</param>
+		/// <returns>If consumed successful</returns>
+		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null) =>
+			null;
 
         PaymentObserver paymentObserver;
 
@@ -307,16 +305,14 @@ namespace Plugin.InAppBilling
     {
         TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new TaskCompletionSource<IEnumerable<SKProduct>>();
 
-        public Task<IEnumerable<SKProduct>> WaitForResponse()
-        {
-            return tcsResponse.Task;
-        }
+        public Task<IEnumerable<SKProduct>> WaitForResponse() =>
+			tcsResponse.Task;
+        
 
         [Export("request:didFailWithError:")]
-        public void RequestFailed(SKRequest request, NSError error)
-        {
-            tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.ProductRequestFailed, error.LocalizedDescription));
-        }
+        public void RequestFailed(SKRequest request, NSError error) =>
+			tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.ProductRequestFailed, error.LocalizedDescription));
+        
 
         public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
         {
@@ -351,12 +347,13 @@ namespace Plugin.InAppBilling
             if (rt?.Any() ?? false)
                 restoredTransactions.AddRange(rt);
 
-            foreach (SKPaymentTransaction transaction in transactions)
+            foreach (var transaction in transactions)
             {
                 Debug.WriteLine($"Updated Transaction | {transaction.ToStatusString()}");
 
                 switch (transaction.TransactionState)
                 {
+					case SKPaymentTransactionState.Restored:
                     case SKPaymentTransactionState.Purchased:
                         TransactionCompleted?.Invoke(transaction, true);
                         SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
@@ -376,7 +373,8 @@ namespace Plugin.InAppBilling
             // This is called after all restored transactions have hit UpdatedTransactions
             // at this point we are done with the restore request so let's fire up the event
             var allTransactions = restoredTransactions.ToArray();
-            // Clear out the list of incoming restore transactions for future requests
+            
+			// Clear out the list of incoming restore transactions for future requests
             restoredTransactions.Clear();
 
             TransactionsRestored?.Invoke(allTransactions);
@@ -385,11 +383,10 @@ namespace Plugin.InAppBilling
                 SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
         }
 
-        public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue queue, Foundation.NSError error)
-        {
-            // Failure, just fire with null
+		// Failure, just fire with null
+		public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue queue, NSError error) =>
             TransactionsRestored?.Invoke(null);
-        }
+        
     }
 
 
