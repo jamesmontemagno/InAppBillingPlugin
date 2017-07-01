@@ -68,5 +68,10 @@
 
 
 
+
+    <!--Xamarin.tvOS-->
+    <file src="src\Plugin.InAppBilling.tvOS\bin\Release\Plugin.InAppBilling.*" target="lib\xamarintvos" />
+
+
   </files>
 </package>

@@ -18,8 +18,9 @@ I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm
 |Platform|Version|
 | ------------------- | :------------------: |
 |Xamarin.iOS|iOS 8+|
+|Xamarin.tvOS|All|
 |Xamarin.Android|API 14+|
-|Windows 10 UWP|10+ (beta)|
+|Windows 10 UWP|10+|
 
 ## Setup
 Android only: You must place this code in your Main/Base Activity where you will be requesting purchases from.
