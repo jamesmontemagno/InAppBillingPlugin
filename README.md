@@ -44,26 +44,50 @@ You must have your IAP setup before testing the code:
 ```csharp
 try
 {
-    var productId = "mysku";
+	var productId = "mysku";
 
-    var connected = await CrossInAppBilling.Current.ConnectAsync();
+	var connected = await CrossInAppBilling.Current.ConnectAsync();
 
-    if (!connected)
-    {
-        //Couldn't connect to billing
-        return;
-    }
+	if (!connected)
+	{
+		//Couldn't connect to billing
+		return;
+	}
 
-    //try to purchase item
-    var purchase = await CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase, "apppayload");
+    	//try to purchase item
+    	var purchase = await CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase, "apppayload");
 	if(purchase == null)
 	{
-		//Not purchased
+		//Not purchased, may also throw excpetion to catch
 	}
 	else
 	{
 		//Purchased!
 	}
+}
+catch (InAppBillingPurchaseException purchaseEx)
+{
+	var message = string.Empty;
+	switch (purchaseEx.PurchaseError)
+	{
+		case PurchaseError.AppStoreUnavailable:
+			message = "Currently the app store seems to be unavailble. Try again later.";
+			break;
+		case PurchaseError.BillingUnavailable:
+			message = "Billing seems to be unavailable, please try again later.";
+			break;
+		case PurchaseError.PaymentInvalid:
+			message = "Payment seems to be invalid, please try again.";
+			break;
+		case PurchaseError.PaymentNotAllowed:
+			message = "Payment does not seem to be enabled/allowed, please try again.";
+			break;
+	}
+
+	if (string.IsNullOrWhiteSpace(message))
+		return;
+
+	Debug.WriteLine("Issue connecting: " + purchaseEx);
 }
 catch (Exception ex)
 {
