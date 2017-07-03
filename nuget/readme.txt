@@ -3,9 +3,15 @@ In App Billing Plugin for Xamarin & Windows
 Find the latest setup guides, documentation, and testing instructions at: 
 https://github.com/jamesmontemagno/InAppBillingPlugin
 
+## News
+- Plugins have moved to .NET Standard and have some important changes! Please read my blog:
+http://motzcod.es/post/162402194007/plugins-for-xamarin-go-dotnet-standard
+
 ## Additional Required Setup (Please Read!)
 
 ## Android 
+You must set your app to compile against API 25 or higher and be able to install the latest android support libraries.
+
 This Plugin uses the CurrentActivity Plugin and will add a MainApplication.cs file to your Android application. This is extremely important and should not be deleted. Please see 
 http://github.com/jamesmontemagno/CurrentActivityPlugin for more information.
 
