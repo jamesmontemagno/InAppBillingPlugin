@@ -1,4 +1,4 @@
-version: 1.2.0.{build}-alpha
+version: 1.2.1
 image: Visual Studio 2017
 assembly_info:
   patch: true
