@@ -114,11 +114,13 @@
     </Compile>
     <Compile Include="InAppBillingImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\Plugin.InAppBilling.rd.xml" />
+    <EmbeddedResource Include="Properties\Plugin.InAppBilling.rd.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.InAppBilling.Abstractions\Plugin.InAppBilling.Abstractions.csproj">
-      <Project>{6edb0588-ffc5-4ef5-8a99-9e241d0f878d}</Project>
+      <Project>{ccd0ed8a-828b-4ac0-a5f2-666a8d5bfe03}</Project>
       <Name>Plugin.InAppBilling.Abstractions</Name>
     </ProjectReference>
   </ItemGroup>
