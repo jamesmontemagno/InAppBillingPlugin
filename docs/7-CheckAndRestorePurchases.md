@@ -1,56 +1,50 @@
-## Purchase Subsription
-
-Subscriptions are purchases that expire (or sometimes auto-renew) after a set perior of time. You should track when the subscription was purchased, when it expires, or read this information from the existing purchases. They follow the same work flow as a normal Non-Consumable.
-
-Each app store calls them something slightly different:
-* Apple: Auto-Renewable and Non-Renewing Subscription
-* Android: Subscription
-* Microsoft: Durable with expiration period
-
-All purchases go through the `PurchaseAsync` method and you must always `ConnectAsync` before making calls and `DisconnectAsync` after making calls:
+## Check and Restore Purchases
+When users get a new device or re-install your application it is best practice to restore their existing practices. This is usually done with a button in the settings or you can do it automatically.
 
 ```csharp
 /// <summary>
-/// Purchase a specific product or subscription
+/// Get all current purhcase for a specifiy product type.
 /// </summary>
-/// <param name="productId">Sku or ID of product</param>
-/// <param name="itemType">Type of product being requested</param>
-/// <param name="payload">Developer specific payload (can not be null)</param>
-/// <param name="verifyPurchase">Verify Purchase implementation</param>
-/// <returns>Purchase details</returns>
-/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+/// <param name="itemType">Type of product</param>
+/// <param name="verifyPurchase">Verify purchase implementation</param>
+/// <returns>The current purchases</returns>
+Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 ```
 
-The `payload` attribute is a special payload that is sent and then returned from the server for additional validation. It can be whatever you want it to be, but should be a constant that is used anywhere the `payload` is used.
+When you make a call to restore a purchase it will prompt for the user to sign in if they haven't yet, so take that into consideration.
+
+Note, that on iOS this will only return your non-consumables, consumables are not tracked at all and your app should handle these situations
 
 Example:
 ```csharp
-public async Task<bool> PurchaseItem(string productId, string payload)
+public async Task<bool> WasItemPurchased(string productId)
 {
     var billing = CrossInAppBilling.Current;
     try
-    {
+    { 
         var connected = await billing.ConnectAsync();
+
         if (!connected)
         {
-            //we are offline or can't connect, don't try to purchase
+            //Couldn't connect
             return;
         }
 
         //check purchases
-        var purchase = await billing.PurchaseAsync(productId, ItemType.Subscription, payload);
+        var purchases = await billing.GetPurchasesAsync(ItemType.InAppPurchase);
 
-        //possibility that a null came through.
-        if(purchase == null)
+        //check for null just incase
+        if(purchases?.Any(p => p.ProductId == productId) ?? false)
         {
-            //did not purchase
+            //Purchase restored
+            return true;
         }
         else
         {
-            //purchased!
+            //no purchases found
+            return false;
         }
-    }
+    }    
     catch (InAppBillingPurchaseException purchaseEx)
     {
         //Billing Exception handle this based on the type
@@ -58,13 +52,15 @@ public async Task<bool> PurchaseItem(string productId, string payload)
     }
     catch (Exception ex)
     {
-        //Something else has gone wrong, log it
-        Debug.WriteLine("Issue connecting: " + ex);
+        //Something has gone wrong
     }
     finally
-    {
+    {    
         await billing.DisconnectAsync();
     }
+
+    return false;
+}
 ```
 
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](8-SecuringPurchases.md) documentation.
