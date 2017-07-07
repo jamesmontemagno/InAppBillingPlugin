@@ -106,7 +106,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
     }
     finally
     {
-        await billing.DisconnectAsync();d
+        await billing.DisconnectAsync();
     }
 ```
 
