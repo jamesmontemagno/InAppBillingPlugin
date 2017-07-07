@@ -94,6 +94,13 @@ In addition to this core reading I recommend the following:
 * [Xamarin.iOS Setup Documentation](https://developer.xamarin.com/guides/ios/application_fundamentals/in-app_purchasing/part_1_-_in-app_purchase_basics_and_configuration/)
 * [Google Play service Security and Design](https://developer.android.com/google/play/billing/billing_best_practices.html)
 
+## Creating an In-App Purchase
+Each app store has you create them in a different area.
+
+* Apple: Go to iTunes Connect -> Select App -> Features -> In-App Purchases
+* Android: Go to Google Play Console -> Select App -> Store presence -> In-app products (you can only create on if you have uploaded a version of your app with this plugin or the Vending permission set).
+* Microsoft: Go to Dashboard -> Select App -> Add-ons
+
 
 ## Permissions & Additional Setup Considerations
 

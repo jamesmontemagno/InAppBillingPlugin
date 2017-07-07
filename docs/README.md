@@ -4,10 +4,11 @@ Here you will find detailed documentation on setting up and using the In-App Bil
 
 ### Table of Contents
 * [Getting Started](1-GettingStarted.md)
-* [Get Product Details](2-GetProductDetails)
-* [Purchase Non-Consumable](3-PurchaseNonConsumable)
-* [Purchase & Consume Consumable](4-PurchaseConsumable)
-* [Purchase Subscription](5-PurchaseSubscription)
-* [Check & Restore Purchases](6-CheckAndRestorePurchases)
-* [Securing Purchases](7-SecuringPurchases)
-* [Testing & Troubleshooting](8-TestingAndTroubleshooting)
+* [Handling Exceptions](2-HandlingExceptions)
+* [Get Product Details](3-GetProductDetails)
+* [Purchase Non-Consumable](4-PurchaseNonConsumable)
+* [Purchase & Consume Consumable](5-PurchaseConsumable)
+* [Purchase Subscription](6-PurchaseSubscription)
+* [Check & Restore Purchases](7-CheckAndRestorePurchases)
+* [Securing Purchases](8-SecuringPurchases)
+* [Testing & Troubleshooting](9-TestingAndTroubleshooting)
