@@ -29,7 +29,5 @@ Get started by reading through the [In-App Billing Plugin documentation](docs).
 ### Checkout my podcast on IAP
 I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm), about technology and recently covered IAP and this library: [Merge Conflict 28: Demystifying In-App Purchases](http://www.mergeconflict.fm/57678-merge-conflict-28-demystifying-in-app-purchases)
 
-<iframe width="560" height="80" scrolling="no" frameborder="no" src="https://fireside.fm/s/UDzB5o3V+inGhMA1Z/iframe"></iframe>
-
 ### License
 The MIT License (MIT), see [LICENSE](LICENSE) file.
