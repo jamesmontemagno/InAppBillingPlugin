@@ -99,8 +99,16 @@ namespace Plugin.InAppBilling
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
 
-            // Transform it to InAppBillingPurchase
-            return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();
+
+			if (purchaseResult == null)
+				return null;
+
+			if (string.IsNullOrWhiteSpace(purchaseResult.ReceiptXml))
+				return null;
+
+			// Transform it to InAppBillingPurchase
+			return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();
+			
         }
 
         /// <summary>
@@ -227,7 +235,14 @@ namespace Plugin.InAppBilling
             var purchases = new List<InAppBillingPurchase>();
 
             var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
+			try
+			{
+				xmlDoc.LoadXml(xml);
+			}
+			catch
+			{
+				//Invalid XML, we haven't finished this transaction yet.
+			}
 
             // Iterate through all ProductReceipt elements
             var xmlProductReceipts = xmlDoc.GetElementsByTagName("ProductReceipt");
