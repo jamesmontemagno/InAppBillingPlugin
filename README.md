@@ -3,7 +3,7 @@
 A simple In-App Purchase plugin for Xamarin and Windows to query item information, purchase items, restore items, and more.
 
 ## Documentation
-Get started by reading through the [In-App Billing Plugin documentation](docs).
+Get started by reading through the [In-App Billing Plugin documentation](https://jamesmontemagno.github.io/InAppBillingPlugin/).
 
 ## NuGet
 * NuGet: [Plugin.InAppBilling](https://www.nuget.org/packages/Plugin.InAppBilling) [![NuGet](https://img.shields.io/nuget/v/Plugin.InAppBilling.svg?label=NuGet)](https://www.nuget.org/packages/Plugin.InAppBilling/)
