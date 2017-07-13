@@ -118,44 +118,5 @@ protected override void OnActivityResult(int requestCode, Result resultCode, Int
 }
 ```
 
-## Architecture
-
-### What's with this .Current Global Variable? Why can't I use $FAVORITE_IOC_LIBARY
-You totally can! Every plugin I create is based on an interface. The static singleton just gives you a super simple way of gaining access to the platform implementation. If you are looking to use Depenency Injector or Inversion of Control (IoC) you will need to gain access to a reference of `IInAppBilling`. 
-
-This is what your code may look like when using this approach:
-
-```csharp
-public MyViewModel()
-{
-    readonly IInAppBilling billing;
-    public MyViewModel(IInAppBilling billing)
-    {
-        this.billing = billing;
-    }
-
-    public async Task<bool> MakePurchase()
-    {
-        try
-        {
-            var connected = await billing.ConnectAsync();
-            if(!connected)
-                return false;
-            
-            //make additional billing calls
-        }
-        finally
-        {
-            await billing.DisconnectAsync();
-        }
-    }
-}
-```
-
-Remember that the implementation of the plugin lives in the platform specific applications, which means you will need to register .Current (or instantiate your own CrossInAppBillingImplementation) in your IoC container as the implementation of `IInAppBilling` on each platform. This registration must happen from your application binary, not from your portable/netstandard class library.
-
-### What About Unit Testing?
-To learn about unit testing strategies be sure to read my blog: [Unit Testing Plugins for Xamarin](http://motzcod.es/post/159267241302/unit-testing-plugins-for-xamarin)
-
 
 <= Back to [Table of Contents](README.md)

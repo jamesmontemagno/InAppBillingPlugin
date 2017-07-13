@@ -67,7 +67,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
     }
 ```
 
-Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](8-SecuringPurchases.md) documentation.
+Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 
 
 <= Back to [Table of Contents](README.md)

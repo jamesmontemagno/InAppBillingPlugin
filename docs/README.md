@@ -3,12 +3,13 @@
 Here you will find detailed documentation on setting up and using the In-App Billing Plugin for Xamarin and Windows
 
 ### Table of Contents
-* [Getting Started](1-GettingStarted.md)
-* [Handling Exceptions](2-HandlingExceptions.md)
-* [Get Product Details](3-GetProductDetails.md)
-* [Purchase Non-Consumable](4-PurchaseNonConsumable.md)
-* [Purchase & Consume Consumable](5-PurchaseConsumable.md)
-* [Purchase Subscription](6-PurchaseSubscription.md)
-* [Check & Restore Purchases](7-CheckAndRestorePurchases.md)
-* [Securing Purchases](8-SecuringPurchases.md)
-* [Testing & Troubleshooting](9-TestingAndTroubleshooting.md)
+* [Getting Started](GettingStarted.md)
+* [Handling Exceptions](HandlingExceptions.md)
+* [Get Product Details](GetProductDetails.md)
+* [Purchase Non-Consumable](PurchaseNonConsumable.md)
+* [Purchase & Consume Consumable](PurchaseConsumable.md)
+* [Purchase Subscription](PurchaseSubscription.md)
+* [Check & Restore Purchases](CheckAndRestorePurchases.md)
+* [Securing Purchases](SecuringPurchases.md)
+* [Testing & Troubleshooting](TestingAndTroubleshooting.md)
+* [Architecture](Architecture.md)
