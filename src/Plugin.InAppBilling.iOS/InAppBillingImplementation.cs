@@ -400,9 +400,7 @@ namespace Plugin.InAppBilling
 
         public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
         {
-            var p = transaction.OriginalTransaction;
-            if (p == null)
-                p = transaction;
+            var p = transaction?.OriginalTransaction ?? transaction;
 
             if (p == null)
                 return null;
