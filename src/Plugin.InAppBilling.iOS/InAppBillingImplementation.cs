@@ -89,6 +89,8 @@ namespace Plugin.InAppBilling
         {
             var purchases = await RestoreAsync();
 
+			if (purchases == null)
+				return;
 
             var converted = purchases
 				.Where(p => p != null)
@@ -181,6 +183,9 @@ namespace Plugin.InAppBilling
             Action<SKPaymentTransaction, bool> handler = null;
             handler = new Action<SKPaymentTransaction, bool>((tran, success) =>
             {
+				if (tran?.Payment == null)
+					return;
+
                 // Only handle results from this request
                 if (productId != tran.Payment.ProductIdentifier)
                     return;
@@ -349,6 +354,9 @@ namespace Plugin.InAppBilling
 
             foreach (var transaction in transactions)
             {
+				if (transaction?.TransactionState == null)
+					break;
+
                 Debug.WriteLine($"Updated Transaction | {transaction.ToStatusString()}");
 
                 switch (transaction.TransactionState)
@@ -370,6 +378,9 @@ namespace Plugin.InAppBilling
 
         public override void RestoreCompletedTransactionsFinished(SKPaymentQueue queue)
         {
+			if (restoredTransactions == null)
+				return;
+
             // This is called after all restored transactions have hit UpdatedTransactions
             // at this point we are done with the restore request so let's fire up the event
             var allTransactions = restoredTransactions.ToArray();
@@ -395,7 +406,7 @@ namespace Plugin.InAppBilling
     static class SKTransactionExtensions
     {
         public static string ToStatusString(this SKPaymentTransaction transaction) =>
-            transaction.ToIABPurchase()?.ToString() ?? string.Empty;
+            transaction?.ToIABPurchase()?.ToString() ?? string.Empty;
 
 
         public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
@@ -404,6 +415,7 @@ namespace Plugin.InAppBilling
 
             if (p == null)
                 return null;
+
 
             return new InAppBillingPurchase
             {
@@ -423,6 +435,9 @@ namespace Plugin.InAppBilling
 
         public static PurchaseState GetPurchaseState(this SKPaymentTransaction transaction)
         {
+
+			if (transaction?.TransactionState == null)
+				return PurchaseState.Unknown;
 
             switch (transaction.TransactionState)
             {
