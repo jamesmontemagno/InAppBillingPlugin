@@ -90,7 +90,7 @@ namespace Plugin.InAppBilling
             var purchases = await RestoreAsync();
 
 			if (purchases == null)
-				return;
+				return null;
 
             var converted = purchases
 				.Where(p => p != null)
