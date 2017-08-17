@@ -12,9 +12,9 @@ It is drop dead simple to gain access to the In-App Billing APIs in any project.
 ```csharp
 public async Task<bool> MakePurchase()
 {
+    var billing = CrossInAppBilling.Current;
     try
     {
-        var billing = CrossInAppBilling.Current;
         var connected = await billing.ConnectAsync();
         if(!connected)
             return false;
