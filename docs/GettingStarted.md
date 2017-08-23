@@ -6,7 +6,7 @@
 * Install into ALL of your projects, include client projects.
 
 
-## Using Connectivity APIs
+## Using InAppBilling APIs
 It is drop dead simple to gain access to the In-App Billing APIs in any project. All you need to do is get a reference to the current instance of IInAppBilling via `CrossInAppBilling.Current`. Before making any calls to InAppBilling you must use `ConnectAsync` to ensure a valid connection to the app store of the device and always ensure that you call `DisconnectAsync` when you are finished. It is recommended to call `DisconnectAsync` inside of a finally block.
 
 ```csharp
