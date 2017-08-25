@@ -44,7 +44,13 @@ namespace Plugin.InAppBilling
         const int RESPONSE_CODE_RESULT_USER_CANCELED = 1;
         const int RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE = 2;
 
-        Activity Context => CrossCurrentActivity.Current.Activity;
+        /// <summary>
+        /// Gets the context, aka the currently activity.
+        /// This is set from the MainApplication.cs file that was laid down by the plugin
+        /// </summary>
+        /// <value>The context.</value>
+        Activity Context =>
+            CrossCurrentActivity.Current.Activity ?? throw new NullReferenceException("Current Context/Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the In App Billing can use it.");
 
         /// <summary>
         /// Default Constructor for In App Billing Implemenation on Android

@@ -147,5 +147,9 @@ protected override void OnActivityResult(int requestCode, Result resultCode, Int
 }
 ```
 
+#### Android Context with CurrentActivity
+This plugin utilizes the [CurrentActivity](https://github.com/jamesmontemagno/currentactivityplugin) plugin, which adds a `MainApplicaiton.cs` file to your application and keeps the `CrossCurrentActivity.Current.Activity` up to date. Do not remove this file and ensure that this `Activity` is always set or else you will experience null reference exceptions.
+
+
 
 <= Back to [Table of Contents](README.md)
