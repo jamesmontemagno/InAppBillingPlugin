@@ -22,5 +22,62 @@ public MyViewModel()
 ### What About Unit Testing?
 To learn about unit testing strategies be sure to read my blog: [Unit Testing Plugins for Xamarin](http://motzcod.es/post/159267241302/unit-testing-plugins-for-xamarin)
 
+## Disposing of In-App Billing Plugin
+This plugin also implements IDisposable on all implementations. This ensure that all events are unregistered from the platform. This include unregistering from the SKPaymentQueue on iOS. Only dispose when you need to and are no longer listening to events and you must call `Dispose` on the actual static class. The next time you gain access to the `CrossInAppBilling.Current` a new instance will be created.
+
+```csharp
+public async Task<bool> MakePurchase()
+{
+    if(!CrossInAppBilling.IsSupported)
+        return false;
+
+    using(var billing = CrossInAppBilling.Current)
+    {
+        try
+        {
+            var connected = await billing.ConnectAsync();
+            if(!connected)
+                return false;
+            
+            //make additional billing calls
+        
+        }
+        finally
+        {
+            await billing.DisconnectAsync();
+        }
+    }
+    CrossInAppBilling.Dispose();
+}
+```
+
+It is recommended to not us a using statement, but instead just call the single `Dispose` on the static class, which will also dispose the `Current`:
+
+```csharp
+public async Task<bool> MakePurchase()
+{
+    if(!CrossInAppBilling.IsSupported)
+        return false;
+
+    var billing = CrossInAppBilling.Current;
+    
+    try
+    {
+        var connected = await billing.ConnectAsync();
+        if(!connected)
+            return false;
+        
+        //make additional billing calls
+    
+    }
+    finally
+    {
+        await billing.DisconnectAsync();
+    }
+    //This does all the disposing you need
+    CrossInAppBilling.Dispose();
+}
+```
+
 
 <= Back to [Table of Contents](README.md)
