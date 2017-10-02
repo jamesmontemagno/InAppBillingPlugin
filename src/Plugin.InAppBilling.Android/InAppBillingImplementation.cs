@@ -73,7 +73,7 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
         {
-            if (serviceConnection.Service == null)
+            if (serviceConnection?.Service == null)
             {
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
             }
@@ -143,7 +143,7 @@ namespace Plugin.InAppBilling
         /// <returns>The current purchases</returns>
         public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
-            if (serviceConnection.Service == null)
+            if (serviceConnection?.Service == null)
             {
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
             }
@@ -244,7 +244,7 @@ namespace Plugin.InAppBilling
                 throw new ArgumentNullException(nameof(payload), "Payload can not be null");
 
 
-            if (serviceConnection.Service == null)
+            if (serviceConnection?.Service == null)
             {
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
             }
@@ -395,7 +395,7 @@ namespace Plugin.InAppBilling
         /// <returns>If consumed successful</returns>
         public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
-            if (serviceConnection.Service == null)
+            if (serviceConnection?.Service == null)
             {
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
             }
@@ -459,7 +459,7 @@ namespace Plugin.InAppBilling
         /// <returns>If consumed successful</returns>
         public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
-            if (serviceConnection.Service == null)
+            if (serviceConnection?.Service == null)
                 throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable, "You are not connected to the Google Play App store.");
 
 
