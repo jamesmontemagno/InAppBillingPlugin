@@ -148,10 +148,11 @@ if (!(Test-Path $NUGET_EXE)) {
     }
 }
 
+$newVersion = $env:APPVEYOR_BUILD_VERSION.Replace("-beta","")
 $configFiles = Get-ChildItem . *.csproj -rec
-$assemblyVersionString = "<AssemblyVersion>" + $env:APPVEYOR_BUILD_VERSION + "</AssemblyVersion>"
-$assemblyFileVersionString = "<AssemblyFileVersion>" + $env:APPVEYOR_BUILD_VERSION + "</AssemblyFileVersion>"
-$versionString = "<Version>" + $env:APPVEYOR_BUILD_VERSION + "</Version>"
+$assemblyVersionString = "<AssemblyVersion>" + $newVersion + "</AssemblyVersion>"
+$assemblyFileVersionString = "<AssemblyFileVersion>" + $newVersion + "</AssemblyFileVersion>"
+$versionString = "<Version>" + $newVersion + "</Version>"
 foreach ($file in $configFiles)
 {
     (Get-Content $file.PSPath) |
