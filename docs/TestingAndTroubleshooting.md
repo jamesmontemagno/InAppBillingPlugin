@@ -9,6 +9,9 @@ Integrating and testing In-App Purchases is not an easy task and should go throu
 * You must setup an in app purchase and understand what each of them are.
 * Read through the [testing documentation](https://developer.apple.com/library/content/documentation/LanguagesUtilities/Conceptual/iTunesConnectInAppPurchase_Guide/Chapters/TestingInAppPurchases.html#//apple_ref/doc/uid/TP40013727-CH4-SW1)
 
+### Ensure Contracts are Signed
+You will not be able to test any StoreKit functionality until you have an iOS Paid Applications contract – StoreKit calls in your code will fail until Apple has processed your Contracts, Tax, and Banking information.
+
 ### How to test purchase from TestFlight
 * Don't try to sign-in Settings > iTunes & App Stores
 * Log out of iTunes & App Stores (make sure you're not logged into any account)
