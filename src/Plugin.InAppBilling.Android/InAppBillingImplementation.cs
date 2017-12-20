@@ -468,7 +468,12 @@ namespace Plugin.InAppBilling
 
             var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-            var purchase = purchases.FirstOrDefault(p => p.ProductId == productId && p.Payload == payload);
+            var purchase = purchases.FirstOrDefault(p => p.ProductId == productId && p.Payload == payload && p.ConsumptionState == ConsumptionState.NoYetConsumed);
+
+			if(purchase == null)
+			{
+				purchase = purchases.FirstOrDefault(p => p.ProductId == productId && p.Payload == payload);
+			}
 
             if (purchase == null)
             {
