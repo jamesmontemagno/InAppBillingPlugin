@@ -42,14 +42,20 @@ namespace Plugin.InAppBilling
         const int PURCHASE_REQUEST_CODE = 1001;
 
         const int RESPONSE_CODE_RESULT_USER_CANCELED = 1;
-        const int RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE = 2;
+		const int RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE = 2;
+		const int BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE = 3;
+		const int BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE = 4;
+		const int BILLING_RESPONSE_RESULT_DEVELOPER_ERROR = 5;
+		const int BILLING_RESPONSE_RESULT_ERROR = 6;
+		const int BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED = 7;
+		const int BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED = 8;
 
-        /// <summary>
-        /// Gets the context, aka the currently activity.
-        /// This is set from the MainApplication.cs file that was laid down by the plugin
-        /// </summary>
-        /// <value>The context.</value>
-        Activity Context =>
+		/// <summary>
+		/// Gets the context, aka the currently activity.
+		/// This is set from the MainApplication.cs file that was laid down by the plugin
+		/// </summary>
+		/// <value>The context.</value>
+		Activity Context =>
             CrossCurrentActivity.Current.Activity ?? throw new NullReferenceException("Current Context/Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the In App Billing can use it.");
 
         /// <summary>
@@ -524,7 +530,19 @@ namespace Plugin.InAppBilling
                 case RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE:
                     tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable));
                     break;
-                default:
+				case BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.ItemUnavailable));
+					break;
+				case BILLING_RESPONSE_RESULT_DEVELOPER_ERROR:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.DeveloperError));
+					break;
+				case BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.AlreadyOwned));
+					break;
+				case BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.NotOwned));
+					break;
+				default:
                     tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.GeneralError, responseCode.ToString()));
                     break;
             }
