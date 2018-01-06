@@ -456,7 +456,7 @@ namespace Plugin.InAppBilling
 
 			return new InAppBillingPurchase
 			{
-				TransactionDateUtc = NSDateToDateTimeUtc(p.TransactionDate),
+				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
 				State = p.GetPurchaseState()
