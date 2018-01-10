@@ -77,7 +77,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         {
             //did not purchase
         }
-        else
+        else if(purchase.State == PurchaseState.Purchased)
         {
             //purchased, we can now consume the item or do it later
 

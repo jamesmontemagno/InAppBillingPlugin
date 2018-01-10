@@ -46,9 +46,10 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         {
             //did not purchase
         }
-        else
+        else if(purchase.State == PurchaseState.Purchased)
         {
             //purchased!
+			
         }
     }
     catch (InAppBillingPurchaseException purchaseEx)
