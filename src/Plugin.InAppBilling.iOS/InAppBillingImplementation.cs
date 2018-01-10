@@ -16,11 +16,16 @@ namespace Plugin.InAppBilling
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
 		/// <summary>
+		/// Gets or sets a callback for out of band purchases to complete.
+		/// </summary>
+		public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
+
+		/// <summary>
 		/// Default constructor for In App Billing on iOS
 		/// </summary>
 		public InAppBillingImplementation()
 		{
-			paymentObserver = new PaymentObserver();
+			paymentObserver = new PaymentObserver(OnPurchaseComplete);
 			SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
 		}
 
@@ -378,6 +383,12 @@ namespace Plugin.InAppBilling
 		public event Action<SKPaymentTransaction[]> TransactionsRestored;
 
 		List<SKPaymentTransaction> restoredTransactions = new List<SKPaymentTransaction>();
+		private readonly Action<InAppBillingPurchase> onPurchaseSuccess;
+
+		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess = null)
+		{
+			this.onPurchaseSuccess = onPurchaseSuccess;
+		}
 
 		public override void UpdatedTransactions(SKPaymentQueue queue, SKPaymentTransaction[] transactions)
 		{
@@ -401,6 +412,10 @@ namespace Plugin.InAppBilling
 					case SKPaymentTransactionState.Restored:
 					case SKPaymentTransactionState.Purchased:
 						TransactionCompleted?.Invoke(transaction, true);
+
+						if (TransactionCompleted != null)
+							onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
+
 						SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
 						break;
 					case SKPaymentTransactionState.Failed:
