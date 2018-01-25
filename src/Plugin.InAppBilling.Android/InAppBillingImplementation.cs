@@ -613,12 +613,15 @@ namespace Plugin.InAppBilling
                 tcsConnect = new TaskCompletionSource<bool>();
                 var serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 
-                serviceIntent.SetPackage("com.android.vending");
+				if(serviceIntent == null)
+					return Task.FromResult(false);
+
+				serviceIntent.SetPackage("com.android.vending");
 
                 if (Context.PackageManager.QueryIntentServices(serviceIntent, 0).Any())
                 {
                     Context.BindService(serviceIntent, this, Bind.AutoCreate);
-                    return tcsConnect.Task;
+                    return tcsConnect?.Task ?? Task.FromResult(false);
                 }
 
                 return Task.FromResult(false);
@@ -633,7 +636,7 @@ namespace Plugin.InAppBilling
                 if (!IsConnected)
                     return Task.CompletedTask;
 
-                Context.UnbindService(this);
+                Context?.UnbindService(this);
 
                 IsConnected = false;
                 Service = null;
@@ -644,16 +647,19 @@ namespace Plugin.InAppBilling
             {
                 Service = IInAppBillingServiceStub.AsInterface(service);
 
-                var pkgName = Context.PackageName;
+				if (Service == null || Context == null)
+					tcsConnect?.TrySetResult(false);
+
+				var pkgName = Context.PackageName;
 
                 if (Service.IsBillingSupported(3, pkgName, ITEM_TYPE_SUBSCRIPTION) == 0)
                 {
                     IsConnected = true;
-                    tcsConnect.TrySetResult(true);
+                    tcsConnect?.TrySetResult(true);
                     return;
                 }
 
-                tcsConnect.TrySetResult(false);
+                tcsConnect?.TrySetResult(false);
             }
 
             public void OnServiceDisconnected(ComponentName name)
