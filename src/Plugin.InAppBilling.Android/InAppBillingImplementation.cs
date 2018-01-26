@@ -648,7 +648,10 @@ namespace Plugin.InAppBilling
                 Service = IInAppBillingServiceStub.AsInterface(service);
 
 				if (Service == null || Context == null)
+				{
 					tcsConnect?.TrySetResult(false);
+					return;
+				}
 
 				var pkgName = Context.PackageName;
 
