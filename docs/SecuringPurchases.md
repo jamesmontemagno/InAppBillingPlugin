@@ -111,7 +111,7 @@ The simplest and easiest (not necessarily the most secure) way is to do the foll
         }
     }
 ```
-Plugin.InAppBilling.InAppBillingImplementation.InAppBillingSecurity.VerifyPurchase takes in your public key which you now have reversed back to standard and will do proper RSA validation on the signed data.
+Plugin.InAppBilling.InAppBillingImplementation.InAppBillingSecurity.VerifyPurchase takes in your public key which you now have reversed back to standard and will do proper RSA validation on the signed data. For further discussion join this [Issue](https://github.com/jamesmontemagno/InAppBillingPlugin/issues/116)
 
 ## Server Side Validation
 Not only should your receipt be verified in the app, but ideally it should be verified on a server. I leave this in your hands to add the server side validation by reading Apple and Google's documentation. I provide everything you need in the `VerifyPurchase` method to handle verification.
