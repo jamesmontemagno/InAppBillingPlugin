@@ -11,10 +11,10 @@ namespace Plugin.InAppBilling.Abstractions
     /// </summary>
     public enum PurchaseError
     {
-        /// <summary>
-        /// Billing system unavailable
-        /// </summary>
-        BillingUnavailable,
+		/// <summary>
+		/// Billing API version is not supported for the type requested (Android), client error (iOS)
+		/// </summary>
+		BillingUnavailable,
         /// <summary>
         /// Developer issue
         /// </summary>
