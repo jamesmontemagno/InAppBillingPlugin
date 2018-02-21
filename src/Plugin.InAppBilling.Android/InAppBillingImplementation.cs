@@ -504,7 +504,18 @@ namespace Plugin.InAppBilling
         public static void HandleActivityResult(int requestCode, Result resultCode, Intent data)
         {
 
-            if (PURCHASE_REQUEST_CODE != requestCode || data == null)
+            if (PURCHASE_REQUEST_CODE != requestCode)
+            {
+                return;
+            }
+
+            if(resultCode == Result.Canceled && tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
+            {
+                tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.UserCancelled));
+                return;
+            }
+
+            if(data == null)
             {
                 return;
             }
