@@ -319,12 +319,8 @@ namespace Plugin.InAppBilling
                     //Generic Error
                     throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
                 case 7:
-                    var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
-
-                    var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload));
-
-                    return purchase;
                     //already purchased
+                    throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned);
             }
 
             var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
