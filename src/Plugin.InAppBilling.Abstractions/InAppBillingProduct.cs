@@ -41,6 +41,25 @@ namespace Plugin.InAppBilling.Abstractions
         /// </summary>
         public Int64 MicrosPrice { get; set; }
 
+        /// <summary>
+        /// Gets or sets the localized introductory price.
+        /// </summary>
+        /// <value>The localized introductory price.</value>
+        public string LocalizedIntroductoryPrice { get; set; }
+
+        /// <summary>
+        /// Introductory price of the product in micor-units
+        /// </summary>
+        /// <value>The introductory price.</value>
+        public Int64 MicrosIntroductoryPrice { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="T:Plugin.InAppBilling.Abstractions.InAppBillingProduct"/>
+        /// has introductory price. This is an optional value in the answer from the server, requires a boolean to check if this exists
+        /// </summary>
+        /// <value><c>true</c> if has introductory price; otherwise, <c>false</c>.</value>
+        public bool HasIntroductoryPrice => !string.IsNullOrEmpty(LocalizedIntroductoryPrice);
+
     }
 
 }

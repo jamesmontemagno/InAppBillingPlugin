@@ -105,7 +105,9 @@ namespace Plugin.InAppBilling
                 CurrencyCode = product.CurrencyCode,
                 LocalizedPrice = product.Price,
                 ProductId = product.ProductId,
-                MicrosPrice = product.MicrosPrice
+                MicrosPrice = product.MicrosPrice,
+                LocalizedIntroductoryPrice = product.IntroductoryPrice,
+                MicrosIntroductoryPrice = product.IntroductoryPriceAmountMicros
             });
         }
 
@@ -711,9 +713,21 @@ namespace Plugin.InAppBilling
             [JsonProperty(PropertyName = "price_amount_micros")]
             public Int64 MicrosPrice { get; set; }
 
-            public override string ToString()
-            {
-                return string.Format("[Product: Title={0}, Price={1}, Type={2}, Description={3}, ProductId={4}]", Title, Price, Type, Description, ProductId);
+            [JsonProperty(PropertyName = "introductoryPrice")]
+            public string IntroductoryPrice { get; set; }
+
+            // 0 is default if this property is not set
+            [JsonProperty(PropertyName = "introductoryPriceAmountMicros")]
+            public Int64 IntroductoryPriceAmountMicros { get; set; }
+
+            [JsonProperty(PropertyName = "introductoryPricePeriod")]
+            public string IntroductoryPricePeriod { get; set; }
+
+            [JsonProperty(PropertyName = "introductoryPriceCycles")]
+            public int IntroductoryPriceCycles { get; set; }
+
+            public override string ToString() {
+                return string.Format("[Product: Title={0}, Price={1}, Type={2}, Description={3}, ProductId={4}, CurrencyCode={5}, MicrosPrice={6}, IntroductoryPrice={7}, IntroductoryPriceAmountMicros={8}, IntroductoryPricePeriod={9}, IntroductoryPriceCycles={10}]", Title, Price, Type, Description, ProductId, CurrencyCode, MicrosPrice, IntroductoryPrice, IntroductoryPriceAmountMicros, IntroductoryPricePeriod, IntroductoryPriceCycles);
             }
         }
 
