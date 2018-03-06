@@ -286,11 +286,8 @@ namespace Plugin.InAppBilling
 
         async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
-
             if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
                 return null;
-
-            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
 
             Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
             var response = GetResponseCodeFromBundle(buyIntentBundle);
@@ -323,9 +320,13 @@ namespace Plugin.InAppBilling
                     throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned);
             }
 
+
             var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
-            if (pendingIntent != null)
-                Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
+            if (pendingIntent == null)
+                throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+
+            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
+            Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
 
             var result = await tcsPurchase.Task;
 
