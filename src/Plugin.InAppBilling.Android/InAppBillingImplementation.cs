@@ -286,46 +286,51 @@ namespace Plugin.InAppBilling
 
         async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
-
-            if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
-                return null;
-
-            tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
-
-            Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
-            var response = GetResponseCodeFromBundle(buyIntentBundle);
-
-            switch (response)
+            lock (purchaseLocker)
             {
-                case 0:
-                    //OK to purchase
-                    break;
-                case 1:
-                    //User Cancelled, should try again
-                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
-                case 2:
-                    //Network connection is down
-                    throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable);
-                case 3:
-                    //Billing Unavailable
-                    throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
-                case 4:
-                    //Item Unavailable
-                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
-                case 5:
-                    //Developer Error
-                    throw new InAppBillingPurchaseException(PurchaseError.DeveloperError);
-                case 6:
-                    //Generic Error
-                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
-                case 7:
-                    //already purchased
-                    throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned);
-            }
+                if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
+                    return null;
 
-            var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
-            if (pendingIntent != null)
+                Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntent(3, Context.PackageName, productSku, itemType, payload);
+                var response = GetResponseCodeFromBundle(buyIntentBundle);
+
+                switch (response)
+                {
+                    case 0:
+                        //OK to purchase
+                        break;
+                    case 1:
+                        //User Cancelled, should try again
+                        throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
+                    case 2:
+                        //Network connection is down
+                        throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable);
+                    case 3:
+                        //Billing Unavailable
+                        throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
+                    case 4:
+                        //Item Unavailable
+                        throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
+                    case 5:
+                        //Developer Error
+                        throw new InAppBillingPurchaseException(PurchaseError.DeveloperError);
+                    case 6:
+                        //Generic Error
+                        throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+                    case 7:
+                        //already purchased
+                        throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned);
+                }
+
+
+                var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
+                if (pendingIntent == null)
+                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+
+                tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
+
                 Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
+            }
 
             var result = await tcsPurchase.Task;
 
@@ -565,6 +570,7 @@ namespace Plugin.InAppBilling
 
         InAppBillingServiceConnection serviceConnection;
         static TaskCompletionSource<PurchaseResponse> tcsPurchase;
+        static readonly object purchaseLocker = new object();
 
         static bool ValidOwnedItems(Bundle purchased)
         {
