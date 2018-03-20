@@ -56,6 +56,8 @@ namespace Plugin.InAppBilling
 		{
 			var products = await GetProductAsync(productIds);
 
+            var operatingSystemHasIntroductoryPrice = NSProcessInfo.ProcessInfo.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(11, 2, 0));
+
             return products.Select(p => new InAppBillingProduct {
                 LocalizedPrice = p.LocalizedPrice(),
                 MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
@@ -63,9 +65,9 @@ namespace Plugin.InAppBilling
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
                 CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
-                LocalizedIntroductoryPrice = p.IntroductoryPrice != null ? p.IntroductoryPrice.LocalizedPrice() : "",
-                MicrosIntroductoryPrice = p.IntroductoryPrice != null ? (long)(p.Price.DoubleValue * 1000000d) : 0
-			});
+                LocalizedIntroductoryPrice = operatingSystemHasIntroductoryPrice && p.IntroductoryPrice != null ? p.IntroductoryPrice.LocalizedPrice() : "",
+                MicrosIntroductoryPrice = operatingSystemHasIntroductoryPrice && p.IntroductoryPrice != null ? (long)(p.Price.DoubleValue * 1000000d) : 0
+            });
 		}
 
 		Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
