@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using UIKit;
 
 namespace Plugin.InAppBilling
 {
@@ -56,15 +57,16 @@ namespace Plugin.InAppBilling
 		{
 			var products = await GetProductAsync(productIds);
 
-			return products.Select(p => new InAppBillingProduct
-			{
-				LocalizedPrice = p.LocalizedPrice(),
-				MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
-				Name = p.LocalizedTitle,
-				ProductId = p.ProductIdentifier,
-				Description = p.LocalizedDescription,
-				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty
-			});
+            return products.Select(p => new InAppBillingProduct {
+                LocalizedPrice = p.LocalizedPrice(),
+                MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
+                Name = p.LocalizedTitle,
+                ProductId = p.ProductIdentifier,
+                Description = p.LocalizedDescription,
+                CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
+                LocalizedIntroductoryPrice = p.IntroductoryPrice.CanBeUsed() ? p.IntroductoryPrice.LocalizedPrice() : "",
+                MicrosIntroductoryPrice = p.IntroductoryPrice.CanBeUsed() ? (long)(p.IntroductoryPrice.Price.DoubleValue * 1000000d) : 0
+            });
 		}
 
 		Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
@@ -515,6 +517,8 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	static class SKProductExtension
 	{
+        static bool IsiOS112 => UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+
 		/// <remarks>
 		/// Use Apple's sample code for formatting a SKProduct price
 		/// https://developer.apple.com/library/ios/#DOCUMENTATION/StoreKit/Reference/SKProduct_Reference/Reference/Reference.html#//apple_ref/occ/instp/SKProduct/priceLocale
@@ -537,5 +541,21 @@ namespace Plugin.InAppBilling
 			Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
 			return formattedString;
 		}
+
+        public static string LocalizedPrice(this SKProductDiscount product) {
+            var formatter = new NSNumberFormatter() {
+                FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
+                NumberStyle = NSNumberFormatterStyle.Currency,
+                Locale = product.PriceLocale
+            };
+            var formattedString = formatter.StringFromNumber(product.Price);
+            Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
+            return formattedString;
+        }
+
+        public static bool CanBeUsed(this SKProductDiscount product)
+        {
+            return IsiOS112 && product != null;
+        }
 	}
 }
