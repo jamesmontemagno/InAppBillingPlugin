@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using UIKit;
 
 namespace Plugin.InAppBilling
 {
@@ -56,8 +57,6 @@ namespace Plugin.InAppBilling
 		{
 			var products = await GetProductAsync(productIds);
 
-            var operatingSystemHasIntroductoryPrice = NSProcessInfo.ProcessInfo.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(11, 2, 0));
-
             return products.Select(p => new InAppBillingProduct {
                 LocalizedPrice = p.LocalizedPrice(),
                 MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
@@ -65,8 +64,8 @@ namespace Plugin.InAppBilling
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
                 CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
-                LocalizedIntroductoryPrice = operatingSystemHasIntroductoryPrice && p.IntroductoryPrice != null ? p.IntroductoryPrice.LocalizedPrice() : "",
-                MicrosIntroductoryPrice = operatingSystemHasIntroductoryPrice && p.IntroductoryPrice != null ? (long)(p.Price.DoubleValue * 1000000d) : 0
+                LocalizedIntroductoryPrice = p.IntroductoryPrice.CanBeUsed() ? p.IntroductoryPrice.LocalizedPrice() : "",
+                MicrosIntroductoryPrice = p.IntroductoryPrice.CanBeUsed() ? (long)(p.IntroductoryPrice.Price.DoubleValue * 1000000d) : 0
             });
 		}
 
@@ -518,6 +517,8 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	static class SKProductExtension
 	{
+        static bool IsiOS112 => UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+
 		/// <remarks>
 		/// Use Apple's sample code for formatting a SKProduct price
 		/// https://developer.apple.com/library/ios/#DOCUMENTATION/StoreKit/Reference/SKProduct_Reference/Reference/Reference.html#//apple_ref/occ/instp/SKProduct/priceLocale
@@ -550,6 +551,11 @@ namespace Plugin.InAppBilling
             var formattedString = formatter.StringFromNumber(product.Price);
             Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
             return formattedString;
+        }
+
+        public static bool CanBeUsed(this SKProductDiscount product)
+        {
+            return IsiOS112 && product != null;
         }
 	}
 }
