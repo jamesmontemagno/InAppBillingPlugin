@@ -16,6 +16,8 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
+		static bool IsiOS112 => UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+
 		/// <summary>
 		/// Gets or sets a callback for out of band purchases to complete.
 		/// </summary>
@@ -64,8 +66,8 @@ namespace Plugin.InAppBilling
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
                 CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
-                LocalizedIntroductoryPrice = p.IntroductoryPrice.CanBeUsed() ? p.IntroductoryPrice.LocalizedPrice() : "",
-                MicrosIntroductoryPrice = p.IntroductoryPrice.CanBeUsed() ? (long)(p.IntroductoryPrice.Price.DoubleValue * 1000000d) : 0
+                LocalizedIntroductoryPrice = IsiOS112 ? p.IntroductoryPrice.LocalizedPrice() : string.Empty,
+                MicrosIntroductoryPrice = IsiOS112 ? (long)(p.IntroductoryPrice.Price.DoubleValue * 1000000d) : 0
             });
 		}
 
@@ -517,7 +519,7 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	static class SKProductExtension
 	{
-        static bool IsiOS112 => UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+        
 
 		/// <remarks>
 		/// Use Apple's sample code for formatting a SKProduct price
@@ -551,11 +553,6 @@ namespace Plugin.InAppBilling
             var formattedString = formatter.StringFromNumber(product.Price);
             Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
             return formattedString;
-        }
-
-        public static bool CanBeUsed(this SKProductDiscount product)
-        {
-            return IsiOS112 && product != null;
         }
 	}
 }
