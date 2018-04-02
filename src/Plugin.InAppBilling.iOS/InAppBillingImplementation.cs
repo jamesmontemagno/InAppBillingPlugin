@@ -66,8 +66,8 @@ namespace Plugin.InAppBilling
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
                 CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
-                LocalizedIntroductoryPrice = IsiOS112 ? p.IntroductoryPrice.LocalizedPrice() : string.Empty,
-                MicrosIntroductoryPrice = IsiOS112 ? (long)(p.IntroductoryPrice.Price.DoubleValue * 1000000d) : 0
+                LocalizedIntroductoryPrice = IsiOS112 ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
+                MicrosIntroductoryPrice = IsiOS112 ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
             });
 		}
 
