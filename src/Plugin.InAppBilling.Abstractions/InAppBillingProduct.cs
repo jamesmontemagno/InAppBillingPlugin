@@ -4,10 +4,11 @@ using System;
 namespace Plugin.InAppBilling.Abstractions
 {
 
-    /// <summary>
-    /// Product being offered
-    /// </summary>
-    public class InAppBillingProduct
+	/// <summary>
+	/// Product being offered
+	/// </summary>
+	[Preserve(AllMembers = true)]
+	public class InAppBillingProduct
     {
         /// <summary>
         /// Name of the product

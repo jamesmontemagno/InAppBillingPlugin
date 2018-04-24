@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling.Abstractions
 {
-    /// <summary>
-    /// Interface for InAppBilling
-    /// </summary>
-    public interface IInAppBilling : IDisposable
+	/// <summary>
+	/// Interface for InAppBilling
+	/// </summary>
+	[Preserve(AllMembers = true)]
+	public interface IInAppBilling : IDisposable
     {
         /// <summary>
         /// Gets or sets if in testing mode

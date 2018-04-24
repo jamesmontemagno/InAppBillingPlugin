@@ -2,10 +2,11 @@
 
 namespace Plugin.InAppBilling.Abstractions
 {
-    /// <summary>
-    /// Purchase from in app billing
-    /// </summary>
-    public class InAppBillingPurchase
+	/// <summary>
+	/// Purchase from in app billing
+	/// </summary>
+	[Preserve(AllMembers = true)]
+	public class InAppBillingPurchase
     {
         /// <summary>
         /// 
