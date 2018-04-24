@@ -347,7 +347,7 @@ namespace Plugin.InAppBilling
             {
                 var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
 
-                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload));
+                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
 
                 return purchase;
             }
@@ -355,7 +355,7 @@ namespace Plugin.InAppBilling
             if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
             {
                 var purchase = JsonConvert.DeserializeObject<Purchase>(data);
-                if (purchase.ProductId == productSku && payload.Equals(purchase.DeveloperPayload))
+                if (purchase.ProductId == productSku && payload.Equals(purchase.DeveloperPayload ?? string.Empty))
                     return purchase;
             }
 
