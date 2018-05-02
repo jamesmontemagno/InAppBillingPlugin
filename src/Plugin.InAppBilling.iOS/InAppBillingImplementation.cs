@@ -533,6 +533,9 @@ namespace Plugin.InAppBilling
 		/// </remarks>
 		public static string LocalizedPrice(this SKProduct product)
 		{
+			if (product?.PriceLocale == null)
+				return string.Empty;
+
 			var formatter = new NSNumberFormatter()
 			{
 				FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
@@ -544,8 +547,12 @@ namespace Plugin.InAppBilling
 			return formattedString;
 		}
 
-        public static string LocalizedPrice(this SKProductDiscount product) {
-            var formatter = new NSNumberFormatter() {
+        public static string LocalizedPrice(this SKProductDiscount product)
+		{
+			if (product?.PriceLocale == null)
+				return string.Empty;
+
+			var formatter = new NSNumberFormatter() {
                 FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
                 NumberStyle = NSNumberFormatterStyle.Currency,
                 Locale = product.PriceLocale
