@@ -59,16 +59,17 @@ namespace Plugin.InAppBilling
 		{
 			var products = await GetProductAsync(productIds);
 
-            return products.Select(p => new InAppBillingProduct {
-                LocalizedPrice = p.LocalizedPrice(),
-                MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
-                Name = p.LocalizedTitle,
-                ProductId = p.ProductIdentifier,
-                Description = p.LocalizedDescription,
-                CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
-                LocalizedIntroductoryPrice = IsiOS112 ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
-                MicrosIntroductoryPrice = IsiOS112 ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
-            });
+			return products.Select(p => new InAppBillingProduct
+			{
+				LocalizedPrice = p.LocalizedPrice(),
+				MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
+				Name = p.LocalizedTitle,
+				ProductId = p.ProductIdentifier,
+				Description = p.LocalizedDescription,
+				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
+				LocalizedIntroductoryPrice = IsiOS112 ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
+				MicrosIntroductoryPrice = IsiOS112 ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
+			});
 		}
 
 		Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
@@ -197,7 +198,8 @@ namespace Plugin.InAppBilling
 				TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-				State = p.GetPurchaseState()
+				State = p.GetPurchaseState(),
+				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
 			};
 
 			if (verifyPurchase == null)
@@ -480,7 +482,7 @@ namespace Plugin.InAppBilling
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
 				State = p.GetPurchaseState(),
 				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
-		};
+			};
 		}
 
 		static DateTime NSDateToDateTimeUtc(NSDate date)
@@ -520,7 +522,7 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	static class SKProductExtension
 	{
-        
+
 
 		/// <remarks>
 		/// Use Apple's sample code for formatting a SKProduct price
@@ -548,19 +550,20 @@ namespace Plugin.InAppBilling
 			return formattedString;
 		}
 
-        public static string LocalizedPrice(this SKProductDiscount product)
+		public static string LocalizedPrice(this SKProductDiscount product)
 		{
 			if (product?.PriceLocale == null)
 				return string.Empty;
 
-			var formatter = new NSNumberFormatter() {
-                FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
-                NumberStyle = NSNumberFormatterStyle.Currency,
-                Locale = product.PriceLocale
-            };
-            var formattedString = formatter.StringFromNumber(product.Price);
-            Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
-            return formattedString;
-        }
+			var formatter = new NSNumberFormatter()
+			{
+				FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
+				NumberStyle = NSNumberFormatterStyle.Currency,
+				Locale = product.PriceLocale
+			};
+			var formattedString = formatter.StringFromNumber(product.Price);
+			Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
+			return formattedString;
+		}
 	}
 }
