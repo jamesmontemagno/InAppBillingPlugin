@@ -478,8 +478,9 @@ namespace Plugin.InAppBilling
 				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-				State = p.GetPurchaseState()
-			};
+				State = p.GetPurchaseState(),
+				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
+		};
 		}
 
 		static DateTime NSDateToDateTimeUtc(NSDate date)
