@@ -44,7 +44,7 @@ try
 {
 	var productId = "mysku";
 
-	var connected = await CrossInAppBilling.Current.ConnectAsync();
+	var connected = await CrossInAppBilling.Current.ConnectAsync(ItemType.InAppPurchase);
 
 	if (!connected)
 	{

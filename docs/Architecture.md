@@ -35,7 +35,7 @@ public async Task<bool> MakePurchase()
     {
         try
         {
-            var connected = await billing.ConnectAsync();
+            var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
             if(!connected)
                 return false;
             
@@ -63,7 +63,7 @@ public async Task<bool> MakePurchase()
     
     try
     {
-        var connected = await billing.ConnectAsync();
+        var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
         if(!connected)
             return false;
         

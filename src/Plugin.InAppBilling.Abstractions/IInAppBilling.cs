@@ -20,7 +20,7 @@ namespace Plugin.InAppBilling.Abstractions
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        Task<bool> ConnectAsync();
+        Task<bool> ConnectAsync(ItemType itemType = ItemType.InAppPurchase);
 
         /// <summary>
         /// Disconnect from the billing service

@@ -22,7 +22,7 @@ public async Task<bool> WasItemPurchased(string productId)
     var billing = CrossInAppBilling.Current;
     try
     { 
-        var connected = await billing.ConnectAsync();
+        var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
 
         if (!connected)
         {

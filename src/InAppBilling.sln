@@ -29,6 +29,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.InAppBilling.Abstrac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.InAppBilling.tvOS", "Plugin.InAppBilling.tvOS\Plugin.InAppBilling.tvOS.csproj", "{79036EB1-A7BE-45C4-97F2-061EEC984BEC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6A41C44D-4B82-4039-B2AC-07D668168569}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\Architecture.md = ..\docs\Architecture.md
+		..\docs\CheckAndRestorePurchases.md = ..\docs\CheckAndRestorePurchases.md
+		..\docs\GetProductDetails.md = ..\docs\GetProductDetails.md
+		..\docs\GettingStarted.md = ..\docs\GettingStarted.md
+		..\docs\HandlingExceptions.md = ..\docs\HandlingExceptions.md
+		..\docs\PurchaseConsumable.md = ..\docs\PurchaseConsumable.md
+		..\docs\PurchaseNonConsumable.md = ..\docs\PurchaseNonConsumable.md
+		..\docs\PurchaseSubscription.md = ..\docs\PurchaseSubscription.md
+		..\docs\README.md = ..\docs\README.md
+		..\docs\SecuringPurchases.md = ..\docs\SecuringPurchases.md
+		..\docs\TestingAndTroubleshooting.md = ..\docs\TestingAndTroubleshooting.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -156,5 +171,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42D18242-8BA9-4238-9D59-10850E1C2C24}
 	EndGlobalSection
 EndGlobal

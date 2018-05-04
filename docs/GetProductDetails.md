@@ -64,7 +64,7 @@ try
     
     var productIds = new string []{"mysku","mysku2"};
     //You must connect
-    var connected = await billing.ConnectAsync();
+    var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
 
     if (!connected)
     {

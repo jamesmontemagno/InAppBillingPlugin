@@ -367,9 +367,9 @@ namespace Plugin.InAppBilling
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public override Task<bool> ConnectAsync()
+        public override Task<bool> ConnectAsync(ItemType itemType = ItemType.InAppPurchase)
         {
-            serviceConnection = new InAppBillingServiceConnection(Context);
+            serviceConnection = new InAppBillingServiceConnection(Context, itemType);
             return serviceConnection.ConnectAsync();
         }
 
@@ -599,20 +599,26 @@ namespace Plugin.InAppBilling
         [Preserve(AllMembers = true)]
         class InAppBillingServiceConnection : Java.Lang.Object, IServiceConnection
         {
-            public InAppBillingServiceConnection(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+			ItemType itemType = ItemType.InAppPurchase;
+
+			public InAppBillingServiceConnection(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
             {
                 Context = Application.Context;
             }
 
-            public InAppBillingServiceConnection()
+            public InAppBillingServiceConnection(ItemType itemType = ItemType.InAppPurchase)
             {
                 Context = Application.Context;
-            }
+				this.itemType = itemType;
 
-            public InAppBillingServiceConnection(Context context)
+			}
+
+            public InAppBillingServiceConnection(Context context, ItemType itemType = ItemType.InAppPurchase)
             {
                 Context = context;
-            }
+				this.itemType = itemType;
+
+			}
 
             TaskCompletionSource<bool> tcsConnect;
 
@@ -670,12 +676,21 @@ namespace Plugin.InAppBilling
 
 				var pkgName = Context.PackageName;
 
-                if (Service.IsBillingSupported(3, pkgName, ITEM_TYPE_SUBSCRIPTION) == 0)
-                {
-                    IsConnected = true;
-                    tcsConnect?.TrySetResult(true);
-                    return;
-                }
+				var type = itemType == ItemType.Subscription ? ITEM_TYPE_SUBSCRIPTION : ITEM_TYPE_INAPP;
+
+				try
+				{
+					if (Service.IsBillingSupported(3, pkgName, type) == 0)
+					{
+						IsConnected = true;
+						tcsConnect?.TrySetResult(true);
+						return;
+					}
+				}
+				catch(System.Exception ex)
+				{
+					Console.WriteLine("Unable to check if billing is supported: " + ex.Message);
+				}
 
                 tcsConnect?.TrySetResult(false);
             }

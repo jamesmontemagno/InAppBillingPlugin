@@ -72,7 +72,7 @@ Here is an example of how to handle exceptions:
 var billing = CrossInAppBilling.Current;
 try
 {
-    var connected = await billing.ConnectAsync();
+    var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
 
     if (!connected)
     {
