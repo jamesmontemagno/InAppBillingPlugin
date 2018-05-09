@@ -31,7 +31,7 @@
       </group>
       <group targetFramework="MonoAndroid10">
         <dependency id="Newtonsoft.Json" version="9.0.1"/>
-        <dependency id="Plugin.CurrentActivity" version="2.0.1.4"/>
+        <dependency id="Plugin.CurrentActivity" version="2.1.0.1"/>
       </group>
       <group targetFramework="Xamarin.iOS10">
       </group>
