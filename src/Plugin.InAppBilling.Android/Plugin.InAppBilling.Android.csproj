@@ -45,7 +45,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Plugin.CurrentActivity, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Plugin.CurrentActivity.2.0.1.4\lib\monoandroid44\Plugin.CurrentActivity.dll</HintPath>
+      <HintPath>..\packages\Plugin.CurrentActivity.2.1.0.1\lib\monoandroid44\Plugin.CurrentActivity.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections" />
@@ -63,7 +63,6 @@
       <Link>CrossInAppBilling.cs</Link>
     </Compile>
     <Compile Include="InAppBillingImplementation.cs" />
-    <Compile Include="MainApplication.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
