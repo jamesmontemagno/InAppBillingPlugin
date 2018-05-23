@@ -1,4 +1,8 @@
 ## Changelog
+
+### [2.0.0]
+* New dependencies. Built against newer version of current activity plugin
+
 ### [1.2.3]
 * Fix issues with returning all iOS purchases on restore
 * Android - Add additional null checks if service isn't created
