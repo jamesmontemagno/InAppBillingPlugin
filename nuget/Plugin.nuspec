@@ -30,8 +30,8 @@
       <group targetFramework="wpa">
       </group>
       <group targetFramework="MonoAndroid10">
-        <dependency id="Newtonsoft.Json" version="9.0.1"/>
-        <dependency id="Plugin.CurrentActivity" version="2.1.0.2"/>
+        <dependency id="Newtonsoft.Json" version="11.0.2"/>
+        <dependency id="Plugin.CurrentActivity" version="2.1.0.4"/>
       </group>
       <group targetFramework="Xamarin.iOS10">
       </group>
@@ -66,12 +66,8 @@
     <!--Xamarin.iOS Unified-->
     <file src="src\Plugin.InAppBilling.iOS\bin\iPhone\Release\Plugin.InAppBilling.*" target="lib\Xamarin.iOS10" />
 
-
-
-
     <!--Xamarin.tvOS-->
     <file src="src\Plugin.InAppBilling.tvOS\bin\Release\Plugin.InAppBilling.*" target="lib\xamarintvos" />
-
 
   </files>
 </package>
