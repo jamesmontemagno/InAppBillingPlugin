@@ -75,5 +75,10 @@ namespace Plugin.InAppBilling.Abstractions
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
-    }
+
+		Task<bool> FinishTransaction(InAppBillingPurchase purchase);
+
+		Task<bool> FinishTransaction(string purchaseId);
+
+	}
 }
