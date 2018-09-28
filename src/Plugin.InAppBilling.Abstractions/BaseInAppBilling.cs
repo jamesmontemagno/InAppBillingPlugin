@@ -108,5 +108,9 @@ namespace Plugin.InAppBilling.Abstractions
                 disposed = true;
             }
         }
-    }
+
+		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase) => Task.FromResult(true);
+
+		public virtual Task<bool> FinishTransaction(string purchaseId) => Task.FromResult(true);
+	}
 }

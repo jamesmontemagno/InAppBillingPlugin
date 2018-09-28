@@ -90,7 +90,7 @@ namespace Plugin.InAppBilling
 
 
 		/// <summary>
-		/// Get all current purhcase for a specifiy product type.
+		/// Get all current purchase for a specifiy product type.
 		/// </summary>
 		/// <param name="itemType">Type of product</param>
 		/// <param name="verifyPurchase">Interface to verify purchase</param>
@@ -309,6 +309,28 @@ namespace Plugin.InAppBilling
 		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
 		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null) =>
 			null;
+
+		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase) =>
+			FinishTransaction(purchase?.Id);
+
+		public override async Task<bool> FinishTransaction(string purchaseId)
+		{
+			if (string.IsNullOrWhiteSpace(purchaseId))
+				throw new ArgumentException("PurchaseId must be valid", nameof(purchaseId));
+
+			var purchases = await RestoreAsync();
+
+			if (purchases == null)
+				return false;
+
+			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseId).FirstOrDefault();
+			if (transaction == null)
+				return false;
+
+			SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+
+			return true;
+		}
 
 		PaymentObserver paymentObserver;
 
