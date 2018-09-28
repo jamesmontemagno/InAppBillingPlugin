@@ -217,8 +217,11 @@ namespace Plugin.InAppBilling
 
 			// Get the receipt data for (server-side) validation.
 			// See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
-			var receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
-			var receipt = receiptUrl.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+			NSData receiptUrl = null;
+			if(NSBundle.MainBundle.AppStoreReceiptUrl != null)
+				receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
+
+			var receipt = receiptUrl?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
 
 			return verifyPurchase.VerifyPurchase(receipt, string.Empty, productId, transactionId);
 		}
