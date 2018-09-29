@@ -21,7 +21,11 @@
     </summary>
     <tags>xamarin, xamarin.forms, android, ios, uwp, windows phone, In-App Billing, purchases, plugin</tags>
     <dependencies>
+			<group targetFramework="netstandard1.0">
+				<dependency id="System.ValueTuple" version="4.5.0"/>
+			</group>
       <group targetFramework="net">
+				<dependency id="System.ValueTuple" version="4.5.0"/>
       </group>
       <group targetFramework="win">
       </group>
@@ -32,18 +36,23 @@
       <group targetFramework="MonoAndroid10">
         <dependency id="Newtonsoft.Json" version="11.0.2"/>
         <dependency id="Plugin.CurrentActivity" version="2.1.0.4"/>
+				<dependency id="System.ValueTuple" version="4.5.0"/>
       </group>
       <group targetFramework="Xamarin.iOS10">
+				<dependency id="System.ValueTuple" version="4.5.0"/>
       </group>
       <group targetFramework="Xamarin.Mac20">
       </group>
       <group targetFramework="portable-net45+win+wpa81+wp80">
+				<dependency id="System.ValueTuple" version="4.5.0"/>
       </group>
       <group targetFramework="uap">
+				<dependency id="System.ValueTuple" version="4.5.0"/>
       </group>
       <group targetFramework="dotnet">
       </group>
       <group targetFramework="xamarintvos">
+				<dependency id="System.ValueTuple" version="4.5.0"/>
       </group>
       <group targetFramework="xamarinwatchos">
       </group>
