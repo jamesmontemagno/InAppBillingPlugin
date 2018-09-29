@@ -102,9 +102,11 @@ namespace Plugin.InAppBilling
 			if (purchases == null)
 				return null;
 
+			var comparer = new InAppBillingPurchaseComparer();
 			var converted = purchases
 				.Where(p => p != null)
-				.Select(p2 => p2.ToIABPurchase());
+				.Select(p2 => p2.ToIABPurchase())
+				.Distinct(comparer);
 
 			//try to validate purchases
 			var valid = await ValidateReceipt(verifyPurchase, string.Empty, string.Empty);

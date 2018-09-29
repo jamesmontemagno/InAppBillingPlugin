@@ -1,12 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Plugin.InAppBilling.Abstractions
 {
+	[Preserve(AllMembers = true)]
+	public class InAppBillingPurchaseComparer : IEqualityComparer<InAppBillingPurchase>
+	{
+		public bool Equals(InAppBillingPurchase x, InAppBillingPurchase y) => x.Equals(y);
+
+
+		public int GetHashCode(InAppBillingPurchase x) => x.GetHashCode();
+	}
+
 	/// <summary>
 	/// Purchase from in app billing
 	/// </summary>
 	[Preserve(AllMembers = true)]
-	public class InAppBillingPurchase
+	public class InAppBillingPurchase : IEquatable<InAppBillingPurchase>
     {
         /// <summary>
         /// 
@@ -55,11 +65,27 @@ namespace Plugin.InAppBilling.Abstractions
         /// </summary>
         public string Payload { get; set; }
 
-        /// <summary>
-        /// Prints out product
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString() => 
+		public static bool operator ==(InAppBillingPurchase left, InAppBillingPurchase right) =>
+			Equals(left, right);
+
+		public static bool operator !=(InAppBillingPurchase left, InAppBillingPurchase right) =>
+			!Equals(left, right);
+
+		public override bool Equals(object obj) =>
+			(obj is InAppBillingPurchase purchase) && Equals(purchase);
+
+		public bool Equals(InAppBillingPurchase other) =>
+			(Id, ProductId, AutoRenewing, PurchaseToken, State, Payload) ==
+			(other.Id, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload);
+
+		public override int GetHashCode() =>
+			(Id, ProductId, AutoRenewing, PurchaseToken, State, Payload).GetHashCode();
+
+		/// <summary>
+		/// Prints out product
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString() => 
 			$"ProductId:{ProductId} | AutoRenewing:{AutoRenewing} | State:{State} | Id:{Id}";
         
     }

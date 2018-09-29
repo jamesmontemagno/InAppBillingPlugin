@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Plugin.InAppBilling.Abstractions\Plugin.InAppBilling.Abstractions.csproj" />
   </ItemGroup>
 
