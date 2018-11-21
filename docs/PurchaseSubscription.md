@@ -24,6 +24,21 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, st
 
 The `payload` attribute is a special payload that is sent and then returned from the server for additional validation. It can be whatever you want it to be, but should be a constant that is used anywhere the `payload` is used.
 
+A subscription can also be upgraded/downgraded/sidegraded to another subscription. This implementation is Android specific because iOS handles this automatically when purchasing subscriptions from the same subscriptions group.
+
+```csharp
+/// <summary>
+/// (Android specific) Upgrade/Downagrade a previously purchased subscription
+/// </summary>
+/// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
+/// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+/// <param name="payload">Developer specific payload (can not be null)</param>
+/// <param name="verifyPurchase">Verify Purchase implementation</param>
+/// <returns>Purchase details</returns>
+/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string oldProductId, string newProductId, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+```
+
 Example:
 ```csharp
 public async Task<bool> PurchaseItem(string productId, string payload)

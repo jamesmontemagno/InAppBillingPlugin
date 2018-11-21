@@ -212,7 +212,20 @@ namespace Plugin.InAppBilling
 			return validated ? purchase : null;
 		}
 
-		Task<bool> ValidateReceipt(IInAppBillingVerifyPurchase verifyPurchase, string productId, string transactionId)
+		/// <summary>
+		/// (Android specific) Upgrade/Downagrade a previously purchased subscription
+		/// </summary>
+		/// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
+		/// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+		/// <param name="payload">Developer specific payload (can not be null)</param>
+		/// <param name="verifyPurchase">Verify Purchase implementation</param>
+		/// <returns>Purchase details</returns>
+		public async override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string oldProductId, string newProductId, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+		{
+			throw new NotImplementedException("iOS not supported. Apple store manages upgrades natively when subscriptions of the same group are purchased.");
+		}
+
+			Task<bool> ValidateReceipt(IInAppBillingVerifyPurchase verifyPurchase, string productId, string transactionId)
 		{
 			if (verifyPurchase == null)
 				return Task.FromResult(true);

@@ -30,7 +30,10 @@ namespace Plugin.InAppBilling
         const string ITEM_TYPE_INAPP = "inapp";
         const string ITEM_TYPE_SUBSCRIPTION = "subs";
 
-        const string RESPONSE_CODE = "RESPONSE_CODE";
+		const string EXTRA_SUB_PARAM_REPLACED_SKUS = "skusToReplace";
+
+
+		const string RESPONSE_CODE = "RESPONSE_CODE";
         const string RESPONSE_BUY_INTENT = "BUY_INTENT";
         const string RESPONSE_IAP_DATA = "INAPP_PURCHASE_DATA";
         const string RESPONSE_IAP_DATA_SIGNATURE = "INAPP_DATA_SIGNATURE";
@@ -286,7 +289,127 @@ namespace Plugin.InAppBilling
             };
         }
 
-        async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
+		/// <summary>
+		/// (Android specific) Upgrade/Downagrade a previously purchased subscription
+		/// </summary>
+		/// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
+		/// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+		/// <param name="payload">Developer specific payload (can not be null)</param>
+		/// <param name="verifyPurchase">Verify Purchase implementation</param>
+		/// <returns>Purchase details</returns>
+		public async override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string oldProductId, string newProductId, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+		{
+			if (payload == null)
+				throw new ArgumentNullException(nameof(payload), "Payload can not be null");
+
+
+			if (serviceConnection?.Service == null)
+			{
+				throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
+			}
+
+			Purchase purchase = await UpgradePurchasedSubscriptionInternalAsync(oldProductId, newProductId, payload, verifyPurchase);
+
+			if (purchase == null)
+				return null;
+
+			var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+			return new InAppBillingPurchase
+			{
+				TransactionDateUtc = epoch + TimeSpan.FromMilliseconds(purchase.PurchaseTime),
+				Id = purchase.OrderId,
+				AutoRenewing = purchase.AutoRenewing,
+				PurchaseToken = purchase.PurchaseToken,
+				State = purchase.SubscriptionState,
+				ConsumptionState = purchase.ConsumedState,
+				ProductId = purchase.ProductId,
+				Payload = purchase.DeveloperPayload ?? string.Empty
+			};
+		}
+
+		async Task<Purchase> UpgradePurchasedSubscriptionInternalAsync(string oldProductId, string newProductId, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+		{
+			string itemType = ITEM_TYPE_SUBSCRIPTION;
+
+			lock (purchaseLocker)
+			{
+				if (tcsPurchase != null && !tcsPurchase.Task.IsCompleted)
+					return null;
+				
+				Bundle extraParams = new Bundle();
+				extraParams.PutStringArrayList(EXTRA_SUB_PARAM_REPLACED_SKUS, new List<string> { oldProductId });
+				Bundle buyIntentBundle = serviceConnection.Service.GetBuyIntentExtraParams(6, Context.PackageName, newProductId, itemType, payload, extraParams);
+				var response = GetResponseCodeFromBundle(buyIntentBundle);
+
+				switch (response)
+				{
+					case 0:
+						//OK to purchase
+						break;
+					case 1:
+						//User Cancelled, should try again
+						throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
+					case 2:
+						//Network connection is down
+						throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable);
+					case 3:
+						//Billing Unavailable
+						throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
+					case 4:
+						//Item Unavailable
+						throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
+					case 5:
+						//Developer Error
+						throw new InAppBillingPurchaseException(PurchaseError.DeveloperError);
+					case 6:
+						//Generic Error
+						throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+					case 7:
+						//already purchased
+						throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned);
+				}
+
+
+				var pendingIntent = buyIntentBundle.GetParcelable(RESPONSE_BUY_INTENT) as PendingIntent;
+				if (pendingIntent == null)
+					throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
+
+				tcsPurchase = new TaskCompletionSource<PurchaseResponse>();
+
+				Context.StartIntentSenderForResult(pendingIntent.IntentSender, PURCHASE_REQUEST_CODE, new Intent(), 0, 0, 0);
+			}
+
+			var result = await tcsPurchase.Task;
+
+			if (result == null)
+				return null;
+
+			var data = result.PurchaseData;
+			var sign = result.DataSignature;
+
+			//for some reason the data didn't come back
+			if (string.IsNullOrWhiteSpace(data))
+			{
+				var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
+
+				var purchase = purchases.FirstOrDefault(p => p.ProductId == newProductId && payload.Equals(p.DeveloperPayload ?? string.Empty));
+
+				return purchase;
+			}
+
+			if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
+			{
+				var purchase = JsonConvert.DeserializeObject<Purchase>(data);
+				if (purchase.ProductId == newProductId && payload.Equals(purchase.DeveloperPayload ?? string.Empty))
+					return purchase;
+			}
+
+			return null;
+
+		}
+
+		async Task<Purchase> PurchaseAsync(string productSku, string itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase)
         {
             lock (purchaseLocker)
             {

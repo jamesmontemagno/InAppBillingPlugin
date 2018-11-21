@@ -56,14 +56,25 @@ namespace Plugin.InAppBilling.Abstractions
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
 
-        /// <summary>
-        /// Consume a purchase with a purchase token.
-        /// </summary>
-        /// <param name="productId">Id or Sku of product</param>
-        /// <param name="purchaseToken">Original Purchase Token</param>
-        /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
+		/// <summary>
+		/// (Android specific) Upgrade/Downagrade a previously purchased subscription
+		/// </summary>
+		/// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
+		/// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+		/// <param name="payload">Developer specific payload (can not be null)</param>
+		/// <param name="verifyPurchase">Verify Purchase implementation</param>
+		/// <returns>Purchase details</returns>
+		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+		Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string oldProductId, string newProductId, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+
+		/// <summary>
+		/// Consume a purchase with a purchase token.
+		/// </summary>
+		/// <param name="productId">Id or Sku of product</param>
+		/// <param name="purchaseToken">Original Purchase Token</param>
+		/// <returns>If consumed successful</returns>
+		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+		Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
 
         /// <summary>
         /// Consume a purchase
