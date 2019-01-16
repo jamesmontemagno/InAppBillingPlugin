@@ -121,7 +121,7 @@ namespace Plugin.InAppBilling
 		/// <returns>Purchase details</returns>
 		public async override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string oldProductId, string newProductId, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
 		{
-			throw new NotImplementedException("iOS not supported. Apple store manages upgrades natively when subscriptions of the same group are purchased.");
+			throw new NotImplementedException("UWP not supported. Windows store can't manage subscriptions upgrades.");
 		}
 
 		/// <summary>
