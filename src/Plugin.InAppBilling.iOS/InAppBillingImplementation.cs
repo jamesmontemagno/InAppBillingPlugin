@@ -108,10 +108,14 @@ namespace Plugin.InAppBilling
 				.Select(p2 => p2.ToIABPurchase())
 				.Distinct(comparer);
 
-			//try to validate purchases
-			var valid = await ValidateReceipt(verifyPurchase, string.Empty, string.Empty);
+			var validPurchases = new List<InAppBillingPurchase>();
+			foreach (var purchase in converted)
+			{
+				if (await ValidateReceipt(verifyPurchase, purchase.ProductId, purchase.Id))
+					validPurchases.Add(purchase);
+			}
 
-			return valid ? converted : null;
+			return validPurchases.Any() ? validPurchases : null;
 		}
 
 
