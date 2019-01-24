@@ -221,11 +221,9 @@ namespace Plugin.InAppBilling
                         string data = dataList[i];
                         string sign = signatures[i];
 
-                        if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
-                        {
-                            var purchase = JsonConvert.DeserializeObject<Purchase>(data);
+                        var purchase = JsonConvert.DeserializeObject<Purchase>(data);
+						if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign, purchase.ProductId, purchase.OrderId))
                             purchases.Add(purchase);
-                        }
                     }
 
                     continuationToken = ownedItems.GetString(RESPONSE_IAP_CONTINUATION_TOKEN);
@@ -346,15 +344,12 @@ namespace Plugin.InAppBilling
             if (string.IsNullOrWhiteSpace(data))
             {
                 var purchases = await GetPurchasesAsync(itemType, verifyPurchase);
-
-                var purchase = purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
-
-                return purchase;
+                return purchases.FirstOrDefault(p => p.ProductId == productSku && payload.Equals(p.DeveloperPayload ?? string.Empty));
             }
 
-            if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign))
+            var purchase = JsonConvert.DeserializeObject<Purchase>(data);
+			if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign, productSku, purchase.OrderId))
             {
-                var purchase = JsonConvert.DeserializeObject<Purchase>(data);
                 if (purchase.ProductId == productSku && payload.Equals(purchase.DeveloperPayload ?? string.Empty))
                     return purchase;
             }
