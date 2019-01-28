@@ -450,8 +450,7 @@ namespace Plugin.InAppBilling
 					case SKPaymentTransactionState.Purchased:
 						TransactionCompleted?.Invoke(transaction, true);
 
-						if (TransactionCompleted != null)
-							onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
+						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 
 						SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
 						break;
