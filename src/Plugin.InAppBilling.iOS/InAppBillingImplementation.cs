@@ -23,12 +23,14 @@ namespace Plugin.InAppBilling
 		/// </summary>
 		public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
 
+		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
+
 		/// <summary>
 		/// Default constructor for In App Billing on iOS
 		/// </summary>
 		public InAppBillingImplementation()
 		{
-			paymentObserver = new PaymentObserver(OnPurchaseComplete);
+			paymentObserver = new PaymentObserver(OnPurchaseComplete, OnShouldAddStorePayment);
 			SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
 		}
 
@@ -421,10 +423,17 @@ namespace Plugin.InAppBilling
 
 		List<SKPaymentTransaction> restoredTransactions = new List<SKPaymentTransaction>();
 		private readonly Action<InAppBillingPurchase> onPurchaseSuccess;
+		private readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment;
 
-		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess = null)
+		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment)
 		{
 			this.onPurchaseSuccess = onPurchaseSuccess;
+			this.onShouldAddStorePayment = onShouldAddStorePayment;
+		}
+
+		public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
+		{
+			return onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
 		}
 
 		public override void UpdatedTransactions(SKPaymentQueue queue, SKPaymentTransaction[] transactions)
