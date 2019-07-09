@@ -365,8 +365,6 @@ namespace Plugin.InAppBilling
         public override Task<bool> ConnectAsync(ItemType itemType = ItemType.InAppPurchase)
         {
             serviceConnection = new InAppBillingServiceConnection(Context, itemType);
-            tcsPurchase?.TrySetCanceled();
-            tcsPurchase = null;
             return serviceConnection.ConnectAsync();
         }
 
@@ -524,38 +522,38 @@ namespace Plugin.InAppBilling
 
             switch (responseCode)
             {
-	            case 0:
-		            //Reponse returned OK
-		            var purchaseData = data.GetStringExtra(RESPONSE_IAP_DATA);
-		            var dataSignature = data.GetStringExtra(RESPONSE_IAP_DATA_SIGNATURE);
+                case 0:
+                    //Reponse returned OK
+                    var purchaseData = data.GetStringExtra(RESPONSE_IAP_DATA);
+                    var dataSignature = data.GetStringExtra(RESPONSE_IAP_DATA_SIGNATURE);
 
-		            tcsPurchase?.TrySetResult(new PurchaseResponse
-		            {
-			            PurchaseData = purchaseData, DataSignature = dataSignature
-		            });
-		            break;
-	            case RESPONSE_CODE_RESULT_USER_CANCELED:
-		            tcsPurchase?.TrySetException(new InAppBillingPurchaseException(PurchaseError.UserCancelled));
-		            break;
-	            case RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE:
-		            tcsPurchase?.TrySetException(new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable));
-		            break;
-	            case BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE:
-		            tcsPurchase?.TrySetException(new InAppBillingPurchaseException(PurchaseError.ItemUnavailable));
-		            break;
-	            case BILLING_RESPONSE_RESULT_DEVELOPER_ERROR:
-		            tcsPurchase?.TrySetException(new InAppBillingPurchaseException(PurchaseError.DeveloperError));
-		            break;
-	            case BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED:
-		            tcsPurchase?.TrySetException(new InAppBillingPurchaseException(PurchaseError.AlreadyOwned));
-		            break;
-	            case BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED:
-		            tcsPurchase?.TrySetException(new InAppBillingPurchaseException(PurchaseError.NotOwned));
-		            break;
-	            default:
-		            tcsPurchase?.TrySetException(
-			            new InAppBillingPurchaseException(PurchaseError.GeneralError, responseCode.ToString()));
-		            break;
+                    tcsPurchase?.TrySetResult(new PurchaseResponse
+                    {
+                        PurchaseData = purchaseData,
+                        DataSignature = dataSignature
+                    });
+                    break;
+                case RESPONSE_CODE_RESULT_USER_CANCELED:
+                    tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.UserCancelled));
+                    break;
+                case RESPONSE_CODE_RESULT_SERVICE_UNAVAILABLE:
+                    tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable));
+                    break;
+				case BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.ItemUnavailable));
+					break;
+				case BILLING_RESPONSE_RESULT_DEVELOPER_ERROR:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.DeveloperError));
+					break;
+				case BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.AlreadyOwned));
+					break;
+				case BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED:
+					tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.NotOwned));
+					break;
+				default:
+                    tcsPurchase.SetException(new InAppBillingPurchaseException(PurchaseError.GeneralError, responseCode.ToString()));
+                    break;
             }
         }
 
