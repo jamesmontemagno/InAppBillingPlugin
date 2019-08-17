@@ -90,14 +90,7 @@ namespace Plugin.InAppBilling
 			return productRequestDelegate.WaitForResponse();
 		}
 
-
-		/// <summary>
-		/// Get all current purchase for a specifiy product type.
-		/// </summary>
-		/// <param name="itemType">Type of product</param>
-		/// <param name="verifyPurchase">Interface to verify purchase</param>
-		/// <returns>The current purchases</returns>
-		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+		protected async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId)
 		{
 			var purchases = await RestoreAsync();
 
@@ -113,7 +106,7 @@ namespace Plugin.InAppBilling
 			var validPurchases = new List<InAppBillingPurchase>();
 			foreach (var purchase in converted)
 			{
-				if (await ValidateReceipt(verifyPurchase, purchase.ProductId, purchase.Id))
+				if ((verifyOnlyProductId != null && !verifyOnlyProductId.Equals(purchase.ProductId)) || await ValidateReceipt(verifyPurchase, purchase.ProductId, purchase.Id))
 					validPurchases.Add(purchase);
 			}
 

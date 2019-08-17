@@ -143,13 +143,7 @@ namespace Plugin.InAppBilling
             return getSkuDetailsTask;
         }
 
-        /// <summary>
-        /// Get all current purhcase for a specifiy product type.
-        /// </summary>
-        /// <param name="itemType">Type of product</param>
-        /// <param name="verifyPurchase">Interface to verify purchase</param>
-        /// <returns>The current purchases</returns>
-        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+		protected async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId)
         {
             if (serviceConnection?.Service == null)
             {
@@ -160,10 +154,10 @@ namespace Plugin.InAppBilling
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
-                    purchases = await GetPurchasesAsync(ITEM_TYPE_INAPP, verifyPurchase);
+                    purchases = await GetPurchasesAsync(ITEM_TYPE_INAPP, verifyPurchase, verifyOnlyProductId);
                     break;
                 case ItemType.Subscription:
-                    purchases = await GetPurchasesAsync(ITEM_TYPE_SUBSCRIPTION, verifyPurchase);
+                    purchases = await GetPurchasesAsync(ITEM_TYPE_SUBSCRIPTION, verifyPurchase, verifyOnlyProductId);
                     break;
             }
 
@@ -188,7 +182,7 @@ namespace Plugin.InAppBilling
 
         }
 
-        Task<List<Purchase>> GetPurchasesAsync(string itemType, IInAppBillingVerifyPurchase verifyPurchase)
+        Task<List<Purchase>> GetPurchasesAsync(string itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId = null)
         {
             var getPurchasesTask = Task.Run(async () =>
             {
@@ -222,9 +216,12 @@ namespace Plugin.InAppBilling
                         string sign = signatures[i];
 
                         var purchase = JsonConvert.DeserializeObject<Purchase>(data);
-						if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, sign, purchase.ProductId, purchase.OrderId))
-                            purchases.Add(purchase);
-                    }
+
+						if (verifyPurchase == null || (verifyOnlyProductId != null && !verifyOnlyProductId.Equals(purchase.ProductId)))
+							purchases.Add(purchase);
+						else if (await verifyPurchase.VerifyPurchase(data, sign, purchase.ProductId, purchase.OrderId))
+							purchases.Add(purchase);
+					}
 
                     continuationToken = ownedItems.GetString(RESPONSE_IAP_CONTINUATION_TOKEN);
 
