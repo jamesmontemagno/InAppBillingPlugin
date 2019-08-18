@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace Plugin.InAppBilling.Abstractions
+namespace Plugin.InAppBilling
 {
 	[AttributeUsage(AttributeTargets.All)]
 	[EditorBrowsable(EditorBrowsableState.Never)]

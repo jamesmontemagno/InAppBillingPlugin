@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Plugin.InAppBilling.Abstractions
+namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Product item type

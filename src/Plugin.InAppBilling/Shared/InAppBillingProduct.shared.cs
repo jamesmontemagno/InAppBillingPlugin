@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace Plugin.InAppBilling.Abstractions
+namespace Plugin.InAppBilling
 {
 
 	/// <summary>
@@ -55,7 +55,7 @@ namespace Plugin.InAppBilling.Abstractions
         public Int64 MicrosIntroductoryPrice { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="T:Plugin.InAppBilling.Abstractions.InAppBillingProduct"/>
+        /// Gets a value indicating whether this <see cref="T:Plugin.InAppBillingProduct"/>
         /// has introductory price. This is an optional value in the answer from the server, requires a boolean to check if this exists
         /// </summary>
         /// <value><c>true</c> if has introductory price; otherwise, <c>false</c>.</value>
