@@ -50,7 +50,7 @@
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\nuget\readme.txt" PackagePath="readme.txt" Pack="true" />
+		<None Include="..\..\nuget\readme.txt" PackagePath="readme.txt" Pack="true" />
 		<Compile Include="**\*.shared.cs" />
 		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
 	</ItemGroup>
@@ -64,10 +64,21 @@
 		<Compile Include="**\*.uwp.cs" />
 	</ItemGroup>
 
+	<Target Name="_RemoveNonExistingResgenFile" BeforeTargets="CoreCompile" Condition="'$(_SdkSetAndroidResgenFile)' == 'true' And '$(AndroidResgenFile)' != '' And !Exists('$(AndroidResgenFile)')">
+		<ItemGroup>
+			<Compile Remove="$(AndroidResgenFile)" />
+		</ItemGroup>
+	</Target>
+
+	<PropertyGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+		<DesignTimeBuild>false</DesignTimeBuild>
+	</PropertyGroup>
+
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
 		<Compile Include="**\*.android.cs" />
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
+		<PackageReference Include="Xamarin.Android.Support.Annotations" Version="28.0.0.1" />
 		<PackageReference Include="Xamarin.Android.Google.BillingClient" Version="2.0.0" />
 	</ItemGroup>
 
