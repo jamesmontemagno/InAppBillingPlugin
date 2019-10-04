@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.31">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard1.0;netstandard2.0;MonoAndroid90;Xamarin.iOS10;Xamarin.TVOS10;uap10.0.16299</TargetFrameworks>
 		<AssemblyName>Plugin.InAppBilling</AssemblyName>
@@ -76,9 +76,9 @@
 
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
 		<Compile Include="**\*.android.cs" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
 		<PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
-		<PackageReference Include="Xamarin.Android.Support.Annotations" Version="28.0.0.1" />
+		<PackageReference Include="Xamarin.Android.Support.Annotations" Version="28.0.0.3" />
 		<PackageReference Include="Xamarin.Android.Google.BillingClient" Version="2.0.0" />
 	</ItemGroup>
 
