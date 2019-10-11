@@ -37,7 +37,7 @@ For linking if you are setting **Link All** you may need to add:
 
 #### Android:
 ```
-Plugin.InAppBilling;
+Plugin.InAppBilling;Xamarin.Android.Google.BillingClient;
 ```
 
 #### iOS:
