@@ -75,11 +75,11 @@ namespace Plugin.InAppBilling.Abstractions
 			(obj is InAppBillingPurchase purchase) && Equals(purchase);
 
 		public bool Equals(InAppBillingPurchase other) =>
-			(Id, ProductId, AutoRenewing, PurchaseToken, State, Payload) ==
-			(other.Id, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload);
+			(Id, TransactionDateUtc, ProductId, AutoRenewing, PurchaseToken, State, Payload) ==
+			(other.Id, other.TransactionDateUtc, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload);
 
 		public override int GetHashCode() =>
-			(Id, ProductId, AutoRenewing, PurchaseToken, State, Payload).GetHashCode();
+			(Id, TransactionDateUtc, ProductId, AutoRenewing, PurchaseToken, State, Payload).GetHashCode();
 
 		/// <summary>
 		/// Prints out product
