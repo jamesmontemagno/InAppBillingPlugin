@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling.Abstractions
@@ -35,24 +36,48 @@ namespace Plugin.InAppBilling.Abstractions
         public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
 
-        /// <summary>
-        /// Get all current purhcase for a specifiy product type.
-        /// </summary>
-        /// <param name="itemType">Type of product</param>
-        /// <param name="verifyPurchase">Verify purchase implementation</param>
-        /// <returns>The current purchases</returns>
-        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
+		/// <summary>
+		/// Verifies a specific product type and product id. Use e.g. when product is already purchased but verification failed and needs to be called again.
+		/// </summary>
+		/// <param name="itemType">Type of product</param>
+		/// <param name="verifyPurchase">Interface to verify purchase</param>
+		/// <param name="productId">Id of product</param>
+		/// <returns>The current purchases</returns>
+		public async Task<bool> VerifyPreviousPurchaseAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string productId)
+		{
+			return (await GetPurchasesAsync(itemType, verifyPurchase, productId))?.Any(p => productId.Equals(p?.ProductId)) ?? false;
+		}
 
-        /// <summary>
-        /// Purchase a specific product or subscription
-        /// </summary>
-        /// <param name="productId">Sku or ID of product</param>
-        /// <param name="itemType">Type of product being requested</param>
-        /// <param name="payload">Developer specific payload</param>
-        /// <param name="verifyPurchase">Verify Purchase implementation</param>
-        /// <returns>Purchase details</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+		/// <summary>
+		/// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
+		/// </summary>
+		/// <param name="itemType">Type of product</param>
+		/// <param name="verifyPurchase">Interface to verify purchase</param>
+		/// <param name="verifyOnlyProductId">If you want to verify a specific purchase, provide its id. Other purchases will be returned without verification.</param>
+		/// <returns>The current purchases</returns>
+		protected abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId);
+
+		/// <summary>
+		/// Get all current purchases for a specific product type. If you use verification and it fails for some purchase, it's not contained in the result.
+		/// </summary>
+		/// <param name="itemType">Type of product</param>
+        /// <param name="verifyPurchase">Verify purchase implementation</param>
+		/// <returns>The current purchases</returns>
+		public async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+		{
+			return await GetPurchasesAsync(itemType, verifyPurchase, null);
+		}
+
+		/// <summary>
+		/// Purchase a specific product or subscription
+		/// </summary>
+		/// <param name="productId">Sku or ID of product</param>
+		/// <param name="itemType">Type of product being requested</param>
+		/// <param name="payload">Developer specific payload</param>
+		/// <param name="verifyPurchase">Verify Purchase implementation</param>
+		/// <returns>Purchase details</returns>
+		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+		public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
 
 		/// <summary>
 		/// (Android specific) Upgrade/Downagrade a previously purchased subscription

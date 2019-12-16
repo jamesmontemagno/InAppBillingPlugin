@@ -23,12 +23,14 @@ namespace Plugin.InAppBilling
 		/// </summary>
 		public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
 
+		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
+
 		/// <summary>
 		/// Default constructor for In App Billing on iOS
 		/// </summary>
 		public InAppBillingImplementation()
 		{
-			paymentObserver = new PaymentObserver(OnPurchaseComplete);
+			paymentObserver = new PaymentObserver(OnPurchaseComplete, OnShouldAddStorePayment);
 			SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
 		}
 
@@ -88,14 +90,7 @@ namespace Plugin.InAppBilling
 			return productRequestDelegate.WaitForResponse();
 		}
 
-
-		/// <summary>
-		/// Get all current purchase for a specifiy product type.
-		/// </summary>
-		/// <param name="itemType">Type of product</param>
-		/// <param name="verifyPurchase">Interface to verify purchase</param>
-		/// <returns>The current purchases</returns>
-		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+		protected async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId)
 		{
 			var purchases = await RestoreAsync();
 
@@ -108,10 +103,14 @@ namespace Plugin.InAppBilling
 				.Select(p2 => p2.ToIABPurchase())
 				.Distinct(comparer);
 
-			//try to validate purchases
-			var valid = await ValidateReceipt(verifyPurchase, string.Empty, string.Empty);
+			var validPurchases = new List<InAppBillingPurchase>();
+			foreach (var purchase in converted)
+			{
+				if ((verifyOnlyProductId != null && !verifyOnlyProductId.Equals(purchase.ProductId)) || await ValidateReceipt(verifyPurchase, purchase.ProductId, purchase.Id))
+					validPurchases.Add(purchase);
+			}
 
-			return valid ? converted : null;
+			return validPurchases.Any() ? validPurchases : null;
 		}
 
 
@@ -430,10 +429,17 @@ namespace Plugin.InAppBilling
 
 		List<SKPaymentTransaction> restoredTransactions = new List<SKPaymentTransaction>();
 		private readonly Action<InAppBillingPurchase> onPurchaseSuccess;
+		private readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment;
 
-		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess = null)
+		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment)
 		{
 			this.onPurchaseSuccess = onPurchaseSuccess;
+			this.onShouldAddStorePayment = onShouldAddStorePayment;
+		}
+
+		public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
+		{
+			return onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
 		}
 
 		public override void UpdatedTransactions(SKPaymentQueue queue, SKPaymentTransaction[] transactions)
@@ -459,8 +465,7 @@ namespace Plugin.InAppBilling
 					case SKPaymentTransactionState.Purchased:
 						TransactionCompleted?.Invoke(transaction, true);
 
-						if (TransactionCompleted != null)
-							onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
+						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 
 						SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
 						break;

@@ -70,13 +70,7 @@ namespace Plugin.InAppBilling
             return products;
         }
 
-        /// <summary>
-        /// Get all current purchase for a specific product type.
-        /// </summary>
-        /// <param name="itemType">Type of product</param>
-        /// <param name="verifyPurchase">Verify purchase implementation</param>
-        /// <returns>The current purchases</returns>
-        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+        protected async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Foundation;
+using StoreKit;
 using UIKit;
 
 namespace InAppBillingTests.iOS
@@ -25,7 +26,21 @@ namespace InAppBillingTests.iOS
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
 
-            return base.FinishedLaunching(app, options);
+			//initialize current one.
+			Plugin.InAppBilling.InAppBillingImplementation.OnShouldAddStorePayment = OnShouldAddStorePayment;
+			var current = Plugin.InAppBilling.CrossInAppBilling.Current;
+
+			return base.FinishedLaunching(app, options);
         }
-    }
+
+		bool OnShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
+		{
+			// true in app purchase is initiated, false cancels it.
+			// you can check if it was already purchased.
+			return true;
+		}
+
+	}
+
+
 }
