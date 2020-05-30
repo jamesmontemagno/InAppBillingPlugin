@@ -18,6 +18,7 @@ You will not be able to test any StoreKit functionality until you have an iOS Pa
 * Just open the app you're trying to test
 * Your app will prompt you to sign in
 * Enter your credentials for your sandbox test account
+* While you could e.g. read your items, you need a real device to test purchasing. Purchasing does not work on Simulators.
 
 
 ## Android Testing 
@@ -35,6 +36,7 @@ You will not be able to test any StoreKit functionality until you have an iOS Pa
 <AndroidSigningKeyAlias>ALIAS</AndroidSigningKeyAlias>
 <AndroidSigningKeyPass>PASS</AndroidSigningKeyPass>
 ```
+* You could use the static product IDs for testing, e.g. android.test.purchased, as described in [Androids Developer Documentation](https://developer.android.com/google/play/billing/billing_testing).
 
 ## Android Troubleshooing
 * If you see "You need to sign into your google account". This most likely means that you don't have an items published and active for IAB

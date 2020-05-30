@@ -35,7 +35,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         if (!connected)
         {
             //we are offline or can't connect, don't try to purchase
-            return;
+            return false;
         }
 
         //check purchases
