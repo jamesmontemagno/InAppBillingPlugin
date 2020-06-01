@@ -8,7 +8,12 @@ namespace Plugin.InAppBilling
     /// <summary>
     /// Base implementation for In App Billing, handling disposables
     /// </summary>
+
+#if __ANDROID__
+    public abstract class BaseInAppBilling : Java.Lang.Object, IInAppBilling, IDisposable
+#else
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
+#endif
     {
         /// <summary>
         /// Gets or sets if in testing mode

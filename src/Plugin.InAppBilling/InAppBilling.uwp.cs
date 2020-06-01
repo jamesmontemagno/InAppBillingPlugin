@@ -112,7 +112,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken, string payload = null)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
             switch(result)

@@ -295,7 +295,7 @@ namespace Plugin.InAppBilling
 		/// <param name="purchaseToken">Original Purchase Token</param>
 		/// <returns>If consumed successful</returns>
 		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken) =>
+		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken, string payload = null) =>
 			null;
 
 		/// <summary>
@@ -375,7 +375,7 @@ namespace Plugin.InAppBilling
 
 			base.Dispose(disposing);
 		}
-	}
+    }
 
 
 	[Preserve(AllMembers = true)]
