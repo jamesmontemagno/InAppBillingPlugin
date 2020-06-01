@@ -6,11 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3236B15E-C644-4FAA-8568-55E39CCE6D2F}"
 	ProjectSection(SolutionItems) = preProject
 		..\.editorconfig = ..\.editorconfig
-		..\appveyor.yml = ..\appveyor.yml
-		..\bootstrapper.ps1 = ..\bootstrapper.ps1
-		..\build.cake = ..\build.cake
 		..\CHANGELOG.md = ..\CHANGELOG.md
-		..\nuget\Plugin.nuspec = ..\nuget\Plugin.nuspec
 		..\README.md = ..\README.md
 		..\nuget\readme.txt = ..\nuget\readme.txt
 	EndProjectSection

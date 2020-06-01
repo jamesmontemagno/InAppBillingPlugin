@@ -16,6 +16,8 @@ namespace Plugin.InAppBilling
         /// </summary>
         bool InTestingMode { get; set; }
 
+        Task<bool> AcknowledgePurchaseAsync(string purchaseToken);
+
         /// <summary>
         /// Connect to billing service
         /// </summary>
@@ -71,7 +73,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
+        Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken, string developerPayload = null);
 
         /// <summary>
         /// Consume a purchase

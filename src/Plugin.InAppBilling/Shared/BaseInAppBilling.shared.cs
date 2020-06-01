@@ -86,7 +86,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public abstract Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
+        public abstract Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken, string developerPayload = null);
 
         /// <summary>
         /// Consume a purchase
@@ -137,5 +137,8 @@ namespace Plugin.InAppBilling
 		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase) => Task.FromResult(true);
 
 		public virtual Task<bool> FinishTransaction(string purchaseId) => Task.FromResult(true);
-	}
+
+        public virtual Task<bool> AcknowledgePurchaseAsync(string purchaseToken) => Task.FromResult(true);
+
+    }
 }
