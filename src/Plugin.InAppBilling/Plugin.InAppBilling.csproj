@@ -1,24 +1,93 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+	<PropertyGroup>
+		<TargetFrameworks>netstandard1.0;netstandard2.0;MonoAndroid90;Xamarin.iOS10;Xamarin.TVOS10;uap10.0.16299</TargetFrameworks>
+		<AssemblyName>Plugin.InAppBilling</AssemblyName>
+		<RootNamespace>Plugin.InAppBilling</RootNamespace>
+		<Product>$(AssemblyName) ($(TargetFramework))</Product>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+		<Version>1.0.0.0</Version>
+		<Authors>James Montemagno</Authors>
+		<PackageId>Plugin.InAppBilling</PackageId>
+		<PackOnBuild>true</PackOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIconUrl>https://raw.githubusercontent.com/jamesmontemagno/InAppBillingPlugin/master/art/icon_128.png</PackageIconUrl>
+		<PackageLicenseUrl>https://github.com/jamesmontemagno/InAppBillingPlugin/blob/master/LICENSE</PackageLicenseUrl>
+		<Owners>JamesMontemagno</Owners>
+		<PackageProjectUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</PackageProjectUrl>
+		<Summary>Xamarin and Windows plugin to In-App Billing.</Summary>
+		<PackageTags>xamarin, xamarin.forms, android, ios, uwp, windows phone, In-App Billing, purchases, plugin</PackageTags>
+		<Title>In-App Billing Plugin for Xamarin and Windows</Title>
+		<Description>
+			Xamarin and Windows Plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
+			Read the full documenation on the projects page.
+		</Description>
+		<Copyright>Copyright 2019</Copyright>
+		<RepositoryUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</RepositoryUrl>
+		<PackageReleaseNotes>See: https://github.com/jamesmontemagno/InAppBillingPlugin </PackageReleaseNotes>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
-    <AssemblyName>Plugin.InAppBilling</AssemblyName>
-    <RootNamespace>Plugin.InAppBilling</RootNamespace>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>1.0.0.0</Version>
-  </PropertyGroup>
+		<NeutralLanguage>en</NeutralLanguage>
+		<LangVersion>default</LangVersion>
+		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+		<LangVersion>7.3</LangVersion>
+		<DefineConstants>$(DefineConstants);</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<DebugType>portable</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)'=='Release' And '$(OS)' == 'Windows_NT' ">
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\nuget\readme.txt" PackagePath="readme.txt" Pack="true" />
+		<Compile Include="**\*.shared.cs" />
+		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
+	</ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.0\Plugin.InAppBilling.xml</DocumentationFile>
-  </PropertyGroup>
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
+		<Compile Include="**\*.netstandard.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('uap10.0')) ">
+		<PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.1.5" />
+		<Compile Include="**\*.uwp.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Plugin.InAppBilling.Abstractions\Plugin.InAppBilling.Abstractions.csproj" />
-  </ItemGroup>
+	<Target Name="_RemoveNonExistingResgenFile" BeforeTargets="CoreCompile" Condition="'$(_SdkSetAndroidResgenFile)' == 'true' And '$(AndroidResgenFile)' != '' And !Exists('$(AndroidResgenFile)')">
+		<ItemGroup>
+			<Compile Remove="$(AndroidResgenFile)" />
+		</ItemGroup>
+	</Target>
 
+	<PropertyGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+		<DesignTimeBuild>false</DesignTimeBuild>
+	</PropertyGroup>
+
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+		<Compile Include="**\*.android.cs" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+		<PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
+		<PackageReference Include="Xamarin.Android.Support.Annotations" Version="28.0.0.3" />
+		<PackageReference Include="Xamarin.Android.Google.BillingClient" Version="2.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
+		<Compile Include="**\*.apple.cs" />
+	</ItemGroup>
+
+
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.TVOS')) ">
+		<Compile Include="**\*.apple.cs" />
+	</ItemGroup>
 </Project>

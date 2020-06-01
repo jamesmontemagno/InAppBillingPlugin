@@ -1,4 +1,4 @@
-﻿namespace Plugin.InAppBilling.Abstractions
+﻿namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Gets the current status of the purchase

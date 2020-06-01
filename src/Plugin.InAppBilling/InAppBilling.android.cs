@@ -6,22 +6,23 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Newtonsoft.Json;
-using Com.Android.Vending.Billing;
 using Java.Security;
 using Java.Security.Spec;
 using Java.Lang;
 using System.Text;
 
-using Plugin.InAppBilling.Abstractions;
+
 using Plugin.CurrentActivity;
 using Android.Runtime;
+using Android.Vending.Billing;
 
+[assembly: UsesPermission("com.android.vending.BILLING")]
 namespace Plugin.InAppBilling
 {
-    /// <summary>
-    /// Implementation for Feature
-    /// </summary>
-    [Preserve(AllMembers = true)]
+	/// <summary>
+	/// Implementation for Feature
+	/// </summary>
+	[Preserve(AllMembers = true)]
     public class InAppBillingImplementation : BaseInAppBilling
     {
         const string SKU_DETAILS_LIST = "DETAILS_LIST";
@@ -654,7 +655,7 @@ namespace Plugin.InAppBilling
 
             public void OnServiceConnected(ComponentName name, IBinder service)
             {
-                Service = IInAppBillingServiceStub.AsInterface(service);
+                Service = InAppBillingServiceStub.AsInterface(service);
 
 				if (Service == null || Context == null)
 				{
@@ -799,18 +800,18 @@ namespace Plugin.InAppBilling
                 get
                 {
                     if (PurchaseState == 0)
-                        return Abstractions.PurchaseState.Purchased;
+                        return InAppBilling.PurchaseState.Purchased;
                     else if (PurchaseState == 1)
-                        return Abstractions.PurchaseState.Canceled;
+                        return InAppBilling.PurchaseState.Canceled;
                     else if (PurchaseState == 2)
-                        return Abstractions.PurchaseState.Refunded;
+                        return InAppBilling.PurchaseState.Refunded;
 
-                    return Abstractions.PurchaseState.Unknown;
+                    return InAppBilling.PurchaseState.Unknown;
                 }
             }
 
             [JsonIgnore]
-            public ConsumptionState ConsumedState => ConsumptionState == 0 ? Abstractions.ConsumptionState.NoYetConsumed : Abstractions.ConsumptionState.Consumed;
+            public ConsumptionState ConsumedState => ConsumptionState == 0 ? InAppBilling.ConsumptionState.NoYetConsumed : InAppBilling.ConsumptionState.Consumed;
 
             [JsonIgnore]
             public PurchaseState SubscriptionState
@@ -818,13 +819,13 @@ namespace Plugin.InAppBilling
                 get
                 {
                     if (PaymentState == 0)
-                        return Abstractions.PurchaseState.PaymentPending;
+                        return InAppBilling.PurchaseState.PaymentPending;
                     else if (PaymentState == 1)
-                        return Abstractions.PurchaseState.Purchased;
+                        return InAppBilling.PurchaseState.Purchased;
                     else if (PaymentState == 2)
-                        return Abstractions.PurchaseState.FreeTrial;
+                        return InAppBilling.PurchaseState.FreeTrial;
 
-                    return Abstractions.PurchaseState.Unknown;
+                    return InAppBilling.PurchaseState.Unknown;
                 }
             }
 

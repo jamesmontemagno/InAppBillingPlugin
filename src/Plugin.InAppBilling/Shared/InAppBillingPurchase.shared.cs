@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Plugin.InAppBilling.Abstractions
+namespace Plugin.InAppBilling
 {
 	[Preserve(AllMembers = true)]
 	public class InAppBillingPurchaseComparer : IEqualityComparer<InAppBillingPurchase>

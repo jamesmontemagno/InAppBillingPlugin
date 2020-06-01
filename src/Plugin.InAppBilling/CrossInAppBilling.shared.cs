@@ -1,5 +1,4 @@
-﻿using Plugin.InAppBilling.Abstractions;
-using System;
+﻿using System;
 
 namespace Plugin.InAppBilling
 {
@@ -34,7 +33,7 @@ namespace Plugin.InAppBilling
 
         static IInAppBilling CreateInAppBilling()
         {
-#if NETSTANDARD1_0
+#if NETSTANDARD1_0 || NETSTANDARD2_0
             return null;
 #else
 #pragma warning disable IDE0022 // Use expression body for methods

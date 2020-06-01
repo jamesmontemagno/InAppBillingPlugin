@@ -25,7 +25,7 @@ namespace InAppBillingTests
 			var id = "iaptest";
 			try
 			{
-				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, Plugin.InAppBilling.Abstractions.ItemType.InAppPurchase, "mypayload");
+				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, ItemType.InAppPurchase, "mypayload");
 
 				if (purchase == null)
 				{
@@ -48,7 +48,7 @@ namespace InAppBillingTests
 			var id = "renewsub";
 			try
 			{
-				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, Plugin.InAppBilling.Abstractions.ItemType.Subscription, "mypayload");
+				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, ItemType.Subscription, "mypayload");
 
 				if(purchase == null)
 				{
@@ -75,7 +75,7 @@ namespace InAppBillingTests
 		{
 			try
 			{
-				var purchases = await CrossInAppBilling.Current.GetPurchasesAsync(Plugin.InAppBilling.Abstractions.ItemType.Subscription);
+				var purchases = await CrossInAppBilling.Current.GetPurchasesAsync(ItemType.Subscription);
 
 				if (purchases == null)
 				{
