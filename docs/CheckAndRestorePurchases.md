@@ -27,7 +27,7 @@ public async Task<bool> WasItemPurchased(string productId)
         if (!connected)
         {
             //Couldn't connect
-            return;
+            return false;
         }
 
         //check purchases

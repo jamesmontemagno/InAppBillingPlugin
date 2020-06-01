@@ -66,7 +66,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         if (!connected)
         {
             //we are offline or can't connect, don't try to purchase
-            return;
+            return false;
         }
 
         //check purchases
@@ -84,7 +84,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
             //If we are on iOS we are done, else try to consume the purchase
             //Device.RuntimePlatform comes from Xamarin.Forms, you can also use a conditional flag or the DeviceInfo plugin
             if(Device.RuntimePlatform == Device.iOS)
-                return;
+                return true;
                 
             var consumedItem = await CrossInAppBilling.Current.ConsumePurchaseAsync(purchase.ProductId, purchase.PurchaseToken);
 
