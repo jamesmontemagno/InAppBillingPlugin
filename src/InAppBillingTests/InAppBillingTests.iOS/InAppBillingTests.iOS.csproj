@@ -159,5 +159,9 @@
       <Project>{6D4D9135-F225-4626-A9CE-32BDF97AEA89}</Project>
       <Name>InAppBillingTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Plugin.InAppBilling\Plugin.InAppBilling.csproj">
+      <Project>{C570E25E-259F-4D4C-88F0-B2982815192D}</Project>
+      <Name>Plugin.InAppBilling</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
