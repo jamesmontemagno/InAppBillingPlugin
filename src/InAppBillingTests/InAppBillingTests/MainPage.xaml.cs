@@ -1,14 +1,10 @@
 ﻿using Plugin.InAppBilling;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace InAppBillingTests
 {
-	public partial class MainPage : ContentPage
+    public partial class MainPage : ContentPage
 	{
 		public MainPage()
 		{
@@ -25,7 +21,7 @@ namespace InAppBillingTests
 			var id = "iaptest";
 			try
 			{
-				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, ItemType.InAppPurchase, "mypayload");
+				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, ItemType.InAppPurchase);
 
 				if (purchase == null)
 				{
@@ -48,7 +44,7 @@ namespace InAppBillingTests
 			var id = "renewsub";
 			try
 			{
-				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, ItemType.Subscription, "mypayload");
+				var purchase = await CrossInAppBilling.Current.PurchaseAsync(id, ItemType.Subscription);
 
 				if(purchase == null)
 				{

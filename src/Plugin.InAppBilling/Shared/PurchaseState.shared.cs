@@ -42,6 +42,10 @@
         /// </summary>
         PaymentPending,
         /// <summary>
+        /// 
+        /// </summary>
+        Pending,
+        /// <summary>
         /// Purchase state unknown
         /// </summary>
         Unknown
