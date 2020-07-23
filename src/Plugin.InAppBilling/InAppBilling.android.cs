@@ -456,8 +456,10 @@ namespace Plugin.InAppBilling
                 return new string(chars);
             }
 
+#pragma warning disable IDE1006 // Naming Styles
             const string KeyFactoryAlgorithm = "RSA";
             const string SignatureAlgorithm = "SHA1withRSA";
+#pragma warning restore IDE1006 // Naming Styles
 
         }
     }

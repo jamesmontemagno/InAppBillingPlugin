@@ -61,7 +61,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Number of subscription billing periods for which the user will be given the introductory price, such as 3
         /// </summary>
-        public string IntroductoryPriceCycles { get; set; }
+        public int IntroductoryPriceCycles { get; set; }
 
         /// <summary>
         /// Billing period of the introductory price, specified in ISO 8601 format

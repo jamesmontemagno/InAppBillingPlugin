@@ -58,7 +58,7 @@ namespace Plugin.InAppBilling
             return products;
         }
 
-        protected async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
@@ -76,7 +76,7 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
@@ -100,7 +100,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public async override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
             switch(result)
@@ -113,18 +113,9 @@ namespace Plugin.InAppBilling
                 case FulfillmentResult.PurchaseReverted:
                     throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
                 case FulfillmentResult.Succeeded:
-                    return new InAppBillingPurchase
-                    {
-                        Id = purchaseToken,
-                        AutoRenewing = false,
-                        Payload = string.Empty, 
-                        PurchaseToken = purchaseToken,
-                        ProductId = productId,
-                        State = PurchaseState.Purchased,
-                        TransactionDateUtc = DateTime.UtcNow
-                    };
+                    return true;
                 default:
-                    return null;
+                    return false;
             }
         }
     }
