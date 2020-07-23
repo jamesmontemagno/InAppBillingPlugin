@@ -66,7 +66,7 @@
 		<Compile Include="**\*.uwp.cs" />
 	</ItemGroup>
 
-	<Target Name="_RemoveNonExistingResgenFile" BeforeTargets="CoreCompile" Condition="'$(_SdkSetAndroidResgenFile)' == 'true' And '$(AndroidResgenFile)' != '' And !Exists('$(AndroidResgenFile)')">
+	<!--<Target Name="_RemoveNonExistingResgenFile" BeforeTargets="CoreCompile" Condition="'$(_SdkSetAndroidResgenFile)' == 'true' And '$(AndroidResgenFile)' != '' And !Exists('$(AndroidResgenFile)')">
 		<ItemGroup>
 			<Compile Remove="$(AndroidResgenFile)" />
 		</ItemGroup>
@@ -74,11 +74,10 @@
 
 	<PropertyGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
 		<DesignTimeBuild>false</DesignTimeBuild>
-	</PropertyGroup>
+	</PropertyGroup>-->
 
-	<ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
 		<Compile Include="**\*.android.cs" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
 		<PackageReference Include="Xamarin.Android.Google.BillingClient" Version="3.0.0" />
 	</ItemGroup>
