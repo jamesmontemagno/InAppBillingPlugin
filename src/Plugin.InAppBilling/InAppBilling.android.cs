@@ -8,6 +8,7 @@ using Java.Security.Spec;
 using Java.Lang;
 using System.Text;
 using Android.BillingClient.Api;
+using Android.Content;
 
 [assembly: UsesPermission("com.android.vending.BILLING")]
 namespace Plugin.InAppBilling
@@ -23,8 +24,10 @@ namespace Plugin.InAppBilling
 		/// This is set from the MainApplication.cs file that was laid down by the plugin
 		/// </summary>
 		/// <value>The context.</value>
-		Activity Context =>
-            Xamarin.Essentials.Platform.CurrentActivity ?? throw new NullReferenceException("Current Context/Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials in your source code so the In App Billing can use it.");
+		Activity Activity =>
+            Xamarin.Essentials.Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials in your source code so the In App Billing can use it.");
+
+        Context Context => Android.App.Application.Context;
 
         /// <summary>
         /// Default Constructor for In App Billing Implemenation on Android
@@ -238,7 +241,7 @@ namespace Plugin.InAppBilling
                 .Build();
 
             tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)>();
-            var responseCode = BillingClient.LaunchBillingFlow(Context, flowParams);
+            var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
             ParseBillingResult(responseCode);        
 
             var result = await tcsPurchase.Task;
