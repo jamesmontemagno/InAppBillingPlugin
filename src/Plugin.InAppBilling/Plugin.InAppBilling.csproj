@@ -62,7 +62,6 @@
 	</ItemGroup>
 
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('uap10.0')) ">
-		<PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.1.5" />
 		<Compile Include="**\*.uwp.cs" />
 	</ItemGroup>
 
@@ -79,7 +78,8 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
 		<Compile Include="**\*.android.cs" />
 		<PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
-		<PackageReference Include="Xamarin.Android.Google.BillingClient" Version="3.0.0" />
+    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="3.0.0" />
+    <PackageReference Include="Xamarin.AndroidX.Migration" Version="1.0.6.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
