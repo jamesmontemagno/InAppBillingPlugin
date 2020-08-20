@@ -203,6 +203,13 @@ namespace Plugin.InAppBilling
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
             }
 
+            // If we have a current task and it is not completed then return null.
+            // you can't try to purchase twice.
+            if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
+            {
+                return null;
+            }
+
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
@@ -218,10 +225,7 @@ namespace Plugin.InAppBilling
         }
 
         async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, IInAppBillingVerifyPurchase verifyPurchase)
-        {
-            var completed = tcsPurchase?.Task?.IsCompleted ?? false;
-            if (!completed)
-                return null;
+        {            
 
             var skuDetailsParams = SkuDetailsParams.NewBuilder()
                 .SetType(itemType)
