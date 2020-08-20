@@ -26,18 +26,6 @@ namespace Plugin.InAppBilling
 
 
         /// <summary>
-        /// Connect to billing service
-        /// </summary>
-        /// <returns>If Success</returns>
-        public override Task<bool> ConnectAsync(ItemType itemType = ItemType.InAppPurchase) => Task.FromResult(true);
-
-        /// <summary>
-        /// Disconnect from the billing service
-        /// </summary>
-        /// <returns>Task to disconnect</returns>
-        public override Task DisconnectAsync() => Task.CompletedTask;
-
-        /// <summary>
         /// Gets product information
         /// </summary>
         /// <param name="itemType">Type of item</param>
@@ -70,7 +58,7 @@ namespace Plugin.InAppBilling
             return products;
         }
 
-        protected async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
@@ -88,7 +76,7 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
@@ -112,7 +100,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public async override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
             switch(result)
@@ -125,61 +113,9 @@ namespace Plugin.InAppBilling
                 case FulfillmentResult.PurchaseReverted:
                     throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
                 case FulfillmentResult.Succeeded:
-                    return new InAppBillingPurchase
-                    {
-                        Id = purchaseToken,
-                        AutoRenewing = false,
-                        Payload = string.Empty, 
-                        PurchaseToken = purchaseToken,
-                        ProductId = productId,
-                        State = PurchaseState.Purchased,
-                        TransactionDateUtc = DateTime.UtcNow
-                    };
+                    return true;
                 default:
-                    return null;
-            }
-        }
-
-        /// <summary>
-        /// Consume a purchase
-        /// </summary>
-        /// <param name="productId">Id/Sku of the product</param>
-        /// <param name="payload">Developer specific payload of original purchase</param>
-        /// <param name="itemType">Type of product being consumed.</param>
-        /// <param name="verifyPurchase">Verify Purchase implementation</param>
-        /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
-        {
-            var items = await CurrentAppMock.GetAvailableConsumables(InTestingMode);
-
-            var consumable = items.FirstOrDefault(i => i.ProductId == productId);
-            if(consumable == null)
-                throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
-
-            var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, consumable.TransactionId);
-            switch (result)
-            {
-                case FulfillmentResult.ServerError:
-                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
-                case FulfillmentResult.NothingToFulfill:
-                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
-                case FulfillmentResult.PurchasePending:
-                case FulfillmentResult.PurchaseReverted:
-                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
-                case FulfillmentResult.Succeeded:
-                    return new InAppBillingPurchase
-                    {
-                        AutoRenewing = false,
-                        Id = consumable.TransactionId.ToString(),
-                        Payload = payload,
-                        ProductId = consumable.ProductId,
-                        PurchaseToken = consumable.TransactionId.ToString(),
-                        State = PurchaseState.Purchased,
-                        TransactionDateUtc = DateTime.UtcNow                        
-                    };
-                default:
-                    return null;
+                    return false;
             }
         }
     }
