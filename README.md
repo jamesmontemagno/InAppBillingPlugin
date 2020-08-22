@@ -31,7 +31,15 @@ Dev Feed: https://ci.appveyor.com/nuget/inappbillingplugin
 ### Checkout my podcast on IAP
 I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm), about technology and recently covered IAP and this library: [Merge Conflict 28: Demystifying In-App Purchases](http://www.mergeconflict.fm/57678-merge-conflict-28-demystifying-in-app-purchases)
 
-## Version 3 Linker Settings
+## Version 4 Major Update - Android
+
+Version 4.X updates to the new Android billing client. This means there are few important changes:
+1.) You must acknowledge all purchases within 3 days, by calling `AcknowledgePurchaseAsync` or the Consume API if it a consumable.
+2.) You must hanle Pending Transactions from outside of you app. See [docs from Google](https://developer.android.com/google/play/billing/integrate#pending)
+
+I highly recommend reading the entire [Google Play Billing System docs](https://developer.android.com/google/play/billing/).
+
+## Version 3+ Linker Settings
 
 For linking if you are setting **Link All** you may need to add:
 
