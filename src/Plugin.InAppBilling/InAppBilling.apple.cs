@@ -505,15 +505,24 @@ namespace Plugin.InAppBilling
 			if (p == null)
 				return null;
 
+            string _purchaseToken = null;
+            if (String.IsNullOrEmpty(p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None)))
+            {
+                _purchaseToken = transaction.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+			}
+            else
+            {
+                _purchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+			}
 
-			return new InAppBillingPurchase
+            return new InAppBillingPurchase
 			{
 				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
 				State = p.GetPurchaseState(),
-				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
-			};
+				PurchaseToken = _purchaseToken
+            };
 		}
 
 		static DateTime NSDateToDateTimeUtc(NSDate date)
