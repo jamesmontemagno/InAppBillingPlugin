@@ -73,12 +73,25 @@ Each app store has you create them in a different area.
 * Android: Go to Google Play Console -> Select App -> Store presence -> In-app products (you can only create on if you have uploaded a version of your app with this plugin or the Vending permission set).
 * Microsoft: Go to Dashboard -> Select App -> Add-ons
 
+## Permissions & Additional Setup - Version 4
 
-## Permissions & Additional Setup Considerations
+In version 4 we use Xamarin.Essentials so you must ensure you initialize it in your Android project. It is setup by default in new projects:
+
+```csharp
+protected override void OnCreate(Bundle savedInstanceState) {
+    //...
+    base.OnCreate(savedInstanceState);
+    Xamarin.Essentials.Platform.Init(this, savedInstanceState); // add this line to your code, it may also be called: bundle
+    //...
+```
+
+That's it.
+
+## Permissions & Additional Setup - Version 2
 
 ### Android:
 
-The `com.android.vending.BILLING` permission is required to use In-App Billing on Android and this library ill automatically added it your Android Manifest when you compile. No need to add them manually!
+The `com.android.vending.BILLING` permission is required to use In-App Billing on Android and this library will automatically added it your Android Manifest when you compile. No need to add them manually!
 
 You must place this code in your Main/Base Activity where you will be requesting purchases from.
 
