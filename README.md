@@ -38,6 +38,7 @@ I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm
 Version 4.X updates to the new Android billing client. This means there are few important changes:
 1.) You must acknowledge all purchases within 3 days, by calling `AcknowledgePurchaseAsync` or the Consume API if it a consumable.
 2.) You must hanle Pending Transactions from outside of you app. See [docs from Google](https://developer.android.com/google/play/billing/integrate#pending)
+3.) `HandleActivityResult` is removed from the API as it is not needed
 
 ### Pending Transactions:
 * If the result of PurchaseAsync is PurchaseState.PaymentPending, store the order details locally and inform the user that they will have access to the product when the payment completes
