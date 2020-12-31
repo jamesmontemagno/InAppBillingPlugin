@@ -21,6 +21,16 @@ namespace Plugin.InAppBilling
         public string Description { get; set; }
 
         /// <summary>
+        /// Trial period, specified in ISO 8601 format.
+        /// </summary>
+        public string FreeTrialPeriod { get; set; }
+
+        /// <summary>
+        /// Icon of the product if present
+        /// </summary>
+        public string IconUrl { get; set; }
+
+        /// <summary>
         /// Product ID or sku
         /// </summary>
         public string ProductId { get; set; }
@@ -49,6 +59,16 @@ namespace Plugin.InAppBilling
         public string LocalizedIntroductoryPrice { get; set; }
 
         /// <summary>
+        /// Number of subscription billing periods for which the user will be given the introductory price, such as 3
+        /// </summary>
+        public int IntroductoryPriceCycles { get; set; }
+
+        /// <summary>
+        /// Billing period of the introductory price, specified in ISO 8601 format
+        /// </summary>
+        public string IntroductoryPricePeriod { get; set; }
+
+        /// <summary>
         /// Introductory price of the product in micor-units
         /// </summary>
         /// <value>The introductory price.</value>
@@ -60,6 +80,17 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <value><c>true</c> if has introductory price; otherwise, <c>false</c>.</value>
         public bool HasIntroductoryPrice => !string.IsNullOrEmpty(LocalizedIntroductoryPrice);
+
+
+        /// <summary>
+        /// Formatted original price of the item, including its currency sign.
+        /// </summary>
+        public string OriginalPrice { get; set; }
+
+        /// <summary>
+        /// Orginal price in micro-units, where 1,000,000, micro-units equal one unit of the currency
+        /// </summary>
+        public long MicrosOriginalPriceAmount { get; set; }
 
     }
 

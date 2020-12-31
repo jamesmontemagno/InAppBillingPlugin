@@ -60,6 +60,8 @@ namespace Plugin.InAppBilling
         /// </summary>
         public ConsumptionState ConsumptionState { get; set; }
 
+        public bool IsAcknowledged { get; set; }
+
         /// <summary>
         /// Developer payload
         /// </summary>
@@ -75,18 +77,18 @@ namespace Plugin.InAppBilling
 			(obj is InAppBillingPurchase purchase) && Equals(purchase);
 
 		public bool Equals(InAppBillingPurchase other) =>
-			(Id, TransactionDateUtc, ProductId, AutoRenewing, PurchaseToken, State, Payload) ==
-			(other.Id, other.TransactionDateUtc, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload);
+			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload) ==
+			(other.Id, other.TransactionDateUtc, other.IsAcknowledged, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload);
 
 		public override int GetHashCode() =>
-			(Id, TransactionDateUtc, ProductId, AutoRenewing, PurchaseToken, State, Payload).GetHashCode();
+			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload).GetHashCode();
 
 		/// <summary>
 		/// Prints out product
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString() => 
-			$"ProductId:{ProductId} | AutoRenewing:{AutoRenewing} | State:{State} | Id:{Id}";
+			$"ProductId:{ProductId}| IsAcknowledged:{IsAcknowledged} | AutoRenewing:{AutoRenewing} | State:{State} | Id:{Id}";
         
     }
 

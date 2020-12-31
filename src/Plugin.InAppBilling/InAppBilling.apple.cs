@@ -39,18 +39,6 @@ namespace Plugin.InAppBilling
 		public override bool InTestingMode { get; set; }
 
 		/// <summary>
-		/// Connect to billing service
-		/// </summary>
-		/// <returns>If Success</returns>
-		public override Task<bool> ConnectAsync(ItemType itemType = ItemType.InAppPurchase) => Task.FromResult(true);
-
-		/// <summary>
-		/// Disconnect from the billing service
-		/// </summary>
-		/// <returns>Task to disconnect</returns>
-		public override Task DisconnectAsync() => Task.CompletedTask;
-
-		/// <summary>
 		/// Get product information of a specific product
 		/// </summary>
 		/// <param name="productIds">Sku or Id of the product(s)</param>
@@ -89,27 +77,15 @@ namespace Plugin.InAppBilling
 			return productRequestDelegate.WaitForResponse();
 		}
 
-		protected async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase, string verifyOnlyProductId)
+		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
 		{
 			var purchases = await RestoreAsync();
 
-			if (purchases == null)
-				return null;
-
 			var comparer = new InAppBillingPurchaseComparer();
-			var converted = purchases
-				.Where(p => p != null)
-				.Select(p2 => p2.ToIABPurchase())
-				.Distinct(comparer);
-
-			var validPurchases = new List<InAppBillingPurchase>();
-			foreach (var purchase in converted)
-			{
-				if ((verifyOnlyProductId != null && !verifyOnlyProductId.Equals(purchase.ProductId)) || await ValidateReceipt(verifyPurchase, purchase.ProductId, purchase.Id))
-					validPurchases.Add(purchase);
-			}
-
-			return validPurchases.Any() ? validPurchases : null;
+			return purchases
+				?.Where(p => p != null)
+				?.Select(p2 => p2.ToIABPurchase())
+				?.Distinct(comparer);
 		}
 
 
@@ -187,7 +163,7 @@ namespace Plugin.InAppBilling
 		/// <param name="payload">Developer specific payload</param>
 		/// <param name="verifyPurchase">Interface to verify purchase</param>
 		/// <returns></returns>
-		public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null)
+		public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
 		{
 			var p = await PurchaseAsync(productId);
 
@@ -295,20 +271,10 @@ namespace Plugin.InAppBilling
 		/// <param name="purchaseToken">Original Purchase Token</param>
 		/// <returns>If consumed successful</returns>
 		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken) =>
+		public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
 			null;
 
-		/// <summary>
-		/// Consume a purchase
-		/// </summary>
-		/// <param name="productId">Id/Sku of the product</param>
-		/// <param name="payload">Developer specific payload of original purchase</param>
-		/// <param name="itemType">Type of product being consumed.</param>
-		/// <param name="verifyPurchase">Verify Purchase implementation</param>
-		/// <returns>If consumed successful</returns>
-		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public override Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null) =>
-			null;
+	
 
 		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase) =>
 			FinishTransaction(purchase?.Id);
@@ -375,7 +341,7 @@ namespace Plugin.InAppBilling
 
 			base.Dispose(disposing);
 		}
-	}
+    }
 
 
 	[Preserve(AllMembers = true)]
@@ -505,14 +471,17 @@ namespace Plugin.InAppBilling
 			if (p == null)
 				return null;
 
+			var finalToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+            if (string.IsNullOrEmpty(finalToken))
+				finalToken = transaction.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
 
-			return new InAppBillingPurchase
+            return new InAppBillingPurchase
 			{
 				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
 				State = p.GetPurchaseState(),
-				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
+				PurchaseToken = finalToken
 			};
 		}
 

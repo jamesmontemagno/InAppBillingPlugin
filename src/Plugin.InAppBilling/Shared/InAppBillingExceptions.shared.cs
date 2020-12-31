@@ -66,7 +66,10 @@ namespace Plugin.InAppBilling
 		/// <summary>
 		/// Item is not owned and can not be consumed
 		/// </summary>
-		NotOwned
+		NotOwned,
+        FeatureNotSupported,
+        ServiceDisconnected,
+        ServiceTimeout
 	}
 
     /// <summary>

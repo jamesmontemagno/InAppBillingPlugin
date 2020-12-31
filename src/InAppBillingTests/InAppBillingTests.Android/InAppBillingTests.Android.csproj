@@ -15,8 +15,7 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v10.0</TargetFrameworkVersion>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -49,13 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.5.0</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.Android.Google.BillingClient">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.Forms" Version="4.2.0.848062" />
+    <PackageReference Include="Xamarin.Forms" Version="4.7.0.1179" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
@@ -94,7 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InAppBillingTests\InAppBillingTests.csproj">
-      <Project>{4B28D0B8-D15A-43AD-B7A6-9C2338D39F86}</Project>
+      <Project>{6D4D9135-F225-4626-A9CE-32BDF97AEA89}</Project>
       <Name>InAppBillingTests</Name>
     </ProjectReference>
   </ItemGroup>
