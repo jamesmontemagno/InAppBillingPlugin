@@ -9,7 +9,6 @@ namespace Plugin.InAppBilling
     /// Base implementation for In App Billing, handling disposables
     /// </summary>
 
-
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
     {
         /// <summary>

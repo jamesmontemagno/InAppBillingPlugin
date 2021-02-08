@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\nuget\readme.txt = ..\nuget\readme.txt
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.InAppBilling", "Plugin.InAppBilling\Plugin.InAppBilling.csproj", "{C570E25E-259F-4D4C-88F0-B2982815192D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.InAppBilling", "Plugin.InAppBilling\Plugin.InAppBilling.csproj", "{C570E25E-259F-4D4C-88F0-B2982815192D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6A41C44D-4B82-4039-B2AC-07D668168569}"
 	ProjectSection(SolutionItems) = preProject
@@ -37,6 +37,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InAppBillingTests.UWP", "InAppBillingTests\InAppBillingTests.UWP\InAppBillingTests.UWP.csproj", "{EBD6A824-A56E-4F33-B352-B4E72D711B00}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InAppBillingTests", "InAppBillingTests\InAppBillingTests\InAppBillingTests.csproj", "{6D4D9135-F225-4626-A9CE-32BDF97AEA89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InAppBillingTests.Mac", "InAppBillingTests\InAppBillingTests.Mac\InAppBillingTests.Mac.csproj", "{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -328,6 +330,54 @@ Global
 		{6D4D9135-F225-4626-A9CE-32BDF97AEA89}.Release|x64.Build.0 = Release|Any CPU
 		{6D4D9135-F225-4626-A9CE-32BDF97AEA89}.Release|x86.ActiveCfg = Release|Any CPU
 		{6D4D9135-F225-4626-A9CE-32BDF97AEA89}.Release|x86.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|Any CPU.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|Any CPU.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|ARM.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|ARM.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|iPhone.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|iPhoneSimulator.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|x64.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|x64.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|x86.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Ad-Hoc|x86.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|Any CPU.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|Any CPU.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|ARM.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|ARM.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|iPhone.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|iPhone.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|iPhoneSimulator.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|x64.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|x64.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|x86.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.AppStore|x86.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|ARM.Build.0 = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|x64.Build.0 = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Debug|x86.Build.0 = Debug|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|ARM.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|ARM.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|iPhone.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|x64.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|x64.Build.0 = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|x86.ActiveCfg = Release|Any CPU
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -337,6 +387,7 @@ Global
 		{096CE273-B696-42E5-8770-E06FBE982235} = {5124C265-C6EF-4415-9497-0EF227E43095}
 		{EBD6A824-A56E-4F33-B352-B4E72D711B00} = {5124C265-C6EF-4415-9497-0EF227E43095}
 		{6D4D9135-F225-4626-A9CE-32BDF97AEA89} = {5124C265-C6EF-4415-9497-0EF227E43095}
+		{04BF1C8C-EACA-466D-80D8-C2B9012A37F1} = {5124C265-C6EF-4415-9497-0EF227E43095}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {42D18242-8BA9-4238-9D59-10850E1C2C24}

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using UIKit;
 
 namespace Plugin.InAppBilling
 {
@@ -15,7 +14,27 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
-		static bool IsiOS112 => UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+#if __IOS__ || __TVOS__
+		static bool HasIntroductoryPrice => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+#else
+		static bool initIntro, hasIntro;
+		static bool HasIntroductoryPrice
+        {
+			get
+            {
+				if (initIntro)
+					return hasIntro;
+
+				initIntro = true;
+
+
+				using var info = new NSProcessInfo();
+				hasIntro = info.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(10,13,2));
+				return hasIntro;
+
+			}
+        }
+#endif
 
 		/// <summary>
 		/// Gets or sets a callback for out of band purchases to complete.
@@ -38,13 +57,15 @@ namespace Plugin.InAppBilling
 		/// </summary>
 		public override bool InTestingMode { get; set; }
 
-		/// <summary>
-		/// Get product information of a specific product
-		/// </summary>
-		/// <param name="productIds">Sku or Id of the product(s)</param>
-		/// <param name="itemType">Type of product offering</param>
-		/// <returns></returns>
-		public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
+        public IntPtr Handle => throw new NotImplementedException();
+
+        /// <summary>
+        /// Get product information of a specific product
+        /// </summary>
+        /// <param name="productIds">Sku or Id of the product(s)</param>
+        /// <param name="itemType">Type of product offering</param>
+        /// <returns></returns>
+        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
 		{
 			var products = await GetProductAsync(productIds);
 
@@ -56,8 +77,8 @@ namespace Plugin.InAppBilling
 				ProductId = p.ProductIdentifier,
 				Description = p.LocalizedDescription,
 				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
-				LocalizedIntroductoryPrice = IsiOS112 ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
-				MicrosIntroductoryPrice = IsiOS112 ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
+				LocalizedIntroductoryPrice = HasIntroductoryPrice ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
+				MicrosIntroductoryPrice = HasIntroductoryPrice ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
 			});
 		}
 
@@ -175,7 +196,9 @@ namespace Plugin.InAppBilling
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
 				State = p.GetPurchaseState(),
+#if __IOS__ || __TVOS__
 				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
+#endif
 			};
 
 			if (verifyPurchase == null)
@@ -203,7 +226,9 @@ namespace Plugin.InAppBilling
 		}
 
 
-		Task<SKPaymentTransaction> PurchaseAsync(string productId)
+		TaskCompletionSource<SKProduct> productTCS;
+
+		async Task<SKPaymentTransaction> PurchaseAsync(string productId)
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
 
@@ -257,11 +282,25 @@ namespace Plugin.InAppBilling
 
 			paymentObserver.TransactionCompleted += handler;
 
+#if __IOS__ || __TVOS__
+			
 			var payment = SKPayment.CreateFrom(productId);
+#else
+
+			var products = await GetProductAsync(new[] { productId });
+			var product = products?.FirstOrDefault();
+			if (product == null)
+				throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
+
+			var payment = SKPayment.CreateFrom(product);
+			//var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
+#endif
 			SKPaymentQueue.DefaultQueue.AddPayment(payment);
 
-			return tcsTransaction.Task;
+			return await tcsTransaction.Task;
 		}
+
+
 
 
 		/// <summary>
@@ -341,6 +380,7 @@ namespace Plugin.InAppBilling
 
 			base.Dispose(disposing);
 		}
+
     }
 
 
@@ -471,11 +511,15 @@ namespace Plugin.InAppBilling
 			if (p == null)
 				return null;
 
+#if __IOS__ || __TVOS__
 			var finalToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
             if (string.IsNullOrEmpty(finalToken))
 				finalToken = transaction.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
 
-            return new InAppBillingPurchase
+#else
+			var finalToken = string.Empty;
+#endif
+			return new InAppBillingPurchase
 			{
 				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
