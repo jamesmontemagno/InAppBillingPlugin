@@ -9,8 +9,11 @@ namespace Plugin.InAppBilling
     /// Base implementation for In App Billing, handling disposables
     /// </summary>
 
-
+#if __IOS__ || __MACOS__ || __TVOS__
+    public abstract class BaseInAppBilling : Foundation.NSObject, IInAppBilling, IDisposable
+#else
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
+#endif
     {
         /// <summary>
         /// Gets or sets if in testing mode
