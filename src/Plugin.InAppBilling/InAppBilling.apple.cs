@@ -12,7 +12,7 @@ namespace Plugin.InAppBilling
 	/// Implementation for InAppBilling
 	/// </summary>
 	[Preserve(AllMembers = true)]
-	public class InAppBillingImplementation : BaseInAppBilling, ISKProductsRequestDelegate
+	public class InAppBillingImplementation : BaseInAppBilling
 	{
 #if __IOS__ || __TVOS__
 		static bool HasIntroductoryPrice => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
@@ -286,13 +286,9 @@ namespace Plugin.InAppBilling
 			
 			var payment = SKPayment.CreateFrom(productId);
 #else
-			productTCS?.TrySetCanceled();
-			productTCS = new TaskCompletionSource<SKProduct>();
-			var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(new NSString[] { new NSString(productId) });
-			var productsRequest = new SKProductsRequest(productIdentifiers);
-			productsRequest.Delegate = this; // for SKProductsRequestDelegate.ReceivedResponse
-			productsRequest.Start();
-			var product = await productTCS.Task;
+
+			var products = await GetProductAsync(new[] { productId });
+			var product = products?.FirstOrDefault();
 			if (product == null)
 				throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
 
@@ -305,10 +301,6 @@ namespace Plugin.InAppBilling
 		}
 
 
-		public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
-        {
-			productTCS?.TrySetResult(response?.Products?.FirstOrDefault());
-        }
 
 
 		/// <summary>
