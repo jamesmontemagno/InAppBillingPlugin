@@ -51,6 +51,12 @@ Version 4.X updates to the new Android billing client. This means there are few 
 2. You must hanle Pending Transactions from outside of you app. See [docs from Google](https://developer.android.com/google/play/billing/integrate#pending)
 3. `HandleActivityResult` is removed from the API as it is not needed
 
+### Upgrading from 2/3 to 4
+* Remove `Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity = this;`
+* Remove `InAppBillingImplementation.HandleActivityResult(requestCode, resultCode, data);`
+* Change: `await CrossInAppBilling.Current.ConnectAsync(ItemType.InAppPurchase);` to `await CrossInAppBilling.Current.ConnectAsync();`
+* Change: `CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase, payload);` to `CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase);`
+
 ### Pending Transactions:
 * If the result of PurchaseAsync is PurchaseState.PaymentPending, store the order details locally and inform the user that they will have access to the product when the payment completes
 * When the user starts the app (and/or visits a particular page), if the stored PurchaseState is PaymentPending, call GetPurchasesAsync and query the result for a purchase that matches the stored purchase.
