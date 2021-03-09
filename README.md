@@ -37,13 +37,13 @@ I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm
 
 ## Version 4 Major Update - Android
 
-We now use Xamarin.Essentials for getting access to the current activity. So ensure you initialize Xamarin.Essentials in your Android app. 
+We now use Xamarin.Essentials for getting access to the current activity. So ensure you [initialize Xamarin.Essentials](https://docs.microsoft.com/xamarin/essentials/get-started?WT.mc_id=friends-0000-jamont) in your Android app. 
 
 Also if you get a null exception the linker is being aggressive so write the following code in your MainActivity:
 
 ```csharp
-var context = Platform.AppContext;
-var activity = Platform.CurrentActivity;
+var context = Xamarin.Essentials.Platform.AppContext;
+var activity = Xamarin.Essentials.Platform.CurrentActivity;
 ```
 
 Version 4.X updates to the new Android billing client. This means there are few important changes:
