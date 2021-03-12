@@ -65,6 +65,17 @@ Version 4.X updates to the new Android billing client. This means there are few 
 
 I highly recommend reading the entire [Google Play Billing System docs](https://developer.android.com/google/play/billing/).
 
+#### Consumable vs Non-consumables on Android
+
+On Android if you purchase anything you must first Acknowledge a purchase else it will be refunded. See the android documentation.
+
+https://developer.android.com/google/play/billing/integrate#process
+https://developer.android.com/google/play/billing/integrate#pending
+
+> For consumables, the consumeAsync() method fulfills the acknowledgement requirement and indicates that your app has granted entitlement to the user. This method also enables your app to make the one-time product available for purchase again.
+
+So, if you have a consumable... `ConsumePurchaseAsync` will also acknowledge it, if you have a non-consumable you will need to call `AcknowledgePurchaseAsync`.
+
 ## Version 3+ Linker Settings
 
 For linking if you are setting **Link All** you may need to add:
