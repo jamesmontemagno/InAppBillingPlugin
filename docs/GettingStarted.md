@@ -104,6 +104,7 @@ protected override void OnActivityResult(int requestCode, Result resultCode, Int
 ```
 
 ## Android Current Activity Setup
+> This only applies if you use a Version lower than 4
 
 This plugin uses the [Current Activity Plugin](https://github.com/jamesmontemagno/CurrentActivityPlugin/blob/master/README.md) to get access to the current Android Activity. Be sure to complete the full setup if a MainApplication.cs file was not automatically added to your application. Please fully read through the [Current Activity Plugin Documentation](https://github.com/jamesmontemagno/CurrentActivityPlugin/blob/master/README.md). At an absolute minimum you must set the following in your Activity's OnCreate method:
 
