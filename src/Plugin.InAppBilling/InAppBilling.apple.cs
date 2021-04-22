@@ -400,15 +400,19 @@ namespace Plugin.InAppBilling
 
 		public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
 		{
-			var product = response.Products;
+			var invalidProduct = response.InvalidProducts;
+			if (invalidProduct?.Any() ?? false)
+			{
+				tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.InvalidProduct, $"Invalid Product: {invalidProduct.First()}"));
+				return;
+			}
 
+			var product = response.Products;
 			if (product != null)
 			{
 				tcsResponse.TrySetResult(product);
 				return;
 			}
-
-			tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.InvalidProduct, "Invalid Product"));
 		}
 	}
 
