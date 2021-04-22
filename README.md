@@ -82,7 +82,7 @@ For linking if you are setting **Link All** you may need to add:
 
 #### Android:
 ```
-Plugin.InAppBilling;Xamarin.Android.Google.BillingClient;Xamarin.Android.Google.BillingClient
+Plugin.InAppBilling;Xamarin.Android.Google.BillingClient
 ```
 
 #### iOS:
