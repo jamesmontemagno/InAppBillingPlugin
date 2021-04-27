@@ -6,9 +6,8 @@ When users get a new device or re-install your application it is best practice t
 /// Get all current purhcase for a specifiy product type.
 /// </summary>
 /// <param name="itemType">Type of product</param>
-/// <param name="verifyPurchase">Verify purchase implementation</param>
 /// <returns>The current purchases</returns>
-Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
+Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 ```
 
 When you make a call to restore a purchase it will prompt for the user to sign in if they haven't yet, so take that into consideration.
@@ -22,7 +21,7 @@ public async Task<bool> WasItemPurchased(string productId)
     var billing = CrossInAppBilling.Current;
     try
     { 
-        var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
+        var connected = await billing.ConnectAsync();
 
         if (!connected)
         {
@@ -62,6 +61,10 @@ public async Task<bool> WasItemPurchased(string productId)
     return false;
 }
 ```
+
+## Subscriptions
+
+On `Android` only valid on-going subscriptions will be returned. `iOS` returns all receipts for all instances of the subscripitions. Read the iOS documentation to learn more on strategies.
 
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 
