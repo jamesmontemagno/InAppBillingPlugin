@@ -15,14 +15,13 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 /// </summary>
 /// <param name="productId">Sku or ID of product</param>
 /// <param name="itemType">Type of product being requested</param>
-/// <param name="payload">Developer specific payload (can not be null)</param>
 /// <param name="verifyPurchase">Verify Purchase implementation</param>
 /// <returns>Purchase details</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 ```
 
-The `payload` attribute is a special payload that is sent and then returned from the server for additional validation. It can be whatever you want it to be, but should be a constant that is used anywhere the `payload` is used.
+On Android you must call `AcknowledgePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
 
 Example:
 ```csharp
@@ -31,7 +30,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
     var billing = CrossInAppBilling.Current;
     try
     {
-        var connected = await billing.ConnectAsync(ItemType.Subscription);
+        var connected = await billing.ConnectAsync();
         if (!connected)
         {
             //we are offline or can't connect, don't try to purchase
@@ -39,7 +38,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         }
 
         //check purchases
-        var purchase = await billing.PurchaseAsync(productId, ItemType.Subscription, payload);
+        var purchase = await billing.PurchaseAsync(productId, ItemType.Subscription);
 
         //possibility that a null came through.
         if(purchase == null)
@@ -49,6 +48,10 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         else
         {
             //purchased!
+             if(Device.RuntimePlatform == Device.Android)
+             {
+                // Must call AcknowledgePurchaseAsync else the purchase will be refunded
+             }	
         }
     }
     catch (InAppBillingPurchaseException purchaseEx)
@@ -66,6 +69,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         await billing.DisconnectAsync();
     }
 ```
+
 
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 
