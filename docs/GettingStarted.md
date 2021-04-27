@@ -15,7 +15,7 @@ public async Task<bool> MakePurchase()
     var billing = CrossInAppBilling.Current;
     try
     {
-        var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
+        var connected = await billing.ConnectAsync();
         if(!connected)
             return false;
         
@@ -41,7 +41,7 @@ public async Task<bool> MakePurchase()
     try
     {
         var billing = CrossInAppBilling.Current;
-        var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
+        var connected = await billing.ConnectAsync();
         if(!connected)
             return false;
         
@@ -73,7 +73,7 @@ Each app store has you create them in a different area.
 * Android: Go to Google Play Console -> Select App -> Store presence -> In-app products (you can only create on if you have uploaded a version of your app with this plugin or the Vending permission set).
 * Microsoft: Go to Dashboard -> Select App -> Add-ons
 
-## Permissions & Additional Setup - Version 4
+## Permissions & Additional Setup
 
 In version 4 we use Xamarin.Essentials so you must ensure you initialize it in your Android project. It is setup by default in new projects:
 
@@ -85,34 +85,7 @@ protected override void OnCreate(Bundle savedInstanceState) {
     //...
 ```
 
-That's it.
-
-## Permissions & Additional Setup - Version 2
-
-### Android:
-
 The `com.android.vending.BILLING` permission is required to use In-App Billing on Android and this library will automatically added it your Android Manifest when you compile. No need to add them manually!
-
-You must place this code in your Main/Base Activity where you will be requesting purchases from.
-
-```csharp
-protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
-{
-    base.OnActivityResult(requestCode, resultCode, data);
-    InAppBillingImplementation.HandleActivityResult(requestCode, resultCode, data);
-}
-```
-
-## Android Current Activity Setup
-> This only applies if you use a Version lower than 4
-
-This plugin uses the [Current Activity Plugin](https://github.com/jamesmontemagno/CurrentActivityPlugin/blob/master/README.md) to get access to the current Android Activity. Be sure to complete the full setup if a MainApplication.cs file was not automatically added to your application. Please fully read through the [Current Activity Plugin Documentation](https://github.com/jamesmontemagno/CurrentActivityPlugin/blob/master/README.md). At an absolute minimum you must set the following in your Activity's OnCreate method:
-
-```csharp
-Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity = this;
-```
-
-It is highly recommended that you use a custom Application that are outlined in the Current Activity Plugin Documentation](https://github.com/jamesmontemagno/CurrentActivityPlugin/blob/master/README.md)
 
 
 <= Back to [Table of Contents](README.md)
