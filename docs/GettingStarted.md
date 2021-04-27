@@ -75,6 +75,26 @@ Each app store has you create them in a different area.
 
 ## Permissions & Additional Setup
 
+## iOS
+iOS also has the ability to make In-App Purchases from the app store if you mark them as so. To support this you must open your `AppDelegate` and add the following to your `FinishedLaunching`:
+
+```csharp
+Plugin.InAppBilling.InAppBillingImplementation.OnShouldAddStorePayment = OnShouldAddStorePayment;
+var current = Plugin.InAppBilling.CrossInAppBilling.Current; //initializes
+```
+
+Then add this method in the `AppDelegate`:
+
+```csharp
+ bool OnShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
+{
+    //Process and check purchases
+    return true;
+}
+```
+
+## Android
+
 In version 4 we use Xamarin.Essentials so you must ensure you initialize it in your Android project. It is setup by default in new projects:
 
 ```csharp
