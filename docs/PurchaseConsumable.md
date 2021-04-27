@@ -25,7 +25,7 @@ Consumables are unique and work a bit different on each platform and the `Consum
 /// <param name="verifyPurchase">Verify Purchase implementation</param>
 /// <returns>Purchase details</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
+Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 ```
 
 ### Consume Purchase
@@ -38,22 +38,8 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, st
 /// <returns>If consumed successful</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
 Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
-
-/// <summary>
-/// Consume a purchase by trying to find purchase
-/// </summary>
-/// <param name="productId">Id/Sku of the product</param>
-/// <param name="payload">Developer specific payload of original purchase (can not be null)</param>
-/// <param name="itemType">Type of product being consumed.</param>
-/// <param name="verifyPurchase">Verify Purchase implementation</param>
-/// <returns>If consumed successful</returns>
-/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, ItemType itemType, string payload, IInAppBillingVerifyPurchase verifyPurchase = null);
 ```
 
-The `payload` attribute is a special payload that is sent and then returned from the server for additional validation. It can be whatever you want it to be, but should be a constant that is used anywhere the `payload` is used.
-
-It is recommend to use the `purchaseToken` from the original transaction. If you use the generic version with just the productId the library will do it's best to find the purchase and then consume it, but can not be guaranteed.
 
 Example:
 ```csharp
@@ -62,7 +48,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
     var billing = CrossInAppBilling.Current;
     try
     {
-        var connected = await billing.ConnectAsync(ItemType.InAppPurchase);
+        var connected = await billing.ConnectAsync();
         if (!connected)
         {
             //we are offline or can't connect, don't try to purchase
@@ -70,7 +56,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         }
 
         //check purchases
-        var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchase, payload);
+        var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchase);
 
         //possibility that a null came through.
         if(purchase == null)
