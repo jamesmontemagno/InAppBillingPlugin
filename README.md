@@ -12,11 +12,6 @@ Source code reference -> https://github.com/jamesmontemagno/app-ac-islandtracker
 ## NuGet
 * NuGet: [Plugin.InAppBilling](https://www.nuget.org/packages/Plugin.InAppBilling) [![NuGet](https://img.shields.io/nuget/v/Plugin.InAppBilling.svg?label=NuGet)](https://www.nuget.org/packages/Plugin.InAppBilling/)
 
-Dev Feed: https://ci.appveyor.com/nuget/inappbillingplugin
-
-## Build Status
-[![Build status](https://ci.appveyor.com/api/projects/status/0tfkgrlq8r2u7wb9?svg=true)](https://ci.appveyor.com/project/JamesMontemagno/inappbillingplugin)
-
 ## Platform Support
 
 |Platform|Version|
@@ -76,7 +71,7 @@ https://developer.android.com/google/play/billing/integrate#pending
 
 So, if you have a consumable... `ConsumePurchaseAsync` will also acknowledge it, if you have a non-consumable you will need to call `AcknowledgePurchaseAsync`.
 
-## Version 3+ Linker Settings
+## Version 4+ Linker Settings
 
 For linking if you are setting **Link All** you may need to add:
 
