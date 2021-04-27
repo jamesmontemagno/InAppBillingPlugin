@@ -18,7 +18,7 @@ You will not be able to test any StoreKit functionality until you have an iOS Pa
 * Just open the app you're trying to test
 * Your app will prompt you to sign in
 * Enter your credentials for your sandbox test account
-* While you could e.g. read your items, you need a real device to test purchasing. Purchasing does not work on Simulators.
+* While you could e.g. read your items, you need a real device to test purchasing. NO apis work on Simulators.
 
 
 ## Android Testing 
