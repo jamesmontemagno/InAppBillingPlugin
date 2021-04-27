@@ -44,7 +44,7 @@ try
 {
 	var productId = "mysku";
 
-	var connected = await CrossInAppBilling.Current.ConnectAsync(ItemType.InAppPurchase);
+	var connected = await CrossInAppBilling.Current.ConnectAsync();
 
 	if (!connected)
 	{
@@ -54,7 +54,7 @@ try
 
     var verify = DependencyService.Get<IInAppBillingVerifyPurchase>();
     //try to purchase item
-    var purchase = await CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase, "apppayload", verify);
+    var purchase = await CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase, verify);
 	if(purchase == null)
 	{
 		//Not purchased, may also throw excpetion to catch
