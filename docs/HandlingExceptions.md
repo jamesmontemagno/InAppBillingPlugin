@@ -81,7 +81,7 @@ try
     }
 
     //check purchases
-    var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchase, "devId");
+    var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchase);
 
     //possibility that a null came through.
     if(purchase == null)
