@@ -21,7 +21,6 @@ Consumables are unique and work a bit different on each platform and the `Consum
 /// </summary>
 /// <param name="productId">Sku or ID of product</param>
 /// <param name="itemType">Type of product being requested</param>
-/// <param name="payload">Developer specific payload (can not be null)</param>
 /// <param name="verifyPurchase">Verify Purchase implementation</param>
 /// <returns>Purchase details</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
