@@ -48,6 +48,18 @@ namespace Plugin.InAppBilling
 		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
         /// <summary>
+        /// (Android specific) Upgrade/Downgrade/Change a previously purchased subscription
+        /// </summary>
+        /// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
+        /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+        /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
+        /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <returns>Purchase details</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string oldProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null);
+
+        /// <summary>
         /// Purchase a specific product or subscription
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>

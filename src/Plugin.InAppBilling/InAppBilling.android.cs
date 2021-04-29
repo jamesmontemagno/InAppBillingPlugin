@@ -189,6 +189,96 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
+        /// (Android specific) Upgrade/Downgrade/Change a previously purchased subscription
+        /// </summary>
+        /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+        /// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
+        /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
+        /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <returns>Purchase details</returns>
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string oldProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null)
+        {
+            if (BillingClient == null || !IsConnected)
+            {
+                throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
+            }
+
+            // If we have a current task and it is not completed then return null.
+            // you can't try to purchase twice.
+            if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
+            {
+                return null;
+            }
+
+            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, oldProductId, purchaseTokenOfOriginalSubscription, prorationMode, verifyPurchase);
+
+            return purchase;
+        }
+
+        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string oldProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null)
+        {
+            var itemType = BillingClient.SkuType.Subs;
+
+            if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
+            {
+                return null;
+            }
+
+            var skuDetailsParams = SkuDetailsParams.NewBuilder()
+                .SetType(itemType)
+                .SetSkusList(new List<string> { newProductId })
+                .Build();
+
+            var skuDetailsResult = await BillingClient.QuerySkuDetailsAsync(skuDetailsParams);
+            ParseBillingResult(skuDetailsResult?.Result);
+
+            var skuDetails = skuDetailsResult?.SkuDetails.FirstOrDefault();
+
+            if (skuDetails == null)
+                throw new ArgumentException($"{newProductId} does not exist");
+
+            //1 - BillingFlowParams.ProrationMode.ImmediateWithTimeProration
+            //2 - BillingFlowParams.ProrationMode.ImmediateAndChargeProratedPrice
+            //3 - BillingFlowParams.ProrationMode.ImmediateWithoutProration
+            //4 - BillingFlowParams.ProrationMode.Deferred
+
+            var flowParams = BillingFlowParams.NewBuilder()
+                  .SetOldSku(oldProductId, purchaseTokenOfOriginalSubscription)
+                  .SetReplaceSkusProrationMode(prorationMode)
+                  .SetSkuDetails(skuDetails)
+                  .Build();
+
+            tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)>();
+            var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
+
+            ParseBillingResult(responseCode);
+
+            var result = await tcsPurchase.Task;
+            ParseBillingResult(result.billingResult);
+
+            //we are only buying 1 thing.
+            var androidPurchase = result.purchases?.FirstOrDefault(p => p.Sku == newProductId);
+
+            //for some reason the data didn't come back
+            if (androidPurchase == null)
+            {
+                var purchases = await GetPurchasesAsync(itemType == BillingClient.SkuType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription);
+                return purchases.FirstOrDefault(p => p.ProductId == newProductId);
+            }
+
+            var data = androidPurchase.OriginalJson;
+            var signature = androidPurchase.Signature;
+
+            var purchase = androidPurchase.ToIABPurchase();
+            if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, signature, newProductId, purchase.Id))
+                return purchase;
+
+            return null;
+        }
+
+
+        /// <summary>
         /// Purchase a specific product or subscription
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>

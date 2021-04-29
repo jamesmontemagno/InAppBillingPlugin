@@ -174,17 +174,21 @@ namespace Plugin.InAppBilling
 		}
 
 
+        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string oldProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null)
+        {
+            throw new NotImplementedException("iOS not supported. Apple store manages upgrades natively when subscriptions of the same group are purchased.");
+        }
 
 
-		/// <summary>
-		/// Purchase a specific product or subscription
-		/// </summary>
-		/// <param name="productId">Sku or ID of product</param>
-		/// <param name="itemType">Type of product being requested</param>
-		/// <param name="payload">Developer specific payload</param>
-		/// <param name="verifyPurchase">Interface to verify purchase</param>
-		/// <returns></returns>
-		public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+        /// <summary>
+        /// Purchase a specific product or subscription
+        /// </summary>
+        /// <param name="productId">Sku or ID of product</param>
+        /// <param name="itemType">Type of product being requested</param>
+        /// <param name="payload">Developer specific payload</param>
+        /// <param name="verifyPurchase">Interface to verify purchase</param>
+        /// <returns></returns>
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
 		{
 			var p = await PurchaseAsync(productId);
 

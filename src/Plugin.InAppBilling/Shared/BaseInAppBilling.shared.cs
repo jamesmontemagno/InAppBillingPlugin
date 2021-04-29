@@ -45,16 +45,27 @@ namespace Plugin.InAppBilling
 		/// <returns>The current purchases</returns>
 		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
-		/// <summary>
-		/// Purchase a specific product or subscription
-		/// </summary>
-		/// <param name="productId">Sku or ID of product</param>
-		/// <param name="itemType">Type of product being requested</param>
-		/// <param name="payload">Developer specific payload</param>
-		/// <param name="verifyPurchase">Verify Purchase implementation</param>
-		/// <returns>Purchase details</returns>
-		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
+        /// <summary>
+        /// (Android specific) Upgrade/Downgrade/Change a previously purchased subscription
+        /// </summary>
+        /// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
+        /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+        /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
+        /// <param name="prorationMode">Proration mode</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <returns>Purchase details</returns>
+        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string oldProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null);
+
+        /// <summary>
+        /// Purchase a specific product or subscription
+        /// </summary>
+        /// <param name="productId">Sku or ID of product</param>
+        /// <param name="itemType">Type of product being requested</param>
+        /// <param name="payload">Developer specific payload</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <returns>Purchase details</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 
         /// <summary>
         /// Consume a purchase with a purchase token.
