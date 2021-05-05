@@ -25,6 +25,7 @@ namespace Plugin.InAppBilling
         {
         }
 
+
         /// <summary>
         /// Purchase/Order Id
         /// </summary>
@@ -62,6 +63,10 @@ namespace Plugin.InAppBilling
 
         public bool IsAcknowledged { get; set; }
 
+        public string ObfuscatedAccountId { get; set; }
+
+        public string ObfuscatedProfileId { get; set;  }
+
         /// <summary>
         /// Developer payload
         /// </summary>
@@ -77,18 +82,18 @@ namespace Plugin.InAppBilling
 			(obj is InAppBillingPurchase purchase) && Equals(purchase);
 
 		public bool Equals(InAppBillingPurchase other) =>
-			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload) ==
-			(other.Id, other.TransactionDateUtc, other.IsAcknowledged, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload);
+			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId) ==
+			(other.Id, other.TransactionDateUtc, other.IsAcknowledged, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload, other.ObfuscatedAccountId, other.ObfuscatedProfileId);
 
 		public override int GetHashCode() =>
-			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload).GetHashCode();
+			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId).GetHashCode();
 
 		/// <summary>
 		/// Prints out product
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString() => 
-			$"ProductId:{ProductId}| IsAcknowledged:{IsAcknowledged} | AutoRenewing:{AutoRenewing} | State:{State} | Id:{Id}";
+			$"{nameof(ProductId)}:{ProductId}| {nameof(IsAcknowledged)}:{IsAcknowledged} | {nameof(AutoRenewing)}:{AutoRenewing} | {nameof(State)}:{State} | {nameof(Id)}:{Id} | {nameof(ObfuscatedAccountId)}:{ObfuscatedAccountId}  | {nameof(ObfuscatedProfileId)}:{ObfuscatedProfileId} ";
         
     }
 

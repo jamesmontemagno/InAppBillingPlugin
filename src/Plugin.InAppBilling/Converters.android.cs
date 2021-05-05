@@ -16,7 +16,9 @@ namespace Plugin.InAppBilling
                 Payload = purchase.DeveloperPayload,
                 ProductId = purchase.Sku,
                 PurchaseToken = purchase.PurchaseToken,
-                TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime
+                TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
+                ObfuscatedAccountId = purchase.AccountIdentifiers?.ObfuscatedAccountId,
+                ObfuscatedProfileId = purchase.AccountIdentifiers?.ObfuscatedProfileId
             };
 
             finalPurchase.State = purchase.PurchaseState switch
