@@ -16,9 +16,11 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 /// <param name="productId">Sku or ID of product</param>
 /// <param name="itemType">Type of product being requested</param>
 /// <param name="verifyPurchase">Verify Purchase implementation</param>
+/// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
+/// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
 /// <returns>Purchase details</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
+Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 ```
 
 On Android you must call `AcknowledgePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
