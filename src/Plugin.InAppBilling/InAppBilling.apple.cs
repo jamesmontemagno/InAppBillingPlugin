@@ -255,24 +255,30 @@ namespace Plugin.InAppBilling
 				var errorCode = tran?.Error?.Code ?? -1;
 				var description = tran?.Error?.LocalizedDescription ?? string.Empty;
 				var error = PurchaseError.GeneralError;
-                var underlyingError = tran?.Error?.UserInfo?["NSUnderlyingError"] as NSError;
-
                 switch (errorCode)
-				{
-					case (int)SKError.PaymentCancelled:
-						error = PurchaseError.UserCancelled;
-						break;
-					case (int)SKError.PaymentInvalid:
-						error = PurchaseError.PaymentInvalid;
-						break;
-					case (int)SKError.PaymentNotAllowed:
-						error = PurchaseError.PaymentNotAllowed;
-						break;
-					case (int)SKError.ProductNotAvailable:
-						error = PurchaseError.ItemUnavailable;
-						break;
-					case (int)SKError.Unknown:
-						error = underlyingError?.Code == 3038 ? PurchaseError.AppleTermsConditionsChanged : PurchaseError.GeneralError;
+                {
+                    case (int)SKError.PaymentCancelled:
+                        error = PurchaseError.UserCancelled;
+                        break;
+                    case (int)SKError.PaymentInvalid:
+                        error = PurchaseError.PaymentInvalid;
+                        break;
+                    case (int)SKError.PaymentNotAllowed:
+                        error = PurchaseError.PaymentNotAllowed;
+                        break;
+                    case (int)SKError.ProductNotAvailable:
+                        error = PurchaseError.ItemUnavailable;
+                        break;
+                    case (int)SKError.Unknown:
+                        try 
+                        { 
+                            var underlyingError = tran?.Error?.UserInfo?["NSUnderlyingError"] as NSError;
+                            error = underlyingError?.Code == 3038 ? PurchaseError.AppleTermsConditionsChanged : PurchaseError.GeneralError;
+                        }
+                        catch
+                        {
+                            error = PurchaseError.GeneralError;
+                        }
 						break;
 					case (int)SKError.ClientInvalid:
 						error = PurchaseError.BillingUnavailable;
