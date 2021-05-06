@@ -254,7 +254,9 @@ namespace Plugin.InAppBilling
 				var errorCode = tran?.Error?.Code ?? -1;
 				var description = tran?.Error?.LocalizedDescription ?? string.Empty;
 				var error = PurchaseError.GeneralError;
-				switch (errorCode)
+                var underlyingError = tran?.Error?.UserInfo?["NSUnderlyingError"] as NSError;
+
+                switch (errorCode)
 				{
 					case (int)SKError.PaymentCancelled:
 						error = PurchaseError.UserCancelled;
@@ -269,7 +271,7 @@ namespace Plugin.InAppBilling
 						error = PurchaseError.ItemUnavailable;
 						break;
 					case (int)SKError.Unknown:
-						error = PurchaseError.GeneralError;
+						error = underlyingError?.Code == 3038 ? PurchaseError.AppleTermsConditionsChanged : PurchaseError.GeneralError;
 						break;
 					case (int)SKError.ClientInvalid:
 						error = PurchaseError.BillingUnavailable;
