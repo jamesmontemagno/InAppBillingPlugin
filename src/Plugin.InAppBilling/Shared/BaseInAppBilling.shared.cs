@@ -45,16 +45,17 @@ namespace Plugin.InAppBilling
 		/// <returns>The current purchases</returns>
 		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
-		/// <summary>
-		/// Purchase a specific product or subscription
-		/// </summary>
-		/// <param name="productId">Sku or ID of product</param>
-		/// <param name="itemType">Type of product being requested</param>
-		/// <param name="payload">Developer specific payload</param>
-		/// <param name="verifyPurchase">Verify Purchase implementation</param>
-		/// <returns>Purchase details</returns>
-		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
+        /// <summary>
+        /// Purchase a specific product or subscription
+        /// </summary>
+        /// <param name="productId">Sku or ID of product</param>
+        /// <param name="itemType">Type of product being requested</param>
+        /// <param name="verifyPurchase">Verify Purchase implementation</param>
+        /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
+        /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
+        /// <returns>Purchase details</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 
         /// <summary>
         /// Consume a purchase with a purchase token.

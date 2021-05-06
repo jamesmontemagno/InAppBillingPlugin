@@ -193,10 +193,11 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
-        /// <param name="payload">Developer specific payload (can not be null)</param>
         /// <param name="verifyPurchase">Interface to verify purchase</param>
+        /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
+        /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -213,18 +214,18 @@ namespace Plugin.InAppBilling
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
-                    return await PurchaseAsync(productId, BillingClient.SkuType.Inapp, verifyPurchase);
+                    return await PurchaseAsync(productId, BillingClient.SkuType.Inapp, verifyPurchase, obfuscatedAccountId, obfuscatedProfileId);
                 case ItemType.Subscription:
 
                     var result = BillingClient.IsFeatureSupported(BillingClient.FeatureType.Subscriptions);
                     ParseBillingResult(result);
-                    return await PurchaseAsync(productId, BillingClient.SkuType.Subs, verifyPurchase);
+                    return await PurchaseAsync(productId, BillingClient.SkuType.Subs, verifyPurchase, obfuscatedAccountId, obfuscatedProfileId);
             }
 
             return null;
         }
 
-        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, IInAppBillingVerifyPurchase verifyPurchase)
+        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, IInAppBillingVerifyPurchase verifyPurchase, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
         {            
 
             var skuDetailsParams = SkuDetailsParams.NewBuilder()
@@ -240,9 +241,16 @@ namespace Plugin.InAppBilling
             if (skuDetails == null)
                 throw new ArgumentException($"{productSku} does not exist");
 
-            var flowParams = BillingFlowParams.NewBuilder()
-                .SetSkuDetails(skuDetails)
-                .Build();
+            var flowParamsBuilder = BillingFlowParams.NewBuilder()
+                .SetSkuDetails(skuDetails);
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedAccountId))
+                flowParamsBuilder.SetObfuscatedAccountId(obfuscatedAccountId);
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedProfileId))
+                flowParamsBuilder.SetObfuscatedProfileId(obfuscatedProfileId);
+
+            var flowParams = flowParamsBuilder.Build();
 
             tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)>();
             var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
