@@ -170,7 +170,7 @@ namespace Plugin.InAppBilling
         }
 
         
-		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -185,7 +185,16 @@ namespace Plugin.InAppBilling
 
             ParseBillingResult(purchasesResult.BillingResult);
 
-            return Task.FromResult(purchasesResult.PurchasesList.Select(p => p.ToIABPurchase()));
+            if (verifyPurchase == null)
+                return purchasesResult.PurchasesList.Select(p => p.ToIABPurchase());
+
+            var validatedPurchases = new List<InAppBillingPurchase>();
+            foreach (var purchase in purchasesResult.PurchasesList)
+            {
+                if (await verifyPurchase.VerifyPurchase(purchase.OriginalJson, purchase.Signature, purchase.Sku, purchase.OrderId))
+                    validatedPurchases.Add(purchase.ToIABPurchase());
+            }
+            return validatedPurchases;
         }
 
         /// <summary>

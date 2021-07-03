@@ -98,15 +98,20 @@ namespace Plugin.InAppBilling
 			return productRequestDelegate.WaitForResponse();
 		}
 
-		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null)
 		{
 			var purchases = await RestoreAsync();
 
 			var comparer = new InAppBillingPurchaseComparer();
-			return purchases
+			var converted = purchases
 				?.Where(p => p != null)
 				?.Select(p2 => p2.ToIABPurchase())
 				?.Distinct(comparer);
+
+			//try to validate purchases
+			var validated = await ValidateReceipt(verifyPurchase, string.Empty, string.Empty);
+
+			return validated ? converted : null;
 		}
 
 

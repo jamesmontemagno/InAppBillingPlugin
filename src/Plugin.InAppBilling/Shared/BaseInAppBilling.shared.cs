@@ -43,7 +43,7 @@ namespace Plugin.InAppBilling
 		/// </summary>
 		/// <param name="itemType">Type of product</param>
 		/// <returns>The current purchases</returns>
-		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
 
         /// <summary>
         /// Purchase a specific product or subscription
