@@ -41,6 +41,17 @@ namespace Plugin.InAppBilling
         /// </summary>
         public string ProductId { get; set; }
 
+
+        /// <summary>
+        /// Quanity of the purchases product
+        /// </summary>
+        public int Quantity { get; set; } = 1;
+        
+        /// <summary>
+        /// Product Ids/Skus
+        /// </summary>
+        public IList<string> ProductIds { get; set; }
+
         /// <summary>
         /// Indicates whether the subscritpion renewes automatically. If true, the sub is active, else false the user has canceled.
         /// </summary>

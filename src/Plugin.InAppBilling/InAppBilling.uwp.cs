@@ -195,6 +195,8 @@ namespace Plugin.InAppBilling
                     AutoRenewing = false // Not supported by UWP yet
                 };
                 purchase.PurchaseToken = purchase.Id;
+                purchase.ProductIds = new string[] { purchase.ProductId };
+
                 // Map native UWP status to PurchaseState
                 switch (status)
                 {

@@ -63,7 +63,6 @@ namespace Plugin.InAppBilling
             tcsConnect?.TrySetCanceled();
             tcsConnect = new TaskCompletionSource<bool>();
 
-
             BillingClientBuilder = BillingClient.NewBuilder(Context);
             BillingClientBuilder.SetListener(OnPurchasesUpdated);
             if (enablePendingPurchases)
@@ -72,7 +71,6 @@ namespace Plugin.InAppBilling
                 BillingClient = BillingClientBuilder.Build();
 
             BillingClient.StartConnection(OnSetupFinished, OnDisconnected);
-
 
             return tcsConnect.Task;
 
@@ -273,7 +271,7 @@ namespace Plugin.InAppBilling
             ParseBillingResult(result.billingResult);
 
             //we are only buying 1 thing.
-            var androidPurchase = result.purchases?.FirstOrDefault(p => p.Sku == productSku);
+            var androidPurchase = result.purchases?.FirstOrDefault(p => p.Skus.Contains(productSku));
 
             //for some reason the data didn't come back
             if (androidPurchase == null)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Android.BillingClient.Api;
 
 namespace Plugin.InAppBilling
@@ -14,7 +15,9 @@ namespace Plugin.InAppBilling
                 Id = purchase.OrderId,
                 IsAcknowledged = purchase.IsAcknowledged,
                 Payload = purchase.DeveloperPayload,
-                ProductId = purchase.Sku,
+                ProductId = purchase.Skus.FirstOrDefault(),
+                Quantity = purchase.Quantity,
+                ProductIds = purchase.Skus,
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
                 ObfuscatedAccountId = purchase.AccountIdentifiers?.ObfuscatedAccountId,

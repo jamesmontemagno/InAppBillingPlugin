@@ -78,8 +78,8 @@ namespace Plugin.InAppBilling
 				LocalizedPrice = p.LocalizedPrice(),
 				MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
 				Name = p.LocalizedTitle,
-				ProductId = p.ProductIdentifier,
-				Description = p.LocalizedDescription,
+                ProductId = p.ProductIdentifier,
+                Description = p.LocalizedDescription,
 				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
 				LocalizedIntroductoryPrice = HasIntroductoryPrice ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
 				MicrosIntroductoryPrice = HasIntroductoryPrice ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
@@ -200,7 +200,8 @@ namespace Plugin.InAppBilling
 				TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-				State = p.GetPurchaseState(),
+                ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
+                State = p.GetPurchaseState(),
 #if __IOS__ || __TVOS__
 				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
 #endif
@@ -541,7 +542,8 @@ namespace Plugin.InAppBilling
 				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-				State = p.GetPurchaseState(),
+                ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
+                State = p.GetPurchaseState(),
 				PurchaseToken = finalToken
 			};
 		}
