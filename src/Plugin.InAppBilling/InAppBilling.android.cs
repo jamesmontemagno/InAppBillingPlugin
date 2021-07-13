@@ -19,12 +19,17 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
     public class InAppBillingImplementation : BaseInAppBilling
     {
-		/// <summary>
-		/// Gets the context, aka the currently activity.
-		/// This is set from the MainApplication.cs file that was laid down by the plugin
-		/// </summary>
-		/// <value>The context.</value>
-		Activity Activity =>
+        /// <summary>
+        /// Gets or sets a callback for out of band purchases to complete.
+        /// </summary>
+        public static Action<BillingResult, List<InAppBillingPurchase>> OnAndroidPurchasesUpdated { get; set; } = null;
+
+        /// <summary>
+        /// Gets the context, aka the currently activity.
+        /// This is set from the MainApplication.cs file that was laid down by the plugin
+        /// </summary>
+        /// <value>The context.</value>
+        Activity Activity =>
             Xamarin.Essentials.Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials in your source code so the In App Billing can use it.");
 
         Context Context => Android.App.Application.Context;
@@ -40,7 +45,10 @@ namespace Plugin.InAppBilling
 
         BillingClient BillingClient { get; set; }
         BillingClient.Builder BillingClientBuilder { get; set; }
-        bool IsConnected { get; set; }
+        /// <summary>
+        /// Determines if it is connected to the backend actively (Android).
+        /// </summary>
+        public override bool IsConnected { get; set; }
         TaskCompletionSource<(BillingResult billingResult, IList<Purchase> purchases)> tcsPurchase;
         TaskCompletionSource<bool> tcsConnect;
         /// <summary>
@@ -84,6 +92,11 @@ namespace Plugin.InAppBilling
         public void OnPurchasesUpdated(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)
         {
             tcsPurchase?.TrySetResult((billingResult, purchases));
+
+            if (OnAndroidPurchasesUpdated == null)
+                return;
+
+            OnAndroidPurchasesUpdated?.Invoke(billingResult, purchases?.Select(p => p.ToIABPurchase())?.ToList());
         }
 
         /// <summary>

@@ -12,6 +12,10 @@ namespace Plugin.InAppBilling
 	public interface IInAppBilling : IDisposable
     {
         /// <summary>
+        /// Determines if it is connected to the backend actively (Android).
+        /// </summary>
+        public bool IsConnected { get; set; }
+        /// <summary>
         /// Gets or sets if in testing mode
         /// </summary>
         bool InTestingMode { get; set; }
