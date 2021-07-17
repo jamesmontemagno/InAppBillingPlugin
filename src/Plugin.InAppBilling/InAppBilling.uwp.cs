@@ -20,6 +20,11 @@ namespace Plugin.InAppBilling
         {
         }
         /// <summary>
+        /// Determines if it is connected to the backend actively (Android).
+        /// </summary>
+        public override bool IsConnected { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets if in testing mode. Only for UWP
         /// </summary>
         public override bool InTestingMode { get; set; }

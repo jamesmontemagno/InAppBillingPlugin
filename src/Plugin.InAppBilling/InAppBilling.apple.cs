@@ -35,11 +35,15 @@ namespace Plugin.InAppBilling
 			}
         }
 #endif
+        /// <summary>
+        /// Determines if it is connected to the backend actively (Android).
+        /// </summary>
+        public override bool IsConnected { get; set; } = true;
 
-		/// <summary>
-		/// Gets or sets a callback for out of band purchases to complete.
-		/// </summary>
-		public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
+        /// <summary>
+        /// Gets or sets a callback for out of band purchases to complete.
+        /// </summary>
+        public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
 
 		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
 

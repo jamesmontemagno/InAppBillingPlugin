@@ -11,6 +11,8 @@ namespace Plugin.InAppBilling
 
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
     {
+        public abstract bool IsConnected { get; set; }
+
         /// <summary>
         /// Gets or sets if in testing mode
         /// </summary>
