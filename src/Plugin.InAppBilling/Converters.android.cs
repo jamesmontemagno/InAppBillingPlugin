@@ -13,6 +13,8 @@ namespace Plugin.InAppBilling
                 AutoRenewing = purchase.IsAutoRenewing,
                 ConsumptionState = ConsumptionState.NoYetConsumed,
                 Id = purchase.OrderId,
+                OriginalJson = purchase.OriginalJson,
+                Signature = purchase.Signature,
                 IsAcknowledged = purchase.IsAcknowledged,
                 Payload = purchase.DeveloperPayload,
                 ProductId = purchase.Skus.FirstOrDefault(),

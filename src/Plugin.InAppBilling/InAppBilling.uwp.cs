@@ -19,10 +19,6 @@ namespace Plugin.InAppBilling
         public InAppBillingImplementation()
         {
         }
-        /// <summary>
-        /// Determines if it is connected to the backend actively (Android).
-        /// </summary>
-        public override bool IsConnected { get; set; } = true;
 
         /// <summary>
         /// Gets or sets if in testing mode. Only for UWP
@@ -82,7 +78,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
         {
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
@@ -109,20 +105,14 @@ namespace Plugin.InAppBilling
         public async override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
-            switch(result)
+            return result switch
             {
-                case FulfillmentResult.ServerError:
-                    throw new InAppBillingPurchaseException(PurchaseError.AppStoreUnavailable);
-                case FulfillmentResult.NothingToFulfill:
-                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
-                case FulfillmentResult.PurchasePending:
-                case FulfillmentResult.PurchaseReverted:
-                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
-                case FulfillmentResult.Succeeded:
-                    return true;
-                default:
-                    return false;
-            }
+                FulfillmentResult.ServerError => throw new InAppBillingPurchaseException(PurchaseError.AppStoreUnavailable),
+                FulfillmentResult.NothingToFulfill => throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable),
+                FulfillmentResult.PurchasePending or FulfillmentResult.PurchaseReverted => throw new InAppBillingPurchaseException(PurchaseError.GeneralError),
+                FulfillmentResult.Succeeded => true,
+                _ => false,
+            };
         }
     }
 
