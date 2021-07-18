@@ -1,4 +1,6 @@
-﻿namespace Plugin.InAppBilling
+﻿using System;
+
+namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Gets the current status of the purchase
@@ -44,6 +46,7 @@
         /// <summary>
         /// 
         /// </summary>
+        [Obsolete("Please use PaymentPending")]
         Pending,
         /// <summary>
         /// Purchase state unknown

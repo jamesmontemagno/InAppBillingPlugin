@@ -1,5 +1,9 @@
 In App Billing Plugin for Xamarin & Windows
 
+Version 5.0 has more significant updates!
+1.) We have removed IInAppBillingVerifyPurchase from all methods. All data required to handle this yourself is returned.
+2.) iOS ReceiptURL data is avaialble via ReceiptData
+3.) We are now using Android Billing version 4
 
 Version 4.0 has significant updates.
 

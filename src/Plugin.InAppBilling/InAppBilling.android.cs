@@ -63,7 +63,6 @@ namespace Plugin.InAppBilling
             tcsConnect?.TrySetCanceled();
             tcsConnect = new TaskCompletionSource<bool>();
 
-
             BillingClientBuilder = BillingClient.NewBuilder(Context);
             BillingClientBuilder.SetListener(OnPurchasesUpdated);
             if (enablePendingPurchases)
@@ -72,7 +71,6 @@ namespace Plugin.InAppBilling
                 BillingClient = BillingClientBuilder.Build();
 
             BillingClient.StartConnection(OnSetupFinished, OnDisconnected);
-
 
             return tcsConnect.Task;
 
@@ -206,11 +204,10 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
-        /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -227,18 +224,18 @@ namespace Plugin.InAppBilling
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
-                    return await PurchaseAsync(productId, BillingClient.SkuType.Inapp, verifyPurchase, obfuscatedAccountId, obfuscatedProfileId);
+                    return await PurchaseAsync(productId, BillingClient.SkuType.Inapp, obfuscatedAccountId, obfuscatedProfileId);
                 case ItemType.Subscription:
 
                     var result = BillingClient.IsFeatureSupported(BillingClient.FeatureType.Subscriptions);
                     ParseBillingResult(result);
-                    return await PurchaseAsync(productId, BillingClient.SkuType.Subs, verifyPurchase, obfuscatedAccountId, obfuscatedProfileId);
+                    return await PurchaseAsync(productId, BillingClient.SkuType.Subs, obfuscatedAccountId, obfuscatedProfileId);
             }
 
             return null;
         }
 
-        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, IInAppBillingVerifyPurchase verifyPurchase, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
         {            
 
             var skuDetailsParams = SkuDetailsParams.NewBuilder()
@@ -273,7 +270,7 @@ namespace Plugin.InAppBilling
             ParseBillingResult(result.billingResult);
 
             //we are only buying 1 thing.
-            var androidPurchase = result.purchases?.FirstOrDefault(p => p.Sku == productSku);
+            var androidPurchase = result.purchases?.FirstOrDefault(p => p.Skus.Contains(productSku));
 
             //for some reason the data didn't come back
             if (androidPurchase == null)
@@ -282,14 +279,7 @@ namespace Plugin.InAppBilling
                 return purchases.FirstOrDefault(p => p.ProductId == productSku);
             }
 
-            var data = androidPurchase.OriginalJson;
-            var signature = androidPurchase.Signature;
-
-            var purchase = androidPurchase.ToIABPurchase();
-            if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, signature, productSku, purchase.Id))
-                return purchase;
-
-            return null;
+            return androidPurchase.ToIABPurchase();
         }
 
 
@@ -337,45 +327,22 @@ namespace Plugin.InAppBilling
             if(result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
 
-            switch (result.ResponseCode)
+            return result.ResponseCode switch
             {
-                case BillingResponseCode.Ok:
-                    return true;
-                case BillingResponseCode.UserCancelled:
-                    //User Cancelled, should try again
-                    throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
-                case BillingResponseCode.ServiceUnavailable:
-                    //Network connection is down
-                    throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable);
-                case BillingResponseCode.ServiceDisconnected:
-                    //Network connection is down
-                    throw new InAppBillingPurchaseException(PurchaseError.ServiceDisconnected);
-                case BillingResponseCode.ServiceTimeout:
-                    //Network connection is down
-                    throw new InAppBillingPurchaseException(PurchaseError.ServiceTimeout);
-                case BillingResponseCode.BillingUnavailable:
-                    //Billing Unavailable
-                    throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable);
-                case BillingResponseCode.ItemNotOwned:
-                    //Item not owned
-                    throw new InAppBillingPurchaseException(PurchaseError.NotOwned);
-                case BillingResponseCode.DeveloperError:
-                    //Developer Error
-                    throw new InAppBillingPurchaseException(PurchaseError.DeveloperError);
-                case BillingResponseCode.Error:
-                    //Generic Error
-                    throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
-                case BillingResponseCode.FeatureNotSupported:
-                    throw new InAppBillingPurchaseException(PurchaseError.FeatureNotSupported);
-
-                case BillingResponseCode.ItemAlreadyOwned:
-                    throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned);
-
-                case BillingResponseCode.ItemUnavailable:
-                    throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable);
-                default:
-                    return false;
-            }
+                BillingResponseCode.Ok => true,
+                BillingResponseCode.UserCancelled => throw new InAppBillingPurchaseException(PurchaseError.UserCancelled),//User Cancelled, should try again
+                BillingResponseCode.ServiceUnavailable => throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable),//Network connection is down
+                BillingResponseCode.ServiceDisconnected => throw new InAppBillingPurchaseException(PurchaseError.ServiceDisconnected),//Network connection is down
+                BillingResponseCode.ServiceTimeout => throw new InAppBillingPurchaseException(PurchaseError.ServiceTimeout),//Network connection is down
+                BillingResponseCode.BillingUnavailable => throw new InAppBillingPurchaseException(PurchaseError.BillingUnavailable),//Billing Unavailable
+                BillingResponseCode.ItemNotOwned => throw new InAppBillingPurchaseException(PurchaseError.NotOwned),//Item not owned
+                BillingResponseCode.DeveloperError => throw new InAppBillingPurchaseException(PurchaseError.DeveloperError),//Developer Error
+                BillingResponseCode.Error => throw new InAppBillingPurchaseException(PurchaseError.GeneralError),//Generic Error
+                BillingResponseCode.FeatureNotSupported => throw new InAppBillingPurchaseException(PurchaseError.FeatureNotSupported),
+                BillingResponseCode.ItemAlreadyOwned => throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned),
+                BillingResponseCode.ItemUnavailable => throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable),
+                _ => false,
+            };
         }
 
         /// <summary>
