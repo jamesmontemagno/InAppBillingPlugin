@@ -35,10 +35,6 @@ namespace Plugin.InAppBilling
 			}
         }
 #endif
-        /// <summary>
-        /// Determines if it is connected to the backend actively (Android).
-        /// </summary>
-        public override bool IsConnected { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a callback for out of band purchases to complete.
@@ -78,8 +74,8 @@ namespace Plugin.InAppBilling
 				LocalizedPrice = p.LocalizedPrice(),
 				MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
 				Name = p.LocalizedTitle,
-				ProductId = p.ProductIdentifier,
-				Description = p.LocalizedDescription,
+                ProductId = p.ProductIdentifier,
+                Description = p.LocalizedDescription,
 				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
 				LocalizedIntroductoryPrice = HasIntroductoryPrice ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
 				MicrosIntroductoryPrice = HasIntroductoryPrice ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
@@ -185,11 +181,10 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
-        /// <param name="verifyPurchase">Interface to verify purchase</param>
         /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
 		{
 			var p = await PurchaseAsync(productId);
 
@@ -200,38 +195,29 @@ namespace Plugin.InAppBilling
 				TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-				State = p.GetPurchaseState(),
+                ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
+                State = p.GetPurchaseState(),
 #if __IOS__ || __TVOS__
 				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
 #endif
 			};
 
-			if (verifyPurchase == null)
-				return purchase;
-
-			var validated = await ValidateReceipt(verifyPurchase, purchase.ProductId, purchase.Id);
-
-			return validated ? purchase : null;
+            return purchase;
 		}
 
-		Task<bool> ValidateReceipt(IInAppBillingVerifyPurchase verifyPurchase, string productId, string transactionId)
-		{
-			if (verifyPurchase == null)
-				return Task.FromResult(true);
+        public override string ReceiptData
+        {
+            get
+            {
+                // Get the receipt data for (server-side) validation.
+                // See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
+                NSData receiptUrl = null;
+                if (NSBundle.MainBundle.AppStoreReceiptUrl != null)
+                    receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
 
-			// Get the receipt data for (server-side) validation.
-			// See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
-			NSData receiptUrl = null;
-			if(NSBundle.MainBundle.AppStoreReceiptUrl != null)
-				receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
-
-			var receipt = receiptUrl?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
-
-			return verifyPurchase.VerifyPurchase(receipt, string.Empty, productId, transactionId);
-		}
-
-
-		TaskCompletionSource<SKProduct> productTCS;
+                return receiptUrl?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+            }
+        }
 
 		async Task<SKPaymentTransaction> PurchaseAsync(string productId)
 		{
@@ -352,15 +338,8 @@ namespace Plugin.InAppBilling
 
 		PaymentObserver paymentObserver;
 
-		static DateTime NSDateToDateTimeUtc(NSDate date)
-		{
-			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-
-			return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
-		}
-
-		private bool disposed = false;
+		bool disposed = false;
 
 
 		/// <summary>
@@ -400,7 +379,7 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
 	{
-		TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new TaskCompletionSource<IEnumerable<SKProduct>>();
+        readonly TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new();
 
 		public Task<IEnumerable<SKProduct>> WaitForResponse() =>
 			tcsResponse.Task;
@@ -436,9 +415,9 @@ namespace Plugin.InAppBilling
 		public event Action<SKPaymentTransaction, bool> TransactionCompleted;
 		public event Action<SKPaymentTransaction[]> TransactionsRestored;
 
-		List<SKPaymentTransaction> restoredTransactions = new List<SKPaymentTransaction>();
-		private readonly Action<InAppBillingPurchase> onPurchaseSuccess;
-		private readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment;
+		readonly List<SKPaymentTransaction> restoredTransactions = new ();
+		readonly Action<InAppBillingPurchase> onPurchaseSuccess;
+		readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment;
 
 		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment)
 		{
@@ -446,12 +425,9 @@ namespace Plugin.InAppBilling
 			this.onShouldAddStorePayment = onShouldAddStorePayment;
 		}
 
-		public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
-		{
-			return onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
-		}
+        public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product) => onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
 
-		public override void UpdatedTransactions(SKPaymentQueue queue, SKPaymentTransaction[] transactions)
+        public override void UpdatedTransactions(SKPaymentQueue queue, SKPaymentTransaction[] transactions)
 		{
 			var rt = transactions.Where(pt => pt.TransactionState == SKPaymentTransactionState.Restored);
 
@@ -541,7 +517,8 @@ namespace Plugin.InAppBilling
 				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
 				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
-				State = p.GetPurchaseState(),
+                ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
+                State = p.GetPurchaseState(),
 				PurchaseToken = finalToken
 			};
 		}
@@ -559,28 +536,30 @@ namespace Plugin.InAppBilling
 			if (transaction?.TransactionState == null)
 				return PurchaseState.Unknown;
 
-			switch (transaction.TransactionState)
-			{
-				case SKPaymentTransactionState.Restored:
-					return PurchaseState.Restored;
-				case SKPaymentTransactionState.Purchasing:
-					return PurchaseState.Purchasing;
-				case SKPaymentTransactionState.Purchased:
-					return PurchaseState.Purchased;
-				case SKPaymentTransactionState.Failed:
-					return PurchaseState.Failed;
-				case SKPaymentTransactionState.Deferred:
-					return PurchaseState.Deferred;
-			}
+            switch (transaction.TransactionState)
+            {
+                case SKPaymentTransactionState.Restored:
+                    return PurchaseState.Restored;
+                case SKPaymentTransactionState.Purchasing:
+                    return PurchaseState.Purchasing;
+                case SKPaymentTransactionState.Purchased:
+                    return PurchaseState.Purchased;
+                case SKPaymentTransactionState.Failed:
+                    return PurchaseState.Failed;
+                case SKPaymentTransactionState.Deferred:
+                    return PurchaseState.Deferred;
+                default:
+                    break;
+            }
 
-			return PurchaseState.Unknown;
-		}
+            return PurchaseState.Unknown;
+        }
 
 
-	}
+    }
 
 
-	[Preserve(AllMembers = true)]
+    [Preserve(AllMembers = true)]
 	static class SKProductExtension
 	{
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Android.BillingClient.Api;
 
 namespace Plugin.InAppBilling
@@ -12,9 +13,13 @@ namespace Plugin.InAppBilling
                 AutoRenewing = purchase.IsAutoRenewing,
                 ConsumptionState = ConsumptionState.NoYetConsumed,
                 Id = purchase.OrderId,
+                OriginalJson = purchase.OriginalJson,
+                Signature = purchase.Signature,
                 IsAcknowledged = purchase.IsAcknowledged,
                 Payload = purchase.DeveloperPayload,
-                ProductId = purchase.Sku,
+                ProductId = purchase.Skus.FirstOrDefault(),
+                Quantity = purchase.Quantity,
+                ProductIds = purchase.Skus,
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
                 ObfuscatedAccountId = purchase.AccountIdentifiers?.ObfuscatedAccountId,
