@@ -310,7 +310,7 @@ namespace Plugin.InAppBilling
 		/// <returns>If consumed successful</returns>
 		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
 		public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
-			null;
+			Task.FromResult(true);
 
 	
 
