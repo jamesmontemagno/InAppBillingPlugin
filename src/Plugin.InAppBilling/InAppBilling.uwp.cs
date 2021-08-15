@@ -96,6 +96,15 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
+        /// (UWP not supported) Upgrade/Downgrade/Change a previously purchased subscription
+        /// </summary>
+        /// <exception cref="NotImplementedException">UWP not supported</exception>
+        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null)
+        {
+            throw new NotImplementedException("UWP not supported.");
+        }
+
+        /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
         /// <param name="productId">Id or Sku of product</param>
