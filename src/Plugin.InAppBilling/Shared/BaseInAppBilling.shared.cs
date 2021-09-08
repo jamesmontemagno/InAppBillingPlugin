@@ -61,6 +61,15 @@ namespace Plugin.InAppBilling
         public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 
         /// <summary>
+        /// (Android specific) Upgrade/Downgrade a previously purchased subscription
+        /// </summary>
+        /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
+        /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
+        /// <param name="prorationMode">Proration mode</param>
+        /// <returns>Purchase details</returns>
+        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
+
+        /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
         /// <param name="productId">Id or Sku of product</param>

@@ -20,4 +20,15 @@ namespace Plugin.InAppBilling
         /// </summary>
         Subscription
     }
+
+    /// <summary>
+    /// Subcription proration mode
+    /// </summary>
+    public enum SubscriptionProrationMode
+    {
+        ImmediateWithTimeProration = 1,
+        ImmediateAndChargeProratedPrice = 2,
+        ImmediateWithoutProration = 3,
+        Deferred = 4
+    }
 }
