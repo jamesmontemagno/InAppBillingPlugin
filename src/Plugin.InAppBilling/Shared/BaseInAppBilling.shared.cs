@@ -66,9 +66,8 @@ namespace Plugin.InAppBilling
         /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
         /// <param name="prorationMode">Proration mode</param>
-        /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>Purchase details</returns>
-        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null);
+        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
 
         /// <summary>
         /// Consume a purchase with a purchase token.

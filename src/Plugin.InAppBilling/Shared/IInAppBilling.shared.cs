@@ -71,7 +71,7 @@ namespace Plugin.InAppBilling
         /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null);
+        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
 
         /// <summary>
         /// Consume a purchase with a purchase token.

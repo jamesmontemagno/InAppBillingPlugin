@@ -209,10 +209,8 @@ namespace Plugin.InAppBilling
         /// (iOS not supported) Apple store manages upgrades natively when subscriptions of the same group are purchased.
         /// </summary>
         /// <exception cref="NotImplementedException">iOS not supported</exception>
-        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null)
-        {
+        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration) =>
             throw new NotImplementedException("iOS not supported. Apple store manages upgrades natively when subscriptions of the same group are purchased.");
-        }
 
 
         public override string ReceiptData

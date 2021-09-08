@@ -206,9 +206,8 @@ namespace Plugin.InAppBilling
         /// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
-        /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null)
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription,SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -222,12 +221,12 @@ namespace Plugin.InAppBilling
                 return null;
             }
 
-            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode, verifyPurchase);
+            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode);
 
             return purchase;
         }
 
-        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, int prorationMode = 1, IInAppBillingVerifyPurchase verifyPurchase = null)
+        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode)
         {
             var itemType = BillingClient.SkuType.Subs;
 
@@ -256,7 +255,7 @@ namespace Plugin.InAppBilling
 
             var updateParams = BillingFlowParams.SubscriptionUpdateParams.NewBuilder()
                 .SetOldSkuPurchaseToken(purchaseTokenOfOriginalSubscription)
-                .SetReplaceSkusProrationMode(prorationMode)
+                .SetReplaceSkusProrationMode((int)prorationMode)
                 .Build();
 
             var flowParams = BillingFlowParams.NewBuilder()
@@ -282,14 +281,7 @@ namespace Plugin.InAppBilling
                 return purchases.FirstOrDefault(p => p.ProductId == newProductId);
             }
 
-            var data = androidPurchase.OriginalJson;
-            var signature = androidPurchase.Signature;
-
-            var purchase = androidPurchase.ToIABPurchase();
-            if (verifyPurchase == null || await verifyPurchase.VerifyPurchase(data, signature, newProductId, purchase.Id))
-                return purchase;
-
-            return null;
+            return androidPurchase.ToIABPurchase();
         }
 
         /// <summary>
