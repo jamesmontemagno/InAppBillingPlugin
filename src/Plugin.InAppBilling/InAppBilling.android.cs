@@ -10,7 +10,6 @@ using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
 
-[assembly: UsesPermission("com.android.vending.BILLING")]
 namespace Plugin.InAppBilling
 {
 	/// <summary>
