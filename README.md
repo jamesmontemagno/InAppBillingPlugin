@@ -58,6 +58,27 @@ Version 4.X updates to the new Android billing client. This means there are few 
 * If the PurchaseState for this purchase is still PaymentPending, show the same no-access message
 * If the PurchaseState is Purchased, call ConsumePurchaseAsync or AcknowledgePurchaseAsync, depending on the product type
 
+
+To respond to pending transactions you can subscribe to a listener in your Android project startup:
+
+```csharp
+// Connect to the service here
+await CrossInAppBilling.Current.ConnectAsync();
+
+// Check if there are pending orders, if so then subscribe
+var purchases = await CrossInAppBilling.Current.GetPurchasesAsync(ItemType.InAppPurchase);
+
+if (purchases?.Any(p => p.State == PurchaseState.PaymentPending) ?? false)
+{
+  Plugin.InAppBilling.InAppBillingImplementation.OnAndroidPurchasesUpdated = (billingResult, purchases) =>
+  {
+       // decide what you are going to do here with purchases
+  };
+}
+//
+
+```
+
 I highly recommend reading the entire [Google Play Billing System docs](https://developer.android.com/google/play/billing/).
 
 #### Consumable vs Non-consumables on Android
