@@ -73,11 +73,17 @@ if (purchases?.Any(p => p.State == PurchaseState.PaymentPending) ?? false)
   Plugin.InAppBilling.InAppBillingImplementation.OnAndroidPurchasesUpdated = (billingResult, purchases) =>
   {
        // decide what you are going to do here with purchases
+       // probably acknowledge
+       // probably disconnect
   };
 }
-//
-
+else
+{
+  await CrossInAppBilling.Current.DisconnectAsync();
+}
 ```
+
+If you do connect the `IsConnected` propety will be `true` and when you make purchases or check purchases again you should check ahead of time and not re-connect or disconnect if there are pending purchases
 
 I highly recommend reading the entire [Google Play Billing System docs](https://developer.android.com/google/play/billing/).
 
