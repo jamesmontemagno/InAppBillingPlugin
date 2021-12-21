@@ -289,11 +289,6 @@ namespace Plugin.InAppBilling
 
 			paymentObserver.TransactionCompleted += handler;
 
-#if __IOS__ || __TVOS__
-			
-			var payment = SKPayment.CreateFrom(productId);
-#else
-
 			var products = await GetProductAsync(new[] { productId });
 			var product = products?.FirstOrDefault();
 			if (product == null)
@@ -301,7 +296,7 @@ namespace Plugin.InAppBilling
 
 			var payment = SKPayment.CreateFrom(product);
 			//var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
-#endif
+			
 			SKPaymentQueue.DefaultQueue.AddPayment(payment);
 
 			return await tcsTransaction.Task;
