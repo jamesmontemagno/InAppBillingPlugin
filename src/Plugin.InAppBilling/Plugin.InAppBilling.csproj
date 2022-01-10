@@ -5,9 +5,9 @@
 		<AssemblyName>Plugin.InAppBilling</AssemblyName>
 		<RootNamespace>Plugin.InAppBilling</RootNamespace>
 		<Product>$(AssemblyName) ($(TargetFramework))</Product>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-		<Version>1.0.0.0</Version>
+		<AssemblyVersion>6.0.0.0</AssemblyVersion>
+		<AssemblyFileVersion>6.0.0.0</AssemblyFileVersion>
+		<Version>6.0.0.0</Version>
     	<LangVersion>9.0</LangVersion>
 		<Authors>James Montemagno</Authors>
 		<PackageId>Plugin.InAppBilling</PackageId>
@@ -32,6 +32,11 @@
 		<LangVersion>default</LangVersion>
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<DefineConstants>$(DefineConstants);</DefineConstants>
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-ios'">14.2</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-maccatalyst'">14.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
 		<DebugType>full</DebugType>
@@ -78,7 +83,7 @@
 
 	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
 		<UseMauiEssentials>true</UseMauiEssentials>
-		<DefineConstants>NET6ANDROID</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET6ANDROID</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">

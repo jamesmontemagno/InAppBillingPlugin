@@ -236,3 +236,4 @@ _Pvt_Extensions
 .fake/
 src/Plugin.InAppBilling/.DS_Store
 src/.DS_Store
+.DS_Store
