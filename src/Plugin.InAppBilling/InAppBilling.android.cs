@@ -9,6 +9,11 @@ using Java.Lang;
 using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
+#if NET6ANDROID
+using Microsoft.Maui.Essentials;
+#else
+using Xamarin.Essentials;
+#endif
 
 namespace Plugin.InAppBilling
 {
@@ -29,7 +34,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <value>The context.</value>
         Activity Activity =>
-            Xamarin.Essentials.Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials in your source code so the In App Billing can use it.");
+            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials in your source code so the In App Billing can use it.");
 
         Context Context => Android.App.Application.Context;
 
