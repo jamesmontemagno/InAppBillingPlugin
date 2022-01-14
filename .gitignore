@@ -234,3 +234,6 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+src/Plugin.InAppBilling/.DS_Store
+src/.DS_Store
+.DS_Store

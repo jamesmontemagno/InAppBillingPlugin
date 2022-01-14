@@ -1,13 +1,13 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid10.0;Xamarin.iOS10;Xamarin.TVOS10;Xamarin.Mac20;net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);uap10.0.19041;net6.0-windows10.0.19041;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;MonoAndroid10.0;Xamarin.iOS10;Xamarin.TVOS10;Xamarin.Mac20</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);uap10.0.16299;</TargetFrameworks>
     <AssemblyName>Plugin.InAppBilling</AssemblyName>
     <RootNamespace>Plugin.InAppBilling</RootNamespace>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
-    <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <AssemblyFileVersion>6.0.0.0</AssemblyFileVersion>
-    <Version>6.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+    <Version>1.0.0.0</Version>
     <LangVersion>9.0</LangVersion>
     <Authors>James Montemagno</Authors>
     <PackageId>Plugin.InAppBilling</PackageId>
@@ -17,11 +17,11 @@
     <PackageLicenseUrl>https://github.com/jamesmontemagno/InAppBillingPlugin/blob/master/LICENSE</PackageLicenseUrl>
     <Owners>JamesMontemagno</Owners>
     <PackageProjectUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</PackageProjectUrl>
-    <Summary>Xamarin, .NET MAUI, and Windows plugin to In-App Billing.</Summary>
+    <Summary>Xamarin and Windows plugin to In-App Billing.</Summary>
     <PackageTags>xamarin, xamarin.forms, android, ios, uwp, windows phone, In-App Billing, purchases, plugin</PackageTags>
-    <Title>In-App Billing Plugin for .NET MAUI, Xamarin, and Windows</Title>
+    <Title>In-App Billing Plugin for Xamarin and Windows</Title>
     <Description>
-      .NET MAUI, Xamarin, and Windows Plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
+      Xamarin and Windows Plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
       Read the full documenation on the projects page.
     </Description>
     <Copyright>Copyright 2022</Copyright>
@@ -33,28 +33,6 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DefineConstants>$(DefineConstants);</DefineConstants>
   </PropertyGroup>
-
-  <!-- platform version number information -->
-  <PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
-    <SupportedOSPlatformVersion>10.0</SupportedOSPlatformVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFramework.Contains('-tvos'))">
-    <SupportedOSPlatformVersion>10.0</SupportedOSPlatformVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst'))">
-    <SupportedOSPlatformVersion>13.1</SupportedOSPlatformVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFramework.Contains('-macos'))">
-    <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
-    <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFramework.Contains('-windows10'))">
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -76,20 +54,15 @@
   <ItemGroup>
     <None Include="..\..\nuget\readme.txt" PackagePath="readme.txt" Pack="true" />
     <Compile Include="**\*.shared.cs" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
     <Compile Include="**\*.netstandard.cs" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('uap10.0')) ">
-    <Compile Include="**\*.uwp.cs" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
     <Compile Include="**\*.uwp.cs" />
   </ItemGroup>
 
@@ -97,47 +70,28 @@
 		<ItemGroup>
 			<Compile Remove="$(AndroidResgenFile)" />
 		</ItemGroup>
-	</Target>-->
+	</Target>
 
-  <PropertyGroup Condition=" $(TargetFramework.Contains('-android')) ">
-    <UseMauiEssentials>true</UseMauiEssentials>
-    <DefineConstants>$(DefineConstants);NET6ANDROID</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
-    <Compile Include="**\*.android.cs" />
-    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="4.0.0" />
-  </ItemGroup>
+	<PropertyGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+		<DesignTimeBuild>false</DesignTimeBuild>
+	</PropertyGroup>-->
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
     <Compile Include="**\*.android.cs" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
     <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="4.0.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
-    <Compile Include="**\*.apple.cs" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.Contains('-ios')) ">
     <Compile Include="**\*.apple.cs" />
   </ItemGroup>
 
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.TVOS')) ">
     <Compile Include="**\*.apple.cs" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.Mac')) ">
-    <Compile Include="**\*.apple.cs" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-
-  <ItemGroup Condition=" $(TargetFramework.Contains('-mac')) ">
     <Compile Include="**\*.apple.cs" />
   </ItemGroup>
 </Project>
