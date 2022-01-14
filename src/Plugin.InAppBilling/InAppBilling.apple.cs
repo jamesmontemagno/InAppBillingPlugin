@@ -57,7 +57,6 @@ namespace Plugin.InAppBilling
 		/// </summary>
 		public override bool InTestingMode { get; set; }
 
-        public IntPtr Handle => throw new NotImplementedException();
 
         /// <summary>
         /// Get product information of a specific product
