@@ -31,7 +31,6 @@
     <NeutralLanguage>en</NeutralLanguage>
     <LangVersion>default</LangVersion>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <DefineConstants>$(DefineConstants);</DefineConstants>
   </PropertyGroup>
 
   <!-- platform version number information -->
@@ -101,7 +100,6 @@
 
   <PropertyGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <UseMauiEssentials>true</UseMauiEssentials>
-    <DefineConstants>$(DefineConstants);NET6ANDROID</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
