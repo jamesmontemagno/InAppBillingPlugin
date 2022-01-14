@@ -1,6 +1,10 @@
-## In-App Billing Plugin for Xamarin and Windows
+## In-App Billing Plugin for .NET MAUI, Xamarin, and Windows
 
-A simple In-App Purchase plugin for Xamarin and Windows to query item information, purchase items, restore items, and more.
+A simple In-App Purchase plugin for .NET MAUI, Xamarin, and Windows to query item information, purchase items, restore items, and more.
+
+## Important Version Information
+* For .NET 6 & .NET MAUI you must use version 6.x+
+* For Xamarin.Forms and pre-.NET 6 it is recommended to use version 5.x
 
 ## Documentation
 Get started by reading through the [In-App Billing Plugin documentation](https://jamesmontemagno.github.io/InAppBillingPlugin/).
