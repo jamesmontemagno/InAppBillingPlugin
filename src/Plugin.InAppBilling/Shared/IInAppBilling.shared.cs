@@ -47,9 +47,16 @@ namespace Plugin.InAppBilling
 		/// Get all current purchases for a specific product type. If you use verification and it fails for some purchase, it's not contained in the result.
 		/// </summary>
 		/// <param name="itemType">Type of product</param>
-        /// <param name="verifyPurchase">Verify purchase implementation</param>
 		/// <returns>The current purchases</returns>
 		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+
+
+        /// <summary>
+        /// Android only: Returns the most recent purchase made by the user for each SKU, even if that purchase is expired, canceled, or consumed.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
+        /// <returns>The current purchases</returns>
+        Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType);
 
         /// <summary>
         /// Purchase a specific product or subscription
