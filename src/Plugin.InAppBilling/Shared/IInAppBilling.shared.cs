@@ -21,6 +21,11 @@ namespace Plugin.InAppBilling
         bool InTestingMode { get; set; }
 
 
+        /// <summary>
+        /// Manually acknowledge a purchase
+        /// </summary>
+        /// <param name="purchaseToken"></param>
+        /// <returns></returns>
         Task<bool> AcknowledgePurchaseAsync(string purchaseToken);
 
         /// <summary>
@@ -75,7 +80,6 @@ namespace Plugin.InAppBilling
         /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
-        /// <param name="verifyPurchase">Verify Purchase implementation</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
@@ -89,11 +93,30 @@ namespace Plugin.InAppBilling
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
         Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken);
 
+        /// <summary>
+        /// Manually finish a transaction
+        /// </summary>
+        /// <param name="purchase"></param>
+        /// <returns></returns>
 		Task<bool> FinishTransaction(InAppBillingPurchase purchase);
 
+        /// <summary>
+        /// Manually finish a transaction
+        /// </summary>
+        /// <param name="purchaseId"></param>
+        /// <returns></returns>
 		Task<bool> FinishTransaction(string purchaseId);
 
+        /// <summary>
+        /// Get receipt data on iOS
+        /// </summary>
         string ReceiptData { get; }
+
+
+        /// <summary>
+        /// Gets if user is allowed to make a payment.
+        /// </summary>
+        bool CanMakePayments { get; }
 
 	}
 }

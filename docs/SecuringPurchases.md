@@ -89,6 +89,122 @@ The simplest and easiest (not necessarily the most secure) way is to do the foll
 * Save each value out and put them in your app
 * Implement the interface with this funcationality:
 
+
+```csharp
+ /// <summary>
+/// Utility security class to verify the purchases
+/// </summary>
+[Preserve(AllMembers = true)]
+public static class InAppBillingSecurity
+{
+    /// <summary>
+    /// Verifies the purchase.
+    /// </summary>
+    /// <returns><c>true</c>, if purchase was verified, <c>false</c> otherwise.</returns>
+    /// <param name="publicKey">Public key.</param>
+    /// <param name="signedData">Signed data.</param>
+    /// <param name="signature">Signature.</param>
+    public static bool VerifyPurchase(string publicKey, string signedData, string signature)
+    {
+        if (signedData == null)
+        {
+            Console.WriteLine("Security. data is null");
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(signature))
+        {
+            var key = InAppBillingSecurity.GeneratePublicKey(publicKey);
+            var verified = InAppBillingSecurity.Verify(key, signedData, signature);
+
+            if (!verified)
+            {
+                Console.WriteLine("Security. Signature does not match data.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Generates the public key.
+    /// </summary>
+    /// <returns>The public key.</returns>
+    /// <param name="encodedPublicKey">Encoded public key.</param>
+    public static IPublicKey GeneratePublicKey(string encodedPublicKey)
+    {
+        try
+        {
+            var keyFactory = KeyFactory.GetInstance(KeyFactoryAlgorithm);
+            return keyFactory.GeneratePublic(new X509EncodedKeySpec(Android.Util.Base64.Decode(encodedPublicKey, 0)));
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            Console.WriteLine(e.Message);
+            throw new RuntimeException(e);
+        }
+        catch (Java.Lang.Exception e)
+        {
+            Console.WriteLine(e.Message);
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /// <summary>
+    /// Verify the specified publicKey, signedData and signature.
+    /// </summary>
+    /// <param name="publicKey">Public key.</param>
+    /// <param name="signedData">Signed data.</param>
+    /// <param name="signature">Signature.</param>
+    public static bool Verify(IPublicKey publicKey, string signedData, string signature)
+    {
+        Console.WriteLine("Signature: {0}", signature);
+        try
+        {
+            var sign = Signature.GetInstance(SignatureAlgorithm);
+            sign.InitVerify(publicKey);
+            sign.Update(Encoding.UTF8.GetBytes(signedData));
+
+            if (!sign.Verify(Android.Util.Base64.Decode(signature, 0)))
+            {
+                Console.WriteLine("Security. Signature verification failed.");
+                return false;
+            }
+
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Simple string transform via:
+    /// http://stackoverflow.com/questions/11671865/how-to-protect-google-play-public-key-when-doing-inapp-billing
+    /// </summary>
+    /// <param name="key">key to transform</param>
+    /// <param name="i">XOR Offset</param>
+    /// <returns></returns>
+    public static string TransformString(string key, int i)
+    {
+        var chars = key.ToCharArray(); ;
+        for (var j = 0; j < chars.Length; j++)
+            chars[j] = (char)(chars[j] ^ i);
+        return new string(chars);
+    }
+
+#pragma warning disable IDE1006 // Naming Styles
+    const string KeyFactoryAlgorithm = "RSA";
+    const string SignatureAlgorithm = "SHA1withRSA";
+#pragma warning restore IDE1006 // Naming Styles
+
+}
+```
+
 ```csharp
     public class Verify : IInAppBillingVerifyPurchase
     {

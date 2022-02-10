@@ -11,8 +11,18 @@ namespace Plugin.InAppBilling
 
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
     {
+        /// <summary>
+        /// Gets if the user can make payments
+        /// </summary>
+        public virtual bool CanMakePayments { get; } = true;
+        /// <summary>
+        /// Gets receitpt data on iOS
+        /// </summary>
         public virtual string ReceiptData { get; } = string.Empty;
 
+        /// <summary>
+        /// If connected to the store
+        /// </summary>
         public virtual bool IsConnected { get; set; } = true;
 
         /// <summary>
@@ -123,10 +133,25 @@ namespace Plugin.InAppBilling
             }
         }
 
+        /// <summary>
+        /// Manually finish a transaction
+        /// </summary>
+        /// <param name="purchase"></param>
+        /// <returns></returns>
 		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase) => Task.FromResult(true);
 
+        /// <summary>
+        /// manually finish a transaction
+        /// </summary>
+        /// <param name="purchaseId"></param>
+        /// <returns></returns>
 		public virtual Task<bool> FinishTransaction(string purchaseId) => Task.FromResult(true);
 
+        /// <summary>
+        /// acknowledge a purchase
+        /// </summary>
+        /// <param name="purchaseToken"></param>
+        /// <returns></returns>
         public virtual Task<bool> AcknowledgePurchaseAsync(string purchaseToken) => Task.FromResult(true);
     }
 }

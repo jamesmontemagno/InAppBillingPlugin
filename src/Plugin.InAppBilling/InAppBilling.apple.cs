@@ -15,10 +15,13 @@ namespace Plugin.InAppBilling
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
 #if __IOS__ || __TVOS__
-		static bool HasIntroductoryPrice => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+        internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
+        internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
+        internal static bool HasSubscriptionGroupId => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 0);
+        internal static bool HasFamilyShareable => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(14, 0);
 #else
-		static bool initIntro, hasIntro;
-		static bool HasIntroductoryPrice
+		static bool initIntro, hasIntro, initDiscounts, hasDiscounts, initFamily, hasFamily, initSubGroup, hasSubGroup;
+		internal static bool HasIntroductoryOffer
         {
 			get
             {
@@ -34,13 +37,71 @@ namespace Plugin.InAppBilling
 
 			}
         }
+		internal static bool HasProductDiscounts
+        {
+			get
+            {
+				if (initDiscounts)
+					return hasDiscounts;
+
+				initDiscounts = true;
+
+
+				using var info = new NSProcessInfo();
+				hasDiscounts = info.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(10,14,4));
+				return hasDiscounts;
+
+			}
+        }
+
+        internal static bool HasSubscriptionGroupId
+        {
+			get
+            {
+				if (initSubGroup)
+					return hasSubGroup;
+
+				initSubGroup = true;
+
+
+				using var info = new NSProcessInfo();
+				hasSubGroup = info.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(10,14,0));
+				return hasSubGroup;
+
+			}
+        }
+
+        internal static bool HasFamilyShareable
+        {
+			get
+            {
+				if (initFamily)
+					return hasFamily;
+
+				initFamily = true;
+
+
+				using var info = new NSProcessInfo();
+				hasFamily = info.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(11,0,0));
+				return hasFamily;
+
+			}
+        }
 #endif
+
+        /// <summary>
+        /// Gets if user can make payments
+        /// </summary>
+        public override bool CanMakePayments => SKPaymentQueue.CanMakePayments;
 
         /// <summary>
         /// Gets or sets a callback for out of band purchases to complete.
         /// </summary>
         public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
 
+        /// <summary>
+        /// 
+        /// </summary>
 		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
 
 		/// <summary>
@@ -76,9 +137,14 @@ namespace Plugin.InAppBilling
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
 				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
-				LocalizedIntroductoryPrice = HasIntroductoryPrice ? (p.IntroductoryPrice?.LocalizedPrice() ?? string.Empty) : string.Empty,
-				MicrosIntroductoryPrice = HasIntroductoryPrice ? (long)((p.IntroductoryPrice?.Price?.DoubleValue ?? 0) * 1000000d) : 0
-			});
+                AppleExtras = new InAppBillingProductAppleExtras
+                {
+                    SubscriptionGroupId = HasSubscriptionGroupId ? p.SubscriptionGroupIdentifier : null,
+                    SubscriptionPeriod = p.ToSubscriptionPeriod(),
+                    IntroductoryOffer = HasIntroductoryOffer ? p.IntroductoryPrice?.ToProductDiscount() : null,
+                    Discounts = HasProductDiscounts ? p.Discounts?.Select(s => s.ToProductDiscount()).ToList() ?? null : null
+                }
+            });
 		}
 
 		Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
@@ -189,6 +255,7 @@ namespace Plugin.InAppBilling
 
 			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
+
 			var purchase = new InAppBillingPurchase
 			{
 				TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
@@ -212,6 +279,9 @@ namespace Plugin.InAppBilling
             throw new NotImplementedException("iOS not supported. Apple store manages upgrades natively when subscriptions of the same group are purchased.");
 
 
+        /// <summary>
+        /// gets receipt data from bundle
+        /// </summary>
         public override string ReceiptData
         {
             get
@@ -315,10 +385,20 @@ namespace Plugin.InAppBilling
 			Task.FromResult(true);
 
 	
-
+        /// <summary>
+        /// Manually finish a trasaction
+        /// </summary>
+        /// <param name="purchase"></param>
+        /// <returns></returns>
 		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase) =>
 			FinishTransaction(purchase?.Id);
 
+        /// <summary>
+        /// Finish a transaction manually
+        /// </summary>
+        /// <param name="purchaseId"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
 		public override async Task<bool> FinishTransaction(string purchaseId)
 		{
 			if (string.IsNullOrWhiteSpace(purchaseId))
@@ -556,8 +636,6 @@ namespace Plugin.InAppBilling
 
             return PurchaseState.Unknown;
         }
-
-
     }
 
 
@@ -592,7 +670,73 @@ namespace Plugin.InAppBilling
 			return formattedString;
 		}
 
-		public static string LocalizedPrice(this SKProductDiscount product)
+        public static SubscriptionPeriod ToSubscriptionPeriod(this SKProduct p)
+        {
+            if (!InAppBillingImplementation.HasIntroductoryOffer)
+                return SubscriptionPeriod.Unknown;
+
+            if (p?.SubscriptionPeriod?.Unit == null)
+                return SubscriptionPeriod.Unknown;
+
+            return p.SubscriptionPeriod.Unit switch
+            {
+                SKProductPeriodUnit.Day => SubscriptionPeriod.Day,
+                SKProductPeriodUnit.Month => SubscriptionPeriod.Month,
+                SKProductPeriodUnit.Year => SubscriptionPeriod.Year,
+                SKProductPeriodUnit.Week => SubscriptionPeriod.Week,
+                _ => SubscriptionPeriod.Unknown,
+            };
+        }
+
+        public static InAppBillingProductDiscount ToProductDiscount(this SKProductDiscount pd)
+        {
+            if (!InAppBillingImplementation.HasIntroductoryOffer)
+                return null;
+            
+            if (pd == null)
+                return null;
+            
+
+            var discount = new InAppBillingProductDiscount
+            {
+                LocalizedPrice = pd.LocalizedPrice(),
+                Price = (pd.Price?.DoubleValue ?? 0) * 1000000d,
+                NumberOfPeriods = (int)pd.NumberOfPeriods,
+                CurrencyCode = pd.PriceLocale?.CurrencyCode ?? string.Empty
+            };
+
+            discount.SubscriptionPeriod = pd.SubscriptionPeriod.Unit switch
+            {
+                SKProductPeriodUnit.Day => SubscriptionPeriod.Day,
+                SKProductPeriodUnit.Month => SubscriptionPeriod.Month,
+                SKProductPeriodUnit.Year => SubscriptionPeriod.Year,
+                SKProductPeriodUnit.Week => SubscriptionPeriod.Week,
+                _ => SubscriptionPeriod.Unknown
+            };
+
+            discount.PaymentMode = pd.PaymentMode switch
+            {
+                SKProductDiscountPaymentMode.FreeTrial => PaymentMode.FreeTrial,
+                SKProductDiscountPaymentMode.PayUpFront => PaymentMode.PayUpFront,
+                SKProductDiscountPaymentMode.PayAsYouGo => PaymentMode.PayAsYouGo,
+                _ => PaymentMode.Unknown,
+            };
+
+            if(InAppBillingImplementation.HasProductDiscounts)
+            {
+                discount.Id = pd.Identifier;
+                discount.Type = pd.Type switch
+                {
+                    SKProductDiscountType.Introductory => ProductDiscountType.Introductory,
+                    SKProductDiscountType.Subscription => ProductDiscountType.Subscription,
+                    _ => ProductDiscountType.Unknown,
+                };
+            }
+
+            return discount;
+        }
+
+        public static string LocalizedPrice(this SKProductDiscount product)
 		{
 			if (product?.PriceLocale == null)
 				return string.Empty;

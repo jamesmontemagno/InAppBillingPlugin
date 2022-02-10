@@ -51,5 +51,30 @@ namespace Plugin.InAppBilling
                 State = PurchaseState.Unknown
             };
         }
+
+        public static InAppBillingProduct ToIAPProduct(this SkuDetails product)
+        {
+            return new InAppBillingProduct
+            {
+                Name = product.Title,
+                Description = product.Description,
+                CurrencyCode = product.PriceCurrencyCode,
+                LocalizedPrice = product.Price,
+                ProductId = product.Sku,
+                MicrosPrice = product.PriceAmountMicros,
+                AndroidExtras = new InAppBillingProductAndroidExtras
+                {
+                    SubscriptionPeriod = product.SubscriptionPeriod,
+                    LocalizedIntroductoryPrice = product.IntroductoryPrice,
+                    MicrosIntroductoryPrice = product.IntroductoryPriceAmountMicros,
+                    FreeTrialPeriod = product.FreeTrialPeriod,
+                    IconUrl = product.IconUrl,
+                    IntroductoryPriceCycles = product.IntroductoryPriceCycles,
+                    IntroductoryPricePeriod = product.IntroductoryPricePeriod,
+                    MicrosOriginalPriceAmount = product.OriginalPriceAmountMicros,
+                    OriginalPrice = product.OriginalPrice
+                }
+            };
+        }
     }
 }
