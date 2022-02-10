@@ -163,6 +163,11 @@ namespace Plugin.InAppBilling
 			return productRequestDelegate.WaitForResponse();
 		}
 
+        /// <summary>
+        /// Get app purchaes
+        /// </summary>
+        /// <param name="itemType"></param>
+        /// <returns></returns>
 		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
 		{
 			var purchases = await RestoreAsync();
