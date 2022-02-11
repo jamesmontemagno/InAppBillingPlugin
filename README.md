@@ -30,11 +30,14 @@ Full blog on subscriptions: https://montemagno.com/ios-android-subscription-impl
 ### Created By: [@JamesMontemagno](http://github.com/jamesmontemagno)
 * Twitter: [@JamesMontemagno](http://twitter.com/jamesmontemagno)
 * Blog: [Montemagno.com](http://montemagno.com)
-* Podcasts: [Merge Conflict](http://mergeconflict.fm), [Coffeehouse Blunders](http://blunders.fm), [The Xamarin Podcast](http://xamarinpodcast.com)
-* Video: [The Xamarin Show on Channel 9](http://xamarinshow.com), [YouTube Channel](https://www.youtube.com/jamesmontemagno) 
+* Podcast: [Merge Conflict](http://mergeconflict.fm)
+* Videos: [James's YouTube Channel](https://www.youtube.com/jamesmontemagno) 
 
 ### Checkout my podcast on IAP
-I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm), about technology and recently covered IAP and this library: [Merge Conflict 28: Demystifying In-App Purchases](http://www.mergeconflict.fm/57678-merge-conflict-28-demystifying-in-app-purchases)
+I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm), about technology and recently covered IAP and this library: 
+
+* [28: Demystifying In-App Purchases](https://www.mergeconflict.fm/57678-merge-conflict-28-demystifying-in-app-purchases)
+* [292: Developer Guide to In-App Subscriptions](https://www.mergeconflict.fm/292)
 
 ## Version 4 Major Update - Android
 
