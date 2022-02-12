@@ -103,9 +103,9 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Manually finish a transaction
         /// </summary>
-        /// <param name="purchaseId"></param>
+        /// <param name="purchaseToken"></param>
         /// <returns></returns>
-		Task<bool> FinishTransaction(string purchaseId);
+		Task<bool> FinishTransaction(string purchaseToken);
 
         /// <summary>
         /// Get receipt data on iOS

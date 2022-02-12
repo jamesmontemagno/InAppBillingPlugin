@@ -143,9 +143,9 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// manually finish a transaction
         /// </summary>
-        /// <param name="purchaseId"></param>
+        /// <param name="purchaseToken"></param>
         /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(string purchaseId) => Task.FromResult(true);
+		public virtual Task<bool> FinishTransaction(string purchaseToken) => Task.FromResult(true);
 
         /// <summary>
         /// acknowledge a purchase
