@@ -14,6 +14,7 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
+		public static AutoFinishTransactions { get; set; }
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
@@ -109,6 +110,14 @@ namespace Plugin.InAppBilling
 		/// </summary>
 		public InAppBillingImplementation()
 		{
+			Init();
+		}
+
+		void Init()
+		{
+			if(paymentObserver != null)
+				return;
+
 			paymentObserver = new PaymentObserver(OnPurchaseComplete, OnShouldAddStorePayment);
 			SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
 		}
@@ -127,6 +136,7 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
 		{
+			Init();
 			var products = await GetProductAsync(productIds);
 
 			return products.Select(p => new InAppBillingProduct
@@ -170,6 +180,7 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
 		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
 		{
+			Init();
 			var purchases = await RestoreAsync();
 
 			var comparer = new InAppBillingPurchaseComparer();
@@ -256,6 +267,7 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
 		{
+			Init();
 			var p = await PurchaseAsync(productId);
 
 			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -377,8 +389,6 @@ namespace Plugin.InAppBilling
 		}
 
 
-
-
 		/// <summary>
 		/// Consume a purchase with a purchase token.
 		/// </summary>
@@ -387,7 +397,7 @@ namespace Plugin.InAppBilling
 		/// <returns>If consumed successful</returns>
 		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
 		public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
-			Task.FromResult(true);
+			FinishTransaction(purchaseToken);
 
 	
         /// <summary>
@@ -401,24 +411,32 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Finish a transaction manually
         /// </summary>
-        /// <param name="purchaseId"></param>
+        /// <param name="purchaseToken"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-		public override async Task<bool> FinishTransaction(string purchaseId)
+		public override async Task<bool> FinishTransaction(string purchaseToken)
 		{
-			if (string.IsNullOrWhiteSpace(purchaseId))
-				throw new ArgumentException("PurchaseId must be valid", nameof(purchaseId));
+			if (string.IsNullOrWhiteSpace(purchaseToken))
+				throw new ArgumentException("Purchase Token must be valid", nameof(purchaseToken));
 
 			var purchases = await RestoreAsync();
 
 			if (purchases == null)
 				return false;
 
-			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseId).FirstOrDefault();
+			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseToken).FirstOrDefault();
 			if (transaction == null)
 				return false;
 
-			SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+			try
+			{
+				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+			}
+			catch(Exception ex)
+			{
+				Debug.WriteLine("Unable to finish transaction: " + ex)
+				return false;
+			}
 
 			return true;
 		}
@@ -539,15 +557,29 @@ namespace Plugin.InAppBilling
 
 						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 
-						SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+						if (InAppBillingImplementation.AutoFinishTransaction)
+							Finish(transaction);
 						break;
 					case SKPaymentTransactionState.Failed:
 						TransactionCompleted?.Invoke(transaction, false);
-						SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+						if (InAppBillingImplementation.AutoFinishTransaction)
+							Finish(transaction);
 						break;
 					default:
 						break;
 				}
+			}
+		}
+
+		void Finish(SKPaymentTransaction transaction)
+		{
+			try
+			{
+				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+			}
+			catch(Exception ex)
+			{
+				Debug.WriteLine("Couldn't finish transaction: " + ex);
 			}
 		}
 
@@ -565,8 +597,11 @@ namespace Plugin.InAppBilling
 
 			TransactionsRestored?.Invoke(allTransactions);
 
-			foreach (var transaction in allTransactions)
-				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+			if (InAppBillingImplementation.AutoFinishTransaction)
+			{
+				foreach (var transaction in allTransactions)
+					Finish(transaction);
+			}
 		}
 
 		// Failure, just fire with null
