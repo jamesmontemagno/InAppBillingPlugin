@@ -18,7 +18,7 @@ namespace Plugin.InAppBilling
         /// Fall back to 4.0 functionality of always finishing transactions.
         /// This is fine if you have only subscriptions and non-consumables.
         /// </summary>
-		public static bool AutoFinishTransactionsOnRestore { get; set; }
+		public static bool AutoFinishTransactionsOnRestore { get; set; } = true;
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
