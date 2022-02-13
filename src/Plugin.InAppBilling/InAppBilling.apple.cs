@@ -14,7 +14,11 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
-		public static AutoFinishTransactions { get; set; }
+        /// <summary>
+        /// Fall back to 4.0 functionality of always finishing transactions.
+        /// This is fine if you have only subscriptions and non-consumables.
+        /// </summary>
+		public static bool AutoFinishTransactionsOnRestore { get; set; }
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
@@ -268,7 +272,7 @@ namespace Plugin.InAppBilling
         public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
 		{
 			Init();
-			var p = await PurchaseAsync(productId);
+			var p = await PurchaseAsync(productId, itemType);
 
 			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
@@ -288,32 +292,8 @@ namespace Plugin.InAppBilling
             return purchase;
 		}
 
-        /// <summary>
-        /// (iOS not supported) Apple store manages upgrades natively when subscriptions of the same group are purchased.
-        /// </summary>
-        /// <exception cref="NotImplementedException">iOS not supported</exception>
-        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration) =>
-            throw new NotImplementedException("iOS not supported. Apple store manages upgrades natively when subscriptions of the same group are purchased.");
 
-
-        /// <summary>
-        /// gets receipt data from bundle
-        /// </summary>
-        public override string ReceiptData
-        {
-            get
-            {
-                // Get the receipt data for (server-side) validation.
-                // See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
-                NSData receiptUrl = null;
-                if (NSBundle.MainBundle.AppStoreReceiptUrl != null)
-                    receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
-
-                return receiptUrl?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
-            }
-        }
-
-		async Task<SKPaymentTransaction> PurchaseAsync(string productId)
+		async Task<SKPaymentTransaction> PurchaseAsync(string productId, ItemType itemType)
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
 
@@ -373,6 +353,7 @@ namespace Plugin.InAppBilling
 
 			});
 
+            paymentObserver.ShouldAutoFinishTransactions = itemType != ItemType.InAppPurchaseConsumable;
 			paymentObserver.TransactionCompleted += handler;
 
 			var products = await GetProductAsync(new[] { productId });
@@ -388,15 +369,40 @@ namespace Plugin.InAppBilling
 			return await tcsTransaction.Task;
 		}
 
+        /// <summary>
+        /// (iOS not supported) Apple store manages upgrades natively when subscriptions of the same group are purchased.
+        /// </summary>
+        /// <exception cref="NotImplementedException">iOS not supported</exception>
+        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration) =>
+            throw new NotImplementedException("iOS not supported. Apple store manages upgrades natively when subscriptions of the same group are purchased.");
 
-		/// <summary>
-		/// Consume a purchase with a purchase token.
-		/// </summary>
-		/// <param name="productId">Id or Sku of product</param>
-		/// <param name="purchaseToken">Original Purchase Token</param>
-		/// <returns>If consumed successful</returns>
-		/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-		public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
+
+        /// <summary>
+        /// gets receipt data from bundle
+        /// </summary>
+        public override string ReceiptData
+        {
+            get
+            {
+                // Get the receipt data for (server-side) validation.
+                // See: https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573
+                NSData receiptUrl = null;
+                if (NSBundle.MainBundle.AppStoreReceiptUrl != null)
+                    receiptUrl = NSData.FromUrl(NSBundle.MainBundle.AppStoreReceiptUrl);
+
+                return receiptUrl?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+            }
+        }
+
+
+        /// <summary>
+        /// Consume a purchase with a purchase token.
+        /// </summary>
+        /// <param name="productId">Id or Sku of product</param>
+        /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <returns>If consumed successful</returns>
+        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
 			FinishTransaction(purchaseToken);
 
 	
@@ -434,7 +440,7 @@ namespace Plugin.InAppBilling
 			}
 			catch(Exception ex)
 			{
-				Debug.WriteLine("Unable to finish transaction: " + ex)
+                Debug.WriteLine("Unable to finish transaction: " + ex);
 				return false;
 			}
 
@@ -520,6 +526,8 @@ namespace Plugin.InAppBilling
 		public event Action<SKPaymentTransaction, bool> TransactionCompleted;
 		public event Action<SKPaymentTransaction[]> TransactionsRestored;
 
+        public bool ShouldAutoFinishTransactions { get; set; } = true;
+
 		readonly List<SKPaymentTransaction> restoredTransactions = new ();
 		readonly Action<InAppBillingPurchase> onPurchaseSuccess;
 		readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment;
@@ -530,7 +538,8 @@ namespace Plugin.InAppBilling
 			this.onShouldAddStorePayment = onShouldAddStorePayment;
 		}
 
-        public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product) => onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
+        public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product) => 
+            onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
 
         public override void UpdatedTransactions(SKPaymentQueue queue, SKPaymentTransaction[] transactions)
 		{
@@ -557,12 +566,12 @@ namespace Plugin.InAppBilling
 
 						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 
-						if (InAppBillingImplementation.AutoFinishTransaction)
+						if (ShouldAutoFinishTransactions)
 							Finish(transaction);
 						break;
 					case SKPaymentTransactionState.Failed:
 						TransactionCompleted?.Invoke(transaction, false);
-						if (InAppBillingImplementation.AutoFinishTransaction)
+						if (ShouldAutoFinishTransactions)
 							Finish(transaction);
 						break;
 					default:
@@ -597,7 +606,7 @@ namespace Plugin.InAppBilling
 
 			TransactionsRestored?.Invoke(allTransactions);
 
-			if (InAppBillingImplementation.AutoFinishTransaction)
+			if (InAppBillingImplementation.AutoFinishTransactionsOnRestore)
 			{
 				foreach (var transaction in allTransactions)
 					Finish(transaction);

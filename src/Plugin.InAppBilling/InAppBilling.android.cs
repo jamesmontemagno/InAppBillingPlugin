@@ -147,6 +147,7 @@ namespace Plugin.InAppBilling
             var skuType = itemType switch
             {
                 ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
                 _ => BillingClient.SkuType.Subs
             };
 
@@ -177,6 +178,7 @@ namespace Plugin.InAppBilling
             var skuType = itemType switch
             {
                 ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
                 _ => BillingClient.SkuType.Subs
             };
 
@@ -200,6 +202,7 @@ namespace Plugin.InAppBilling
             var skuType = itemType switch
             {
                 ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
                 _ => BillingClient.SkuType.Subs
             };
 
@@ -318,6 +321,7 @@ namespace Plugin.InAppBilling
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
+                case ItemType.InAppPurchaseConsumable:
                     return await PurchaseAsync(productId, BillingClient.SkuType.Inapp, obfuscatedAccountId, obfuscatedProfileId);
                 case ItemType.Subscription:
 
