@@ -34,5 +34,22 @@ namespace Plugin.InAppBilling
             };
             return finalPurchase;
         }
+
+        public static InAppBillingPurchase ToIABPurchase(this PurchaseHistoryRecord purchase)
+        {
+            return new InAppBillingPurchase
+            {
+                ConsumptionState = ConsumptionState.NoYetConsumed,
+                OriginalJson = purchase.OriginalJson,
+                Signature = purchase.Signature,
+                Payload = purchase.DeveloperPayload,
+                ProductId = purchase.Skus.FirstOrDefault(),
+                Quantity = purchase.Quantity,
+                ProductIds = purchase.Skus,
+                PurchaseToken = purchase.PurchaseToken,
+                TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
+                State = PurchaseState.Unknown
+            };
+        }
     }
 }

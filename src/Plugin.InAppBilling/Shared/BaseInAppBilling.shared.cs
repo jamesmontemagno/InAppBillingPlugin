@@ -49,6 +49,16 @@ namespace Plugin.InAppBilling
 		/// <returns>The current purchases</returns>
 		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
+
+
+        /// <summary>
+        /// Android only: Returns the most recent purchase made by the user for each SKU, even if that purchase is expired, canceled, or consumed.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
+        /// <returns>The current purchases</returns>
+        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) => 
+            Task.FromResult<IEnumerable<InAppBillingPurchase>>(new List<InAppBillingPurchase>());
+
         /// <summary>
         /// Purchase a specific product or subscription
         /// </summary>

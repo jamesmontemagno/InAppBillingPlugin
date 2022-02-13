@@ -204,10 +204,31 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
+        /// Android only: Returns the most recent purchase made by the user for each SKU, even if that purchase is expired, canceled, or consumed.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
+        /// <returns>The current purchases</returns>
+        public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType)
+        {
+            if (BillingClient == null)
+                throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
+
+            var skuType = itemType switch
+            {
+                ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
+                _ => BillingClient.SkuType.Subs
+            };
+
+            var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(skuType);
+
+
+            return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? new List<InAppBillingPurchase>();
+        }
+
+        /// <summary>
         /// (Android specific) Upgrade/Downgrade/Change a previously purchased subscription
         /// </summary>
         /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
-        /// <param name="oldProductId">Sku or ID of product that needs to be upgraded</param>
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>

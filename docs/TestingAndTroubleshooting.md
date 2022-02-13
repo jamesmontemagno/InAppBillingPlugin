@@ -4,10 +4,13 @@ Integrating and testing In-App Purchases is not an easy task and should go throu
 
 
 ## iOS Testing & Troubleshooting
+* [The Ultimate Guide to iOS Subscription Testing](https://www.revenuecat.com/blog/the-ultimate-guide-to-subscription-testing-on-ios) **PLEASE READ**
 * Read the iOS developer [In App Purchases API Docs](https://developer.apple.com/in-app-purchase/)
 * Read all parts of the [setup from Xamarin documentation](https://developer.xamarin.com/guides/ios/application_fundamentals/in-app_purchasing/part_1_-_in-app_purchase_basics_and_configuration/), which are great.
 * You must setup an in app purchase and understand what each of them are.
 * Read through the [testing documentation](https://developer.apple.com/library/content/documentation/LanguagesUtilities/Conceptual/iTunesConnectInAppPurchase_Guide/Chapters/TestingInAppPurchases.html#//apple_ref/doc/uid/TP40013727-CH4-SW1)
+
+
 
 ### Ensure Contracts are Signed
 You will not be able to test any StoreKit functionality until you have an iOS Paid Applications contract – StoreKit calls in your code will fail until Apple has processed your Contracts, Tax, and Banking information.

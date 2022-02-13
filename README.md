@@ -11,7 +11,8 @@ Get started by reading through the [In-App Billing Plugin documentation](https:/
 
 There are changes in version 4.0 so read below.
 
-Source code reference -> https://github.com/jamesmontemagno/app-ac-islandtracker/blob/freemium/TurnipTracker/ViewModel/ProViewModel.cs
+Source code reference of non-conumables -> https://github.com/jamesmontemagno/app-ac-islandtracker/blob/freemium/TurnipTracker/ViewModel/ProViewModel.cs
+Full blog on subscriptions: https://montemagno.com/ios-android-subscription-implemenation-strategies/
 
 ## NuGet
 * NuGet: [Plugin.InAppBilling](https://www.nuget.org/packages/Plugin.InAppBilling) [![NuGet](https://img.shields.io/nuget/v/Plugin.InAppBilling.svg?label=NuGet)](https://www.nuget.org/packages/Plugin.InAppBilling/)

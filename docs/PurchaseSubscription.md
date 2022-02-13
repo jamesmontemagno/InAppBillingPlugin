@@ -72,6 +72,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
     }
 ```
 
+* [The Ultimate Guide to iOS Subscription Testing](https://www.revenuecat.com/blog/the-ultimate-guide-to-subscription-testing-on-ios) **PLEASE READ for iOS Testing**
 
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 
