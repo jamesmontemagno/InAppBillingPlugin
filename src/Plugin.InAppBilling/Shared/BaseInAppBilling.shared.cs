@@ -11,8 +11,18 @@ namespace Plugin.InAppBilling
 
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
     {
+        /// <summary>
+        /// Gets if the user can make payments
+        /// </summary>
+        public virtual bool CanMakePayments { get; } = true;
+        /// <summary>
+        /// Gets receitpt data on iOS
+        /// </summary>
         public virtual string ReceiptData { get; } = string.Empty;
 
+        /// <summary>
+        /// If connected to the store
+        /// </summary>
         public virtual bool IsConnected { get; set; } = true;
 
         /// <summary>
@@ -46,8 +56,9 @@ namespace Plugin.InAppBilling
 		/// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
 		/// </summary>
 		/// <param name="itemType">Type of product</param>
+        /// <param name="doNotFinishTransactionIds">List of ids not to finish (iOS only)</param>
 		/// <returns>The current purchases</returns>
-		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null);
 
 
 
@@ -123,10 +134,25 @@ namespace Plugin.InAppBilling
             }
         }
 
+        /// <summary>
+        /// Manually finish a transaction
+        /// </summary>
+        /// <param name="purchase"></param>
+        /// <returns></returns>
 		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase) => Task.FromResult(true);
 
-		public virtual Task<bool> FinishTransaction(string purchaseId) => Task.FromResult(true);
+        /// <summary>
+        /// manually finish a transaction
+        /// </summary>
+        /// <param name="purchaseToken"></param>
+        /// <returns></returns>
+		public virtual Task<bool> FinishTransaction(string purchaseToken) => Task.FromResult(true);
 
+        /// <summary>
+        /// acknowledge a purchase
+        /// </summary>
+        /// <param name="purchaseToken"></param>
+        /// <returns></returns>
         public virtual Task<bool> AcknowledgePurchaseAsync(string purchaseToken) => Task.FromResult(true);
     }
 }

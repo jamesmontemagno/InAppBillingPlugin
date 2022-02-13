@@ -25,7 +25,7 @@ On Android you must call `AcknowledgePurchaseAsync` within 3 days when a purchas
 
 Example:
 ```csharp
-public async Task<bool> PurchaseItem(string productId, string payload)
+public async Task<bool> PurchaseItem(string productId)
 {
     var billing = CrossInAppBilling.Current;
     try

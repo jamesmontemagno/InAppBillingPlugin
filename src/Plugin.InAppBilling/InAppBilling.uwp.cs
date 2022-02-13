@@ -46,12 +46,24 @@ namespace Plugin.InAppBilling
 
                 // Get product and transform it to an InAppBillingProduct
                 var product = listingInformation.ProductListings[productId];
+
                 products.Add(new InAppBillingProduct
                 {
                     Name = product.Name,
                     Description = product.Description,
                     ProductId = product.ProductId,
                     LocalizedPrice = product.FormattedPrice,
+                    WindowsExtras = new InAppBillingProductWindowsExtras 
+                    {
+                        FormattedBasePrice = product.FormattedBasePrice,
+                        ImageUri = product.ImageUri,
+                        IsOnSale = product.IsOnSale,   
+                        SaleEndDate = product.SaleEndDate,
+                        Tag = product.Tag,
+                        IsConsumable = product.ProductType == ProductType.Consumable,
+                        IsDurable = product.ProductType == ProductType.Durable,
+                        Keywords = product.Keywords
+                    }                    
                     //CurrencyCode = product.CurrencyCode // Does not work at the moment, as UWP throws an InvalidCastException when getting CurrencyCode
                 });
             }
@@ -59,7 +71,13 @@ namespace Plugin.InAppBilling
             return products;
         }
 
-        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+        /// <summary>
+        /// Get all pruchases
+        /// </summary>
+        /// <param name="itemType"></param>
+        /// <param name="doNotFinishTransactionIds"></param>
+        /// <returns></returns>
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
@@ -73,7 +91,6 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productId">Sku or ID of product</param>
         /// <param name="itemType">Type of product being requested</param>
-        /// <param name="verifyPurchase">Verify purchase implementation</param>
         /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>

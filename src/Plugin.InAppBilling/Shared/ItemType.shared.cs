@@ -16,6 +16,10 @@ namespace Plugin.InAppBilling
         /// </summary>
         InAppPurchase,
         /// <summary>
+        /// Single purchase that needs to be consumed manually
+        /// </summary>
+        InAppPurchaseConsumable,
+        /// <summary>
         /// On going subscription
         /// </summary>
         Subscription
