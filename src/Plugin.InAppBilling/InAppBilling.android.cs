@@ -9,7 +9,7 @@ using Java.Lang;
 using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
-#if NET6ANDROID
+#if NET
 using Microsoft.Maui.Essentials;
 #else
 using Xamarin.Essentials;
