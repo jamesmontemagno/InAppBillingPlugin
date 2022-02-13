@@ -18,7 +18,7 @@ namespace Plugin.InAppBilling
         /// Fall back to 4.0 functionality of always finishing transactions.
         /// This is fine if you have only subscriptions and non-consumables.
         /// </summary>
-		public static bool AutoFinishTransactionsOnRestore { get; set; } = true;
+		public static List<string> DoNotFinishTransactionIds { get; } = new List<string>();
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
@@ -223,7 +223,9 @@ namespace Plugin.InAppBilling
 				}
 			});
 
-			paymentObserver.TransactionsRestored += handler;
+
+            paymentObserver.ShouldAutoFinishTransactions = true;
+            paymentObserver.TransactionsRestored += handler;
 
 			foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
 			{
@@ -307,6 +309,7 @@ namespace Plugin.InAppBilling
 				if (productId != tran.Payment.ProductIdentifier)
 					return;
 
+                paymentObserver.ShouldAutoFinishTransactions = true;
 				// Unsubscribe from future events
 				paymentObserver.TransactionCompleted -= handler;
 
@@ -606,11 +609,15 @@ namespace Plugin.InAppBilling
 
 			TransactionsRestored?.Invoke(allTransactions);
 
-			if (InAppBillingImplementation.AutoFinishTransactionsOnRestore)
-			{
-				foreach (var transaction in allTransactions)
-					Finish(transaction);
-			}
+
+            foreach (var transaction in allTransactions)
+            {
+                var id = transaction.Payment?.ProductIdentifier ?? String.Empty;
+                var containsId = InAppBillingImplementation.DoNotFinishTransactionIds?.Contains(id) ?? false;
+                if (!containsId)
+                    Finish(transaction);
+            }
+		
 		}
 
 		// Failure, just fire with null
