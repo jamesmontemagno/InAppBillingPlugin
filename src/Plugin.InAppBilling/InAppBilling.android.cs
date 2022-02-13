@@ -170,7 +170,7 @@ namespace Plugin.InAppBilling
         }
 
         
-		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");

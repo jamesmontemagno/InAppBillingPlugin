@@ -14,11 +14,6 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
-        /// <summary>
-        /// Fall back to 4.0 functionality of always finishing transactions.
-        /// This is fine if you have only subscriptions and non-consumables.
-        /// </summary>
-		public static List<string> DoNotFinishTransactionIds { get; } = new List<string>();
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
@@ -182,10 +177,10 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>
-		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
 		{
 			Init();
-			var purchases = await RestoreAsync();
+			var purchases = await RestoreAsync(doNotFinishTransactionIds);
 
 			var comparer = new InAppBillingPurchaseComparer();
 			return purchases
@@ -196,7 +191,7 @@ namespace Plugin.InAppBilling
 
 
 
-		Task<SKPaymentTransaction[]> RestoreAsync()
+		Task<SKPaymentTransaction[]> RestoreAsync(List<string> doNotFinishTransactionIds = null)
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
@@ -205,9 +200,9 @@ namespace Plugin.InAppBilling
 			Action<SKPaymentTransaction[]> handler = null;
 			handler = new Action<SKPaymentTransaction[]>(transactions =>
 			{
-
-				// Unsubscribe from future events
-				paymentObserver.TransactionsRestored -= handler;
+                paymentObserver.DoNotFinishTransactionIds = new List<string>();
+                // Unsubscribe from future events
+                paymentObserver.TransactionsRestored -= handler;
 
 				if (transactions == null)
 				{
@@ -224,7 +219,7 @@ namespace Plugin.InAppBilling
 			});
 
 
-            paymentObserver.ShouldAutoFinishTransactions = true;
+            paymentObserver.DoNotFinishTransactionIds = doNotFinishTransactionIds;
             paymentObserver.TransactionsRestored += handler;
 
 			foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
@@ -309,7 +304,7 @@ namespace Plugin.InAppBilling
 				if (productId != tran.Payment.ProductIdentifier)
 					return;
 
-                paymentObserver.ShouldAutoFinishTransactions = true;
+                paymentObserver.DoNotFinishTransactionIds = new List<string>();
 				// Unsubscribe from future events
 				paymentObserver.TransactionCompleted -= handler;
 
@@ -356,8 +351,12 @@ namespace Plugin.InAppBilling
 
 			});
 
-            paymentObserver.ShouldAutoFinishTransactions = itemType != ItemType.InAppPurchaseConsumable;
-			paymentObserver.TransactionCompleted += handler;
+            if (itemType == ItemType.InAppPurchaseConsumable)
+                paymentObserver.DoNotFinishTransactionIds = new List<string>(new[] { productId });
+            else
+                paymentObserver.DoNotFinishTransactionIds = new List<string>();
+            
+            paymentObserver.TransactionCompleted += handler;
 
 			var products = await GetProductAsync(new[] { productId });
 			var product = products?.FirstOrDefault();
@@ -529,7 +528,7 @@ namespace Plugin.InAppBilling
 		public event Action<SKPaymentTransaction, bool> TransactionCompleted;
 		public event Action<SKPaymentTransaction[]> TransactionsRestored;
 
-        public bool ShouldAutoFinishTransactions { get; set; } = true;
+        public List<string> DoNotFinishTransactionIds { get; set; }
 
 		readonly List<SKPaymentTransaction> restoredTransactions = new ();
 		readonly Action<InAppBillingPurchase> onPurchaseSuccess;
@@ -569,13 +568,11 @@ namespace Plugin.InAppBilling
 
 						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 
-						if (ShouldAutoFinishTransactions)
-							Finish(transaction);
+						Finish(transaction);
 						break;
 					case SKPaymentTransactionState.Failed:
 						TransactionCompleted?.Invoke(transaction, false);
-						if (ShouldAutoFinishTransactions)
-							Finish(transaction);
+						Finish(transaction);
 						break;
 					default:
 						break;
@@ -585,7 +582,14 @@ namespace Plugin.InAppBilling
 
 		void Finish(SKPaymentTransaction transaction)
 		{
-			try
+
+            //checks to see if we should or shouldn't finish this.
+            var id = transaction.Payment?.ProductIdentifier ?? string.Empty;
+            var containsId = DoNotFinishTransactionIds?.Contains(id) ?? false;
+            if (containsId)
+                return;
+
+            try
 			{
 				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
 			}
@@ -612,10 +616,7 @@ namespace Plugin.InAppBilling
 
             foreach (var transaction in allTransactions)
             {
-                var id = transaction.Payment?.ProductIdentifier ?? String.Empty;
-                var containsId = InAppBillingImplementation.DoNotFinishTransactionIds?.Contains(id) ?? false;
-                if (!containsId)
-                    Finish(transaction);
+                Finish(transaction);
             }
 		
 		}
