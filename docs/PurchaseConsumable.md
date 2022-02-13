@@ -10,9 +10,11 @@ Each app store calls them something slightly different:
 All purchases go through the `PurchaseAsync` method and you must always `ConnectAsync` before making calls and `DisconnectAsync` after making calls. 
 
 Consumables are unique and work a bit different on each platform and the `ConsumePurchaseAsync` may need to be called after making the purchase:
-* Apple: As soon as you purchase they are consumed
+* Apple: You must consume the purchase (this finishes the transaction), starting in 5.x and 6.x will not auto do this.
 * Android: You must consume before purchasing again
 * Microsoft: You must consume before purchasing again
+
+The reason for forcing you to consume is that some platforms will not receive the consumable purchase based when getting them. For this reason, we have introduced `ItemType.InAppPurchaseConsumable` specificaly for iOS. If you pass in `ItemType.InAppPurchase` then it will auto consume the purchase. This is what used to happen in 4.0.
 
 ### Purchase Item
 ```csharp
@@ -44,7 +46,7 @@ Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchas
 
 Example:
 ```csharp
-public async Task<bool> PurchaseItem(string productId, string payload)
+public async Task<bool> PurchaseItem(string productId)
 {
     var billing = CrossInAppBilling.Current;
     try
@@ -57,7 +59,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         }
 
         //check purchases
-        var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchase);
+        var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchaseConsumable);
 
         //possibility that a null came through.
         if(purchase == null)
@@ -66,16 +68,13 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         }
         else if(purchase.State == PurchaseState.Purchased)
         {
-            //purchased, we can now consume the item or do it later
-
-            //If we are on iOS we are done, else try to consume the purchase
-            //Device.RuntimePlatform comes from Xamarin.Forms, you can also use a conditional flag or the DeviceInfo plugin
-            if(Device.RuntimePlatform == Device.iOS)
-                return true;
+            // purchased, we can now consume the item or do it later
+            // here you may want to call your backend or process something in your app.
+                        
                 
-            var consumedItem = await CrossInAppBilling.Current.ConsumePurchaseAsync(purchase.ProductId, purchase.PurchaseToken);
+            var wasConsumed = await CrossInAppBilling.Current.ConsumePurchaseAsync(purchase.ProductId, purchase.PurchaseToken);
 
-            if(consumedItem != null)
+            if(wasConsumed)
             {
                 //Consumed!!
             }

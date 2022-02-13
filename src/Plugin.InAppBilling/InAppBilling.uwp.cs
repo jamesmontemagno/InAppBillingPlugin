@@ -75,8 +75,9 @@ namespace Plugin.InAppBilling
         /// Get all pruchases
         /// </summary>
         /// <param name="itemType"></param>
+        /// <param name="doNotFinishTransactionIds"></param>
         /// <returns></returns>
-        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);

@@ -49,7 +49,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         }
         else
         {
-            //purchased!
+             //purchased!
              if(Device.RuntimePlatform == Device.Android)
              {
                 // Must call AcknowledgePurchaseAsync else the purchase will be refunded

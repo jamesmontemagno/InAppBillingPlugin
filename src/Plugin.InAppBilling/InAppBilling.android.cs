@@ -147,6 +147,7 @@ namespace Plugin.InAppBilling
             var skuType = itemType switch
             {
                 ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
                 _ => BillingClient.SkuType.Subs
             };
 
@@ -169,7 +170,7 @@ namespace Plugin.InAppBilling
         }
 
         
-		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -177,6 +178,7 @@ namespace Plugin.InAppBilling
             var skuType = itemType switch
             {
                 ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
                 _ => BillingClient.SkuType.Subs
             };
 
@@ -200,6 +202,7 @@ namespace Plugin.InAppBilling
             var skuType = itemType switch
             {
                 ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
                 _ => BillingClient.SkuType.Subs
             };
 
@@ -318,6 +321,7 @@ namespace Plugin.InAppBilling
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
+                case ItemType.InAppPurchaseConsumable:
                     return await PurchaseAsync(productId, BillingClient.SkuType.Inapp, obfuscatedAccountId, obfuscatedProfileId);
                 case ItemType.Subscription:
 

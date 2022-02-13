@@ -56,8 +56,9 @@ namespace Plugin.InAppBilling
 		/// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
 		/// </summary>
 		/// <param name="itemType">Type of product</param>
+        /// <param name="doNotFinishTransactionIds">List of ids not to finish (iOS only)</param>
 		/// <returns>The current purchases</returns>
-		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null);
 
 
 
@@ -143,9 +144,9 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// manually finish a transaction
         /// </summary>
-        /// <param name="purchaseId"></param>
+        /// <param name="purchaseToken"></param>
         /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(string purchaseId) => Task.FromResult(true);
+		public virtual Task<bool> FinishTransaction(string purchaseToken) => Task.FromResult(true);
 
         /// <summary>
         /// acknowledge a purchase
