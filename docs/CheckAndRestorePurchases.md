@@ -12,7 +12,10 @@ Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
 When you make a call to restore a purchase it will prompt for the user to sign in if they haven't yet, so take that into consideration.
 
-Note, that on iOS this will only return your non-consumables, consumables are not tracked at all and your app should handle these situations
+Note, that on iOS this will only return your non-consumables, consumables that have already been `finished` are not tracked at all and your app should handle these situations.
+
+On iOS, we auto finish all transactions when you get purchases. If you have any consumables you should pass in a `List<string>` with ids that you do not want finished.
+
 
 Example:
 ```csharp
@@ -30,12 +33,15 @@ public async Task<bool> WasItemPurchased(string productId)
         }
 
         //check purchases
-        var purchases = await billing.GetPurchasesAsync(ItemType.InAppPurchase);
+        var idsToNotFinish = new List<string>(new [] {"myconsumable"});
+
+        var purchases = await billing.GetPurchasesAsync(ItemType.InAppPurchase, idsToNotFinish);
 
         //check for null just incase
         if(purchases?.Any(p => p.ProductId == productId) ?? false)
         {
             //Purchase restored
+            // if on Android may be good to 
             return true;
         }
         else
@@ -64,7 +70,7 @@ public async Task<bool> WasItemPurchased(string productId)
 
 ## Subscriptions
 
-On `Android` only valid on-going subscriptions will be returned. `iOS` returns all receipts for all instances of the subscripitions. Read the iOS documentation to learn more on strategies.
+On `Android` only valid on-going subscriptions will be returned (with the original purchase date). `iOS` returns all receipts for all instances of the subscripitions. Read the iOS documentation to learn more on strategies.
 
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 

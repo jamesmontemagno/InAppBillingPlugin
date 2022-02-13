@@ -11,14 +11,11 @@ After creating the in-app purchase items in the respective app store you can the
 /// <returns>List of products</returns>
 Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 ```
-Note that you have to specify an `ItemType` for each call. This means you have to query your `InAppPurchase` and `Subscriptio`n items in multiple calls to the API. Additionally, the `productIds` must be specified in the app, there is no way to query the In-App Billing service to just say "give me everything".
+Note that you have to specify an `ItemType` for each call. This means you have to query your `InAppPurchase` and `Subscription` items in multiple calls to the API. Additionally, the `productIds` must be specified in the app, there is no way to query the In-App Billing service to just say "give me everything".
 
- You will receive back a list of your products that you specified the `productIds` for with the following information:
+ You will receive back a list of your products that you specified the `productIds` for with common information including:
 
  ```csharp
-/// <summary>
-/// Product being offered
-/// </summary>
 public class InAppBillingProduct
 {
     /// <summary>
@@ -30,6 +27,7 @@ public class InAppBillingProduct
     /// Description of the product
     /// </summary>
     public string Description { get; set; }
+
 
     /// <summary>
     /// Product ID or sku
@@ -52,9 +50,24 @@ public class InAppBillingProduct
     /// This value represents the localized, rounded price for a particular currency.
     /// </summary>
     public Int64 MicrosPrice { get; set; }
+
+    /// <summary>
+    /// Extra information for apple platforms
+    /// </summary>
+    public InAppBillingProductAppleExtras AppleExtras { get; set; } = null;
+    /// <summary>
+    /// Extra information for Android platforms
+    /// </summary>
+    public InAppBillingProductAndroidExtras AndroidExtras { get; set; } = null;
+    /// <summary>
+    /// Extra information for Windows platforms
+    /// </summary>
+    public InAppBillingProductWindowsExtras WindowsExtras { get; set; } = null;
+
 }
- ```
+```
  
+This information should be enough for most users, however there are all sorts of special things that each platforms return. That is why there are `AppleExtras`, `AndroidExtras`, and `WindowsExtras`. Each of these return special properties for things like discounts, sales, introductory offers, and subscription group information.
 
 Example:
 ```csharp

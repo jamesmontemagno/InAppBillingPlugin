@@ -179,11 +179,11 @@ namespace Plugin.InAppBilling
         /// </summary>
         public InAppBillingProductAppleExtras AppleExtras { get; set; } = null;
         /// <summary>
-        /// Extra infor for Android platforms
+        /// Extra information for Android platforms
         /// </summary>
         public InAppBillingProductAndroidExtras AndroidExtras { get; set; } = null;
         /// <summary>
-        /// Extra infor for Windows platforms
+        /// Extra information for Windows platforms
         /// </summary>
         public InAppBillingProductWindowsExtras WindowsExtras { get; set; } = null;
 
