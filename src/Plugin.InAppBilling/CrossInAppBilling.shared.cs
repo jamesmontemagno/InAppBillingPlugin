@@ -3,7 +3,7 @@
 namespace Plugin.InAppBilling
 {
     /// <summary>
-    /// Cross platform InAppBilling implementations
+    /// Cross platform InAppBilling implemenations
     /// </summary>
     public class CrossInAppBilling
     {
