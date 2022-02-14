@@ -40,7 +40,7 @@ namespace Plugin.InAppBilling
         Context Context => Android.App.Application.Context;
 
         /// <summary>
-        /// Default Constructor for In App Billing Implemenation on Android
+        /// Default Constructor for In App Billing Implementation on Android
         /// </summary>
         public InAppBillingImplementation()
         {
@@ -122,7 +122,7 @@ namespace Plugin.InAppBilling
             }
             catch (System.Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Unable to disconned: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Unable to disconnect: {ex.Message}");
             }
 
             return Task.CompletedTask;

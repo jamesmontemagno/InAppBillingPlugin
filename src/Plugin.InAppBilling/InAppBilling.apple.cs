@@ -90,6 +90,18 @@ namespace Plugin.InAppBilling
         }
 #endif
 
+
+        /// <summary>
+        /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
+        /// </summary>
+        public override void PresentCodeRedemption() 
+        {
+#if __IOS__ && !__MACCATALYST__
+            if(HasFamilyShareable)
+                SKPaymentQueue.DefaultQueue.PresentCodeRedemptionSheet();
+#endif
+        }
+
         /// <summary>
         /// Gets if user can make payments
         /// </summary>
@@ -150,6 +162,7 @@ namespace Plugin.InAppBilling
 				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
                 AppleExtras = new InAppBillingProductAppleExtras
                 {
+                    IsFamilyShareable = HasFamilyShareable && p.IsFamilyShareable,
                     SubscriptionGroupId = HasSubscriptionGroupId ? p.SubscriptionGroupIdentifier : null,
                     SubscriptionPeriod = p.ToSubscriptionPeriod(),
                     IntroductoryOffer = HasIntroductoryOffer ? p.IntroductoryPrice?.ToProductDiscount() : null,
@@ -407,13 +420,13 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
 			FinishTransaction(purchaseToken);
 
 	
         /// <summary>
-        /// Manually finish a trasaction
+        /// Manually finish a transaction
         /// </summary>
         /// <param name="purchase"></param>
         /// <returns></returns>

@@ -57,7 +57,7 @@ try
     var purchase = await CrossInAppBilling.Current.PurchaseAsync(productId, ItemType.InAppPurchase, verify);
 	if(purchase == null)
 	{
-		//Not purchased, may also throw excpetion to catch
+		//Not purchased, may also throw exception to catch
 	}
 	else
 	{
@@ -87,7 +87,7 @@ The simplest and easiest (not necessarily the most secure) way is to do the foll
 * Take your public key and break into 3 parts
 * Run each through the helper XOR method: Plugin.InAppBilling.InAppBillingImplementation.InAppBillingSecurity.TransformString
 * Save each value out and put them in your app
-* Implement the interface with this funcationality:
+* Implement the interface with this functionality:
 
 
 ```csharp

@@ -33,7 +33,7 @@ namespace Plugin.InAppBilling
         public string? Id { get; set; }
 
         /// <summary>
-        /// Trasaction date in UTC
+        /// Transaction date in UTC
         /// </summary>
         public DateTime TransactionDateUtc { get; set; }
 
@@ -44,7 +44,7 @@ namespace Plugin.InAppBilling
 
 
         /// <summary>
-        /// Quanity of the purchases product
+        /// Quantity of the purchases product
         /// </summary>
         public int Quantity { get; set; } = 1;
         
@@ -54,7 +54,7 @@ namespace Plugin.InAppBilling
         public IList<string> ProductIds { get; set; } = Array.Empty<string>();
 
         /// <summary>
-        /// Indicates whether the subscritpion renewes automatically. If true, the sub is active, else false the user has canceled.
+        /// Indicates whether the subscription renewed automatically. If true, the sub is active, else false the user has canceled.
         /// </summary>
         public bool AutoRenewing { get; set; }
 

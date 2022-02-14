@@ -10,15 +10,11 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Purchased and in good standing
         /// </summary>
-        Purchased = 0,
+        Purchased,
         /// <summary>
         /// Purchase was canceled
         /// </summary>
-        Canceled = 1,
-        /// <summary>
-        /// Purchase was refunded
-        /// </summary>
-        Refunded = 2,
+        Canceled,
         /// <summary>
         /// In the process of being processed
         /// </summary>
@@ -36,18 +32,9 @@ namespace Plugin.InAppBilling
         /// </summary>
         Deferred,
         /// <summary>
-        /// In free trial
-        /// </summary>
-        FreeTrial,
-        /// <summary>
         /// Pending Purchase
         /// </summary>
         PaymentPending,
-        /// <summary>
-        /// 
-        /// </summary>
-        [Obsolete("Please use PaymentPending")]
-        Pending,
         /// <summary>
         /// Purchase state unknown
         /// </summary>

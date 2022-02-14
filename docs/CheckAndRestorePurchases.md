@@ -3,7 +3,7 @@ When users get a new device or re-install your application it is best practice t
 
 ```csharp
 /// <summary>
-/// Get all current purhcase for a specifiy product type.
+/// Get all current purchases for a specified product type.
 /// </summary>
 /// <param name="itemType">Type of product</param>
 /// <returns>The current purchases</returns>
@@ -37,7 +37,7 @@ public async Task<bool> WasItemPurchased(string productId)
 
         var purchases = await billing.GetPurchasesAsync(ItemType.InAppPurchase, idsToNotFinish);
 
-        //check for null just incase
+        //check for null just in case
         if(purchases?.Any(p => p.ProductId == productId) ?? false)
         {
             //Purchase restored

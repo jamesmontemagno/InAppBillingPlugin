@@ -72,7 +72,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedAccountId">Android: Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Android: Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns>Purchase details</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         Task<InAppBillingPurchase?> PurchaseAsync(string productId, ItemType itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null);
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         Task<InAppBillingPurchase?> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken);
 
         /// <summary>
@@ -119,5 +119,10 @@ namespace Plugin.InAppBilling
         /// </summary>
         bool CanMakePayments { get; }
 
+
+        /// <summary>
+        /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
+        /// </summary>
+        void PresentCodeRedemption();
 	}
 }

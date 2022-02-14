@@ -51,7 +51,7 @@ namespace Plugin.InAppBilling
         public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
 
-	
+
 		/// <summary>
 		/// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
 		/// </summary>
@@ -67,7 +67,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) => 
+        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) =>
             Task.FromResult<IEnumerable<InAppBillingPurchase>>(new List<InAppBillingPurchase>());
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns>Purchase details</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public abstract Task<InAppBillingPurchase?> PurchaseAsync(string productId, ItemType itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null);
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public abstract Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken);
 
         /// <summary>
@@ -154,5 +154,10 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken"></param>
         /// <returns></returns>
         public virtual Task<bool> AcknowledgePurchaseAsync(string purchaseToken) => Task.FromResult(true);
+
+        /// <summary>
+        /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
+        /// </summary>
+        public virtual void PresentCodeRedemption() { }
     }
 }
