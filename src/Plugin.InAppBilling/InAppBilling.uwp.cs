@@ -74,7 +74,7 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
-        /// Get all pruchases
+        /// Get all purchases
         /// </summary>
         /// <param name="itemType"></param>
         /// <param name="doNotFinishTransactionIds"></param>
@@ -128,8 +128,8 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
+        public async override Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
             return result switch
@@ -154,7 +154,7 @@ namespace Plugin.InAppBilling
             return isTestingMode ? await CurrentAppSimulator.GetUnfulfilledConsumablesAsync() : await CurrentApp.GetUnfulfilledConsumablesAsync();
         }
 
-        public static async Task<FulfillmentResult> ReportConsumableFulfillmentAsync(bool isTestingMode, string productId, Guid transactionId)
+        public static async Task<FulfillmentResult> ReportConsumableFulfillmentAsync(bool isTestingMode, string? productId, Guid transactionId)
         {
             return isTestingMode ? await CurrentAppSimulator.ReportConsumableFulfillmentAsync(productId, transactionId) : await CurrentApp.ReportConsumableFulfillmentAsync(productId, transactionId);
         }
@@ -213,25 +213,16 @@ namespace Plugin.InAppBilling
                     AutoRenewing = false // Not supported by UWP yet
                 };
                 purchase.PurchaseToken = purchase.Id;
-                purchase.ProductIds = new string[] { purchase.ProductId };
+                purchase.ProductIds = new[] { purchase.ProductId };
 
                 // Map native UWP status to PurchaseState
-                switch (status)
+                purchase.State = status switch
                 {
-                    case ProductPurchaseStatus.AlreadyPurchased:
-                    case ProductPurchaseStatus.Succeeded:
-                        purchase.State = PurchaseState.Purchased;
-                        break;
-                    case ProductPurchaseStatus.NotFulfilled:
-                        purchase.State = PurchaseState.Deferred;
-                        break;
-                    case ProductPurchaseStatus.NotPurchased:
-                        purchase.State = PurchaseState.Canceled;
-                        break;
-                    default:
-                        purchase.State = PurchaseState.Unknown;
-                        break;
-                }
+                    ProductPurchaseStatus.AlreadyPurchased or ProductPurchaseStatus.Succeeded => PurchaseState.Purchased,
+                    ProductPurchaseStatus.NotFulfilled => PurchaseState.Deferred,
+                    ProductPurchaseStatus.NotPurchased => PurchaseState.Canceled,
+                    _ => PurchaseState.Unknown,
+                };
 
                 // Add to list of purchases
                 purchases.Add(purchase);

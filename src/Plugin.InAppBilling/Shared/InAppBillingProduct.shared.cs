@@ -27,13 +27,13 @@ namespace Plugin.InAppBilling
         public bool IsFamilyShareable { get; set; }
 
         /// <summary>
-        /// iOS 11.2: gets information about product discunt
+        /// iOS 11.2: gets information about product discount
         /// </summary>
         public InAppBillingProductDiscount? IntroductoryOffer { get; set; } = null;
 
 
         /// <summary>
-        /// iOS 12.2: gets information about product discunt
+        /// iOS 12.2: gets information about product discount
         /// </summary>
         public List<InAppBillingProductDiscount?>? Discounts { get; set; } = null;
     }

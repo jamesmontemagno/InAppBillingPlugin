@@ -35,46 +35,40 @@ namespace Plugin.InAppBilling
             return finalPurchase;
         }
 
-        internal static InAppBillingPurchase ToIABPurchase(this PurchaseHistoryRecord purchase)
+        internal static InAppBillingPurchase ToIABPurchase(this PurchaseHistoryRecord purchase) => new()
         {
-            return new InAppBillingPurchase
-            {
-                ConsumptionState = ConsumptionState.NoYetConsumed,
-                OriginalJson = purchase.OriginalJson,
-                Signature = purchase.Signature,
-                Payload = purchase.DeveloperPayload,
-                ProductId = purchase.Skus.FirstOrDefault(),
-                Quantity = purchase.Quantity,
-                ProductIds = purchase.Skus,
-                PurchaseToken = purchase.PurchaseToken,
-                TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
-                State = PurchaseState.Unknown
-            };
-        }
+            ConsumptionState = ConsumptionState.NoYetConsumed,
+            OriginalJson = purchase.OriginalJson,
+            Signature = purchase.Signature,
+            Payload = purchase.DeveloperPayload,
+            ProductId = purchase.Skus.FirstOrDefault(),
+            Quantity = purchase.Quantity,
+            ProductIds = purchase.Skus,
+            PurchaseToken = purchase.PurchaseToken,
+            TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
+            State = PurchaseState.Unknown
+        };
 
-        internal static InAppBillingProduct ToIAPProduct(this SkuDetails product)
+        internal static InAppBillingProduct ToIAPProduct(this SkuDetails product) => new()
         {
-            return new InAppBillingProduct
+            Name = product.Title,
+            Description = product.Description,
+            CurrencyCode = product.PriceCurrencyCode,
+            LocalizedPrice = product.Price,
+            ProductId = product.Sku,
+            MicrosPrice = product.PriceAmountMicros,
+            AndroidExtras = new InAppBillingProductAndroidExtras
             {
-                Name = product.Title,
-                Description = product.Description,
-                CurrencyCode = product.PriceCurrencyCode,
-                LocalizedPrice = product.Price,
-                ProductId = product.Sku,
-                MicrosPrice = product.PriceAmountMicros,
-                AndroidExtras = new InAppBillingProductAndroidExtras
-                {
-                    SubscriptionPeriod = product.SubscriptionPeriod,
-                    LocalizedIntroductoryPrice = product.IntroductoryPrice,
-                    MicrosIntroductoryPrice = product.IntroductoryPriceAmountMicros,
-                    FreeTrialPeriod = product.FreeTrialPeriod,
-                    IconUrl = product.IconUrl,
-                    IntroductoryPriceCycles = product.IntroductoryPriceCycles,
-                    IntroductoryPricePeriod = product.IntroductoryPricePeriod,
-                    MicrosOriginalPriceAmount = product.OriginalPriceAmountMicros,
-                    OriginalPrice = product.OriginalPrice
-                }
-            };
-        }
+                SubscriptionPeriod = product.SubscriptionPeriod,
+                LocalizedIntroductoryPrice = product.IntroductoryPrice,
+                MicrosIntroductoryPrice = product.IntroductoryPriceAmountMicros,
+                FreeTrialPeriod = product.FreeTrialPeriod,
+                IconUrl = product.IconUrl,
+                IntroductoryPriceCycles = product.IntroductoryPriceCycles,
+                IntroductoryPricePeriod = product.IntroductoryPricePeriod,
+                MicrosOriginalPriceAmount = product.OriginalPriceAmountMicros,
+                OriginalPrice = product.OriginalPrice
+            }
+        };
     }
 }

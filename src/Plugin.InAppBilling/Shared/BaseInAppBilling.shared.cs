@@ -8,7 +8,6 @@ namespace Plugin.InAppBilling
     /// <summary>
     /// Base implementation for In App Billing, handling disposables
     /// </summary>
-
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
     {
         /// <summary>
@@ -67,8 +66,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) =>
-            Task.FromResult<IEnumerable<InAppBillingPurchase>>(new List<InAppBillingPurchase>());
+        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) => Task.FromResult(Enumerable.Empty<InAppBillingPurchase>());
 
         /// <summary>
         /// Purchase a specific product or subscription
@@ -97,7 +95,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken);
+        public abstract Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken);
 
         /// <summary>
         /// Dispose of class and parent classes

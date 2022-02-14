@@ -110,20 +110,17 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets or sets a callback for out of band purchases to complete.
         /// </summary>
-        public static Action<InAppBillingPurchase?>? OnPurchaseComplete { get; set; } = null;
+        public static Action<InAppBillingPurchase>? OnPurchaseComplete { get; set; } = null;
 
         /// <summary>
         /// 
         /// </summary>
 		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool>? OnShouldAddStorePayment { get; set; } = null;
 
-		/// <summary>
-		/// Default constructor for In App Billing on iOS
-		/// </summary>
-		public InAppBillingImplementation()
-		{
-			Init();
-		}
+        /// <summary>
+        /// Default constructor for In App Billing on iOS
+        /// </summary>
+        public InAppBillingImplementation() => Init();
 
         [MemberNotNull(nameof(paymentObserver))]
 		void Init()
@@ -188,7 +185,7 @@ namespace Plugin.InAppBilling
 		}
 
         /// <summary>
-        /// Get app purchaes
+        /// Get app purchases
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>
@@ -213,8 +210,8 @@ namespace Plugin.InAppBilling
 
 			var allTransactions = new List<SKPaymentTransaction>();
 
-			Action<SKPaymentTransaction[]>? handler = null;
-			handler = new Action<SKPaymentTransaction[]>(transactions =>
+			Action<SKPaymentTransaction[]?>? handler = null;
+			handler = new Action<SKPaymentTransaction[]?>(transactions =>
 			{
                 paymentObserver.DoNotFinishTransactionIds = new List<string>();
                 // Unsubscribe from future events
@@ -251,11 +248,12 @@ namespace Plugin.InAppBilling
 			SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
 
 			return tcsTransaction.Task;
-		}
+        }
 
 
 
-		static SKPaymentTransaction? FindOriginalTransaction(SKPaymentTransaction transaction)
+        [return: NotNullIfNotNull("transaction")]
+        static SKPaymentTransaction? FindOriginalTransaction(SKPaymentTransaction? transaction)
 		{
 			if (transaction == null)
 				return null;
@@ -268,7 +266,6 @@ namespace Plugin.InAppBilling
 				return FindOriginalTransaction(transaction.OriginalTransaction);
 
 			return transaction;
-
 		}
 
 
@@ -421,7 +418,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
+        public override Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken) =>
 			FinishTransaction(purchaseToken);
 
 	
@@ -548,10 +545,10 @@ namespace Plugin.InAppBilling
         public List<string>? DoNotFinishTransactionIds { get; set; }
 
 		readonly List<SKPaymentTransaction> restoredTransactions = new();
-		readonly Action<InAppBillingPurchase?>? onPurchaseSuccess;
+		readonly Action<InAppBillingPurchase>? onPurchaseSuccess;
 		readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool>? onShouldAddStorePayment;
 
-		public PaymentObserver(Action<InAppBillingPurchase?>? onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool>? onShouldAddStorePayment)
+		public PaymentObserver(Action<InAppBillingPurchase>? onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool>? onShouldAddStorePayment)
 		{
 			this.onPurchaseSuccess = onPurchaseSuccess;
 			this.onShouldAddStorePayment = onShouldAddStorePayment;
@@ -560,7 +557,7 @@ namespace Plugin.InAppBilling
         public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product) => 
             onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
 
-        public override void UpdatedTransactions(SKPaymentQueue queue, SKPaymentTransaction[] transactions)
+        public override void UpdatedTransactions(SKPaymentQueue? queue, SKPaymentTransaction[] transactions)
 		{
 			var rt = transactions.Where(pt => pt.TransactionState == SKPaymentTransactionState.Restored);
 
@@ -599,7 +596,6 @@ namespace Plugin.InAppBilling
 
 		void Finish(SKPaymentTransaction transaction)
 		{
-
             //checks to see if we should or shouldn't finish this.
             var id = transaction.Payment?.ProductIdentifier ?? string.Empty;
             var containsId = DoNotFinishTransactionIds?.Contains(id) ?? false;
@@ -616,7 +612,7 @@ namespace Plugin.InAppBilling
 			}
 		}
 
-		public override void RestoreCompletedTransactionsFinished(SKPaymentQueue queue)
+		public override void RestoreCompletedTransactionsFinished(SKPaymentQueue? queue)
 		{
 			if (restoredTransactions == null)
 				return;
@@ -635,13 +631,11 @@ namespace Plugin.InAppBilling
             {
                 Finish(transaction);
             }
-		
 		}
 
 		// Failure, just fire with null
-		public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue queue, NSError error) =>
+		public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue? queue, NSError? error) =>
 			TransactionsRestored?.Invoke(null);
-
 	}
 
 
@@ -649,7 +643,7 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	static class SKTransactionExtensions
 	{
-		public static string ToStatusString(this SKPaymentTransaction transaction) =>
+		public static string ToStatusString(this SKPaymentTransaction? transaction) =>
 			transaction?.ToIABPurchase()?.ToString() ?? string.Empty;
 
 
@@ -686,29 +680,20 @@ namespace Plugin.InAppBilling
 			return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
 		}
 
-		public static PurchaseState GetPurchaseState(this SKPaymentTransaction transaction)
+		public static PurchaseState GetPurchaseState(this SKPaymentTransaction? transaction)
 		{
-
 			if (transaction?.TransactionState == null)
 				return PurchaseState.Unknown;
 
-            switch (transaction.TransactionState)
+            return transaction.TransactionState switch
             {
-                case SKPaymentTransactionState.Restored:
-                    return PurchaseState.Restored;
-                case SKPaymentTransactionState.Purchasing:
-                    return PurchaseState.Purchasing;
-                case SKPaymentTransactionState.Purchased:
-                    return PurchaseState.Purchased;
-                case SKPaymentTransactionState.Failed:
-                    return PurchaseState.Failed;
-                case SKPaymentTransactionState.Deferred:
-                    return PurchaseState.Deferred;
-                default:
-                    break;
-            }
-
-            return PurchaseState.Unknown;
+                SKPaymentTransactionState.Restored => PurchaseState.Restored,
+                SKPaymentTransactionState.Purchasing => PurchaseState.Purchasing,
+                SKPaymentTransactionState.Purchased => PurchaseState.Purchased,
+                SKPaymentTransactionState.Failed => PurchaseState.Failed,
+                SKPaymentTransactionState.Deferred => PurchaseState.Deferred,
+                _ => PurchaseState.Unknown,
+            };
         }
     }
 
@@ -716,8 +701,6 @@ namespace Plugin.InAppBilling
     [Preserve(AllMembers = true)]
 	static class SKProductExtension
 	{
-
-
 		/// <remarks>
 		/// Use Apple's sample code for formatting a SKProduct price
 		/// https://developer.apple.com/library/ios/#DOCUMENTATION/StoreKit/Reference/SKProduct_Reference/Reference/Reference.html#//apple_ref/occ/instp/SKProduct/priceLocale
@@ -728,7 +711,7 @@ namespace Plugin.InAppBilling
 		///    [numberFormatter setLocale:product.priceLocale];
 		///    NSString *formattedString = [numberFormatter stringFromNumber:product.price];
 		/// </remarks>
-		public static string LocalizedPrice(this SKProduct product)
+		public static string LocalizedPrice(this SKProduct? product)
 		{
 			if (product?.PriceLocale == null)
 				return string.Empty;
@@ -744,7 +727,7 @@ namespace Plugin.InAppBilling
 			return formattedString;
 		}
 
-        public static SubscriptionPeriod ToSubscriptionPeriod(this SKProduct p)
+        public static SubscriptionPeriod ToSubscriptionPeriod(this SKProduct? p)
         {
             if (!InAppBillingImplementation.HasIntroductoryOffer)
                 return SubscriptionPeriod.Unknown;
@@ -762,7 +745,7 @@ namespace Plugin.InAppBilling
             };
         }
 
-        public static InAppBillingProductDiscount? ToProductDiscount(this SKProductDiscount pd)
+        public static InAppBillingProductDiscount? ToProductDiscount(this SKProductDiscount? pd)
         {
             if (!InAppBillingImplementation.HasIntroductoryOffer)
                 return null;
@@ -770,7 +753,6 @@ namespace Plugin.InAppBilling
             if (pd == null)
                 return null;
             
-
             var discount = new InAppBillingProductDiscount
             {
                 LocalizedPrice = pd.LocalizedPrice(),
@@ -810,7 +792,7 @@ namespace Plugin.InAppBilling
             return discount;
         }
 
-        public static string LocalizedPrice(this SKProductDiscount product)
+        public static string LocalizedPrice(this SKProductDiscount? product)
 		{
 			if (product?.PriceLocale == null)
 				return string.Empty;

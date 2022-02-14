@@ -170,7 +170,7 @@ namespace Plugin.InAppBilling
             ParseBillingResult(skuDetailsResult?.Result);
 
 
-            return skuDetailsResult!.SkuDetails.Select(product => product.ToIAPProduct());
+            return skuDetailsResult.SkuDetails.Select(product => product.ToIAPProduct());
         }
 
         
@@ -213,7 +213,7 @@ namespace Plugin.InAppBilling
             var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(skuType);
 
 
-            return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? new List<InAppBillingPurchase>();
+            return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? Enumerable.Empty<InAppBillingPurchase>();
         }
 
         /// <summary>
@@ -338,8 +338,7 @@ namespace Plugin.InAppBilling
         }
 
         async Task<InAppBillingPurchase?> PurchaseAsync(string productSku, string itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null)
-        {            
-
+        {
             var skuDetailsParams = SkuDetailsParams.NewBuilder()
                 .SetType(itemType)
                 .SetSkusList(new List<string> { productSku })
@@ -348,7 +347,7 @@ namespace Plugin.InAppBilling
             var skuDetailsResult = await BillingClient!.QuerySkuDetailsAsync(skuDetailsParams);
             ParseBillingResult(skuDetailsResult?.Result);
 
-            var skuDetails = skuDetailsResult!.SkuDetails.FirstOrDefault();
+            var skuDetails = skuDetailsResult.SkuDetails.FirstOrDefault();
 
             if (skuDetails == null)
                 throw new ArgumentException($"{productSku} does not exist");
@@ -406,7 +405,7 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public override async Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken)
+        public override async Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -424,8 +423,7 @@ namespace Plugin.InAppBilling
             return ParseBillingResult(result.BillingResult);            
         }
 
-        /// <exception cref="InAppBillingPurchaseException">If result is null</exception>
-        bool ParseBillingResult(BillingResult? result)
+        bool ParseBillingResult([NotNull] BillingResult? result)
         {
             if(result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);

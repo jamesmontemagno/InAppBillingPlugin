@@ -111,8 +111,15 @@ namespace Plugin.InAppBilling
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString() => 
-			$"{nameof(ProductId)}:{ProductId}| {nameof(IsAcknowledged)}:{IsAcknowledged} | {nameof(AutoRenewing)}:{AutoRenewing} | {nameof(State)}:{State} | {nameof(Id)}:{Id} | {nameof(ObfuscatedAccountId)}:{ObfuscatedAccountId}  | {nameof(ObfuscatedProfileId)}:{ObfuscatedProfileId}  | {nameof(Signature)}:{Signature}  | {nameof(OriginalJson)}:{OriginalJson}  | {nameof(Quantity)}:{Quantity}";
-        
+			$"{nameof(ProductId)}:{ProductId}| " +
+            $"{nameof(IsAcknowledged)}:{IsAcknowledged} | " +
+            $"{nameof(AutoRenewing)}:{AutoRenewing} | " +
+            $"{nameof(State)}:{State} | " +
+            $"{nameof(Id)}:{Id} | " +
+            $"{nameof(ObfuscatedAccountId)}:{ObfuscatedAccountId}  | " +
+            $"{nameof(ObfuscatedProfileId)}:{ObfuscatedProfileId}  | " +
+            $"{nameof(Signature)}:{Signature}  | " +
+            $"{nameof(OriginalJson)}:{OriginalJson}  | " +
+            $"{nameof(Quantity)}:{Quantity}";
     }
-
 }
