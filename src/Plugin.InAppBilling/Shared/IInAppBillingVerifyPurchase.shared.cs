@@ -1,4 +1,6 @@
-﻿namespace Plugin.InAppBilling
+﻿using System.Threading.Tasks;
+
+namespace Plugin.InAppBilling
 {
     [Preserve(AllMembers = true)]
     public interface IInAppBillingVerifyPurchase

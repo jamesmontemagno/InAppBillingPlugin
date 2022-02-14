@@ -1,4 +1,9 @@
-﻿namespace Plugin.InAppBilling
+﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Product info specific to Apple Platforms
