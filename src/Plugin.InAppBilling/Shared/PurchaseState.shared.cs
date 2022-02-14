@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Plugin.InAppBilling
+﻿namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Gets the current status of the purchase

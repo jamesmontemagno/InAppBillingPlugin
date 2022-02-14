@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling
 {
-	/// <summary>
-	/// Interface for InAppBilling
-	/// </summary>
-	[Preserve(AllMembers = true)]
-	public interface IInAppBilling : IDisposable
+    /// <summary>
+    /// Interface for InAppBilling
+    /// </summary>
+    [Preserve(AllMembers = true)]
+    public interface IInAppBilling : IDisposable
     {
         /// <summary>
         /// Determines if it is connected to the backend actively (Android).
@@ -48,13 +48,13 @@ namespace Plugin.InAppBilling
         /// <returns>List of products</returns>
         Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
-		/// <summary>
-		/// Get all current purchases for a specific product type. If you use verification and it fails for some purchase, it's not contained in the result.
-		/// </summary>
-		/// <param name="itemType">Type of product</param>
+        /// <summary>
+        /// Get all current purchases for a specific product type. If you use verification and it fails for some purchase, it's not contained in the result.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
         /// <param name="doNotFinishTransactionIds"></param>
-		/// <returns>The current purchases</returns>
-		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishTransactionIds = null);
+        /// <returns>The current purchases</returns>
+        Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishTransactionIds = null);
 
 
         /// <summary>
@@ -124,5 +124,5 @@ namespace Plugin.InAppBilling
         /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
         /// </summary>
         void PresentCodeRedemption();
-	}
+    }
 }

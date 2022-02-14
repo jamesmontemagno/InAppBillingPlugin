@@ -1,20 +1,20 @@
-using Foundation;
-using StoreKit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Foundation;
+using StoreKit;
 
 namespace Plugin.InAppBilling
 {
-	/// <summary>
-	/// Implementation for InAppBilling
-	/// </summary>
-	[Preserve(AllMembers = true)]
-	public class InAppBillingImplementation : BaseInAppBilling
-	{
+    /// <summary>
+    /// Implementation for InAppBilling
+    /// </summary>
+    [Preserve(AllMembers = true)]
+    public class InAppBillingImplementation : BaseInAppBilling
+    {
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
@@ -94,7 +94,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
         /// </summary>
-        public override void PresentCodeRedemption() 
+        public override void PresentCodeRedemption()
         {
 #if __IOS__ && !__MACCATALYST__
             if(HasFamilyShareable)
@@ -123,19 +123,19 @@ namespace Plugin.InAppBilling
         public InAppBillingImplementation() => Init();
 
         [MemberNotNull(nameof(paymentObserver))]
-		void Init()
-		{
-			if(paymentObserver != null)
-				return;
+        void Init()
+        {
+            if (paymentObserver != null)
+                return;
 
-			paymentObserver = new PaymentObserver(OnPurchaseComplete, OnShouldAddStorePayment);
-			SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
-		}
+            paymentObserver = new PaymentObserver(OnPurchaseComplete, OnShouldAddStorePayment);
+            SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
+        }
 
-		/// <summary>
-		/// Gets or sets if in testing mode. Only for UWP
-		/// </summary>
-		public override bool InTestingMode { get; set; }
+        /// <summary>
+        /// Gets or sets if in testing mode. Only for UWP
+        /// </summary>
+        public override bool InTestingMode { get; set; }
 
 
         /// <summary>
@@ -145,18 +145,18 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
         public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
-		{
-			Init();
-			var products = await GetProductAsync(productIds);
+        {
+            Init();
+            var products = await GetProductAsync(productIds);
 
-			return products.Select(p => new InAppBillingProduct
-			{
-				LocalizedPrice = p.LocalizedPrice(),
-				MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
-				Name = p.LocalizedTitle,
+            return products.Select(p => new InAppBillingProduct
+            {
+                LocalizedPrice = p.LocalizedPrice(),
+                MicrosPrice = (long)(p.Price.DoubleValue * 1000000d),
+                Name = p.LocalizedTitle,
                 ProductId = p.ProductIdentifier,
                 Description = p.LocalizedDescription,
-				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
+                CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
                 AppleExtras = new InAppBillingProductAppleExtras
                 {
                     IsFamilyShareable = HasFamilyShareable && p.IsFamilyShareable,
@@ -166,23 +166,23 @@ namespace Plugin.InAppBilling
                     Discounts = HasProductDiscounts ? p.Discounts?.Select(s => s.ToProductDiscount()).ToList() ?? null : null
                 }
             });
-		}
+        }
 
-		Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
-		{
-			var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(productId.Select(i => new NSString(i)).ToArray());
+        Task<IEnumerable<SKProduct>> GetProductAsync(string[] productId)
+        {
+            var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(productId.Select(i => new NSString(i)).ToArray());
 
-			var productRequestDelegate = new ProductRequestDelegate();
+            var productRequestDelegate = new ProductRequestDelegate();
 
-			//set up product request for in-app purchase
-			var productsRequest = new SKProductsRequest(productIdentifiers)
-			{
-				Delegate = productRequestDelegate // SKProductsRequestDelegate.ReceivedResponse
-			};
-			productsRequest.Start();
+            //set up product request for in-app purchase
+            var productsRequest = new SKProductsRequest(productIdentifiers)
+            {
+                Delegate = productRequestDelegate // SKProductsRequestDelegate.ReceivedResponse
+            };
+            productsRequest.Start();
 
-			return productRequestDelegate.WaitForResponse();
-		}
+            return productRequestDelegate.WaitForResponse();
+        }
 
         /// <summary>
         /// Get app purchases
@@ -190,83 +190,83 @@ namespace Plugin.InAppBilling
         /// <param name="itemType"></param>
         /// <returns></returns>
 		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishTransactionIds = null)
-		{
-			Init();
-			var purchases = await RestoreAsync(doNotFinishTransactionIds);
+        {
+            Init();
+            var purchases = await RestoreAsync(doNotFinishTransactionIds);
 
-			var comparer = new InAppBillingPurchaseComparer();
-			return purchases
-				?.Where(p => p != null)
-				?.Select(p2 => p2!.ToIABPurchase())
-				?.Distinct(comparer)
+            var comparer = new InAppBillingPurchaseComparer();
+            return purchases
+                ?.Where(p => p != null)
+                ?.Select(p2 => p2!.ToIABPurchase())
+                ?.Distinct(comparer)
                 ?? Enumerable.Empty<InAppBillingPurchase>();
-		}
+        }
 
 
 
-		Task<SKPaymentTransaction[]> RestoreAsync(List<string>? doNotFinishTransactionIds = null)
-		{
-			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
+        Task<SKPaymentTransaction[]> RestoreAsync(List<string>? doNotFinishTransactionIds = null)
+        {
+            var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
-			var allTransactions = new List<SKPaymentTransaction>();
+            var allTransactions = new List<SKPaymentTransaction>();
 
-			Action<SKPaymentTransaction[]?>? handler = null;
-			handler = new Action<SKPaymentTransaction[]?>(transactions =>
-			{
+            Action<SKPaymentTransaction[]?>? handler = null;
+            handler = new Action<SKPaymentTransaction[]?>(transactions =>
+            {
                 paymentObserver.DoNotFinishTransactionIds = new List<string>();
                 // Unsubscribe from future events
                 paymentObserver.TransactionsRestored -= handler;
 
-				if (transactions == null)
-				{
-					if (allTransactions.Count == 0)
-						tcsTransaction.TrySetException(new InAppBillingPurchaseException(PurchaseError.RestoreFailed, "Restore Transactions Failed"));
-					else
-						tcsTransaction.TrySetResult(allTransactions.ToArray());
-				}
-				else
-				{
-					allTransactions.AddRange(transactions);
-					tcsTransaction.TrySetResult(allTransactions.ToArray());
-				}
-			});
+                if (transactions == null)
+                {
+                    if (allTransactions.Count == 0)
+                        tcsTransaction.TrySetException(new InAppBillingPurchaseException(PurchaseError.RestoreFailed, "Restore Transactions Failed"));
+                    else
+                        tcsTransaction.TrySetResult(allTransactions.ToArray());
+                }
+                else
+                {
+                    allTransactions.AddRange(transactions);
+                    tcsTransaction.TrySetResult(allTransactions.ToArray());
+                }
+            });
 
 
             paymentObserver.DoNotFinishTransactionIds = doNotFinishTransactionIds;
             paymentObserver.TransactionsRestored += handler;
 
-			foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
-			{
-				var original = FindOriginalTransaction(trans);
-				if (original == null)
-					continue;
+            foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
+            {
+                var original = FindOriginalTransaction(trans);
+                if (original == null)
+                    continue;
 
-				allTransactions.Add(original);
-			}
+                allTransactions.Add(original);
+            }
 
-			// Start receiving restored transactions
-			SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
+            // Start receiving restored transactions
+            SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
 
-			return tcsTransaction.Task;
+            return tcsTransaction.Task;
         }
 
 
 
         [return: NotNullIfNotNull("transaction")]
         static SKPaymentTransaction? FindOriginalTransaction(SKPaymentTransaction? transaction)
-		{
-			if (transaction == null)
-				return null;
+        {
+            if (transaction == null)
+                return null;
 
-			if (transaction.TransactionState == SKPaymentTransactionState.Purchased ||
-				transaction.TransactionState == SKPaymentTransactionState.Purchasing)
-				return transaction;
+            if (transaction.TransactionState == SKPaymentTransactionState.Purchased ||
+                transaction.TransactionState == SKPaymentTransactionState.Purchasing)
+                return transaction;
 
-			if (transaction.OriginalTransaction != null)
-				return FindOriginalTransaction(transaction.OriginalTransaction);
+            if (transaction.OriginalTransaction != null)
+                return FindOriginalTransaction(transaction.OriginalTransaction);
 
-			return transaction;
-		}
+            return transaction;
+        }
 
 
 
@@ -280,56 +280,56 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
         public async override Task<InAppBillingPurchase?> PurchaseAsync(string productId, ItemType itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null)
-		{
-			Init();
-			var p = await PurchaseAsync(productId, itemType);
+        {
+            Init();
+            var p = await PurchaseAsync(productId, itemType);
 
-			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
 
-			var purchase = new InAppBillingPurchase
-			{
-				TransactionDateUtc = reference.AddSeconds(p.TransactionDate!.SecondsSinceReferenceDate),
-				Id = p.TransactionIdentifier,
-				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
+            var purchase = new InAppBillingPurchase
+            {
+                TransactionDateUtc = reference.AddSeconds(p.TransactionDate!.SecondsSinceReferenceDate),
+                Id = p.TransactionIdentifier,
+                ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
                 State = p.GetPurchaseState(),
 #if __IOS__ || __TVOS__
-				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
+                PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
 #endif
-			};
+            };
 
             return purchase;
-		}
+        }
 
 
-		async Task<SKPaymentTransaction> PurchaseAsync(string productId, ItemType itemType)
-		{
-			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
+        async Task<SKPaymentTransaction> PurchaseAsync(string productId, ItemType itemType)
+        {
+            var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
 
-			Action<SKPaymentTransaction, bool>? handler = null;
-			handler = new Action<SKPaymentTransaction, bool>((tran, success) =>
-			{
-				if (tran?.Payment == null)
-					return;
+            Action<SKPaymentTransaction, bool>? handler = null;
+            handler = new Action<SKPaymentTransaction, bool>((tran, success) =>
+            {
+                if (tran?.Payment == null)
+                    return;
 
-				// Only handle results from this request
-				if (productId != tran.Payment.ProductIdentifier)
-					return;
+                // Only handle results from this request
+                if (productId != tran.Payment.ProductIdentifier)
+                    return;
 
                 paymentObserver.DoNotFinishTransactionIds = new List<string>();
-				// Unsubscribe from future events
-				paymentObserver.TransactionCompleted -= handler;
+                // Unsubscribe from future events
+                paymentObserver.TransactionCompleted -= handler;
 
-				if (success)
-				{
-					tcsTransaction.TrySetResult(tran);
-					return;
-				}
+                if (success)
+                {
+                    tcsTransaction.TrySetResult(tran);
+                    return;
+                }
 
-				var errorCode = tran?.Error?.Code ?? -1;
-				var description = tran?.Error?.LocalizedDescription ?? string.Empty;
-				var error = PurchaseError.GeneralError;
+                var errorCode = tran?.Error?.Code ?? -1;
+                var description = tran?.Error?.LocalizedDescription ?? string.Empty;
+                var error = PurchaseError.GeneralError;
                 switch (errorCode)
                 {
                     case (int)SKError.PaymentCancelled:
@@ -345,8 +345,8 @@ namespace Plugin.InAppBilling
                         error = PurchaseError.ItemUnavailable;
                         break;
                     case (int)SKError.Unknown:
-                        try 
-                        { 
+                        try
+                        {
                             var underlyingError = tran?.Error?.UserInfo?["NSUnderlyingError"] as NSError;
                             error = underlyingError?.Code == 3038 ? PurchaseError.AppleTermsConditionsChanged : PurchaseError.GeneralError;
                         }
@@ -354,35 +354,35 @@ namespace Plugin.InAppBilling
                         {
                             error = PurchaseError.GeneralError;
                         }
-						break;
-					case (int)SKError.ClientInvalid:
-						error = PurchaseError.BillingUnavailable;
-						break;
-				}
+                        break;
+                    case (int)SKError.ClientInvalid:
+                        error = PurchaseError.BillingUnavailable;
+                        break;
+                }
 
-				tcsTransaction.TrySetException(new InAppBillingPurchaseException(error, description));
+                tcsTransaction.TrySetException(new InAppBillingPurchaseException(error, description));
 
-			});
+            });
 
             if (itemType == ItemType.InAppPurchaseConsumable)
                 paymentObserver.DoNotFinishTransactionIds = new List<string>(new[] { productId });
             else
                 paymentObserver.DoNotFinishTransactionIds = new List<string>();
-            
+
             paymentObserver.TransactionCompleted += handler;
 
-			var products = await GetProductAsync(new[] { productId });
-			var product = products?.FirstOrDefault();
-			if (product == null)
-				throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
+            var products = await GetProductAsync(new[] { productId });
+            var product = products?.FirstOrDefault();
+            if (product == null)
+                throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
 
-			var payment = SKPayment.CreateFrom(product);
-			//var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
-			
-			SKPaymentQueue.DefaultQueue.AddPayment(payment);
+            var payment = SKPayment.CreateFrom(product);
+            //var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
 
-			return await tcsTransaction.Task;
-		}
+            SKPaymentQueue.DefaultQueue.AddPayment(payment);
+
+            return await tcsTransaction.Task;
+        }
 
         /// <summary>
         /// (iOS not supported) Apple store manages upgrades natively when subscriptions of the same group are purchased.
@@ -419,16 +419,16 @@ namespace Plugin.InAppBilling
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public override Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken) =>
-			FinishTransaction(purchaseToken);
+            FinishTransaction(purchaseToken);
 
-	
+
         /// <summary>
         /// Manually finish a transaction
         /// </summary>
         /// <param name="purchase"></param>
         /// <returns></returns>
-		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase) =>
-			FinishTransaction(purchase?.Id!);
+        public override Task<bool> FinishTransaction(InAppBillingPurchase purchase) =>
+            FinishTransaction(purchase?.Id!);
 
         /// <summary>
         /// Finish a transaction manually
@@ -437,165 +437,165 @@ namespace Plugin.InAppBilling
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
 		public override async Task<bool> FinishTransaction(string purchaseToken)
-		{
-			if (string.IsNullOrWhiteSpace(purchaseToken))
-				throw new ArgumentException("Purchase Token must be valid", nameof(purchaseToken));
+        {
+            if (string.IsNullOrWhiteSpace(purchaseToken))
+                throw new ArgumentException("Purchase Token must be valid", nameof(purchaseToken));
 
-			var purchases = await RestoreAsync();
+            var purchases = await RestoreAsync();
 
-			if (purchases == null)
-				return false;
+            if (purchases == null)
+                return false;
 
-			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseToken).FirstOrDefault();
-			if (transaction == null)
-				return false;
+            var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseToken).FirstOrDefault();
+            if (transaction == null)
+                return false;
 
-			try
-			{
-				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
-			}
-			catch(Exception ex)
-			{
+            try
+            {
+                SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+            }
+            catch (Exception ex)
+            {
                 Debug.WriteLine("Unable to finish transaction: " + ex);
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		PaymentObserver paymentObserver;
-
-
-		bool disposed = false;
+        PaymentObserver paymentObserver;
 
 
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		/// <param name="disposing"></param>
-		public override void Dispose(bool disposing)
-		{
-			if (disposed)
-			{
-				base.Dispose(disposing);
-				return;
-			}
-
-			disposed = true;
-
-			if (!disposing)
-			{
-				base.Dispose(disposing);
-				return;
-			}
-
-			if (paymentObserver != null)
-			{
-				SKPaymentQueue.DefaultQueue.RemoveTransactionObserver(paymentObserver);
-				paymentObserver.Dispose();
-				paymentObserver = null!;
-			}
+        bool disposed = false;
 
 
-			base.Dispose(disposing);
-		}
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        /// <param name="disposing"></param>
+        public override void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                base.Dispose(disposing);
+                return;
+            }
+
+            disposed = true;
+
+            if (!disposing)
+            {
+                base.Dispose(disposing);
+                return;
+            }
+
+            if (paymentObserver != null)
+            {
+                SKPaymentQueue.DefaultQueue.RemoveTransactionObserver(paymentObserver);
+                paymentObserver.Dispose();
+                paymentObserver = null!;
+            }
+
+
+            base.Dispose(disposing);
+        }
 
     }
 
 
-	[Preserve(AllMembers = true)]
-	class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
-	{
+    [Preserve(AllMembers = true)]
+    class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
+    {
         readonly TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new();
 
-		public Task<IEnumerable<SKProduct>> WaitForResponse() =>
-			tcsResponse.Task;
+        public Task<IEnumerable<SKProduct>> WaitForResponse() =>
+            tcsResponse.Task;
 
 
-		[Export("request:didFailWithError:")]
-		public void RequestFailed(SKRequest request, NSError error) =>
-			tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.ProductRequestFailed, error.LocalizedDescription));
+        [Export("request:didFailWithError:")]
+        public void RequestFailed(SKRequest request, NSError error) =>
+            tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.ProductRequestFailed, error.LocalizedDescription));
 
 
-		public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
-		{
-			var invalidProduct = response.InvalidProducts;
-			if (invalidProduct?.Any() ?? false)
-			{
-				tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.InvalidProduct, $"Invalid Product: {invalidProduct.First()}"));
-				return;
-			}
+        public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
+        {
+            var invalidProduct = response.InvalidProducts;
+            if (invalidProduct?.Any() ?? false)
+            {
+                tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.InvalidProduct, $"Invalid Product: {invalidProduct.First()}"));
+                return;
+            }
 
-			var product = response.Products;
-			if (product != null)
-			{
-				tcsResponse.TrySetResult(product);
-				return;
-			}
-		}
-	}
+            var product = response.Products;
+            if (product != null)
+            {
+                tcsResponse.TrySetResult(product);
+                return;
+            }
+        }
+    }
 
 
-	[Preserve(AllMembers = true)]
-	class PaymentObserver : SKPaymentTransactionObserver
-	{
-		public event Action<SKPaymentTransaction, bool>? TransactionCompleted;
-		public event Action<SKPaymentTransaction[]?>? TransactionsRestored;
+    [Preserve(AllMembers = true)]
+    class PaymentObserver : SKPaymentTransactionObserver
+    {
+        public event Action<SKPaymentTransaction, bool>? TransactionCompleted;
+        public event Action<SKPaymentTransaction[]?>? TransactionsRestored;
 
         public List<string>? DoNotFinishTransactionIds { get; set; }
 
-		readonly List<SKPaymentTransaction> restoredTransactions = new();
-		readonly Action<InAppBillingPurchase>? onPurchaseSuccess;
-		readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool>? onShouldAddStorePayment;
+        readonly List<SKPaymentTransaction> restoredTransactions = new();
+        readonly Action<InAppBillingPurchase>? onPurchaseSuccess;
+        readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool>? onShouldAddStorePayment;
 
-		public PaymentObserver(Action<InAppBillingPurchase>? onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool>? onShouldAddStorePayment)
-		{
-			this.onPurchaseSuccess = onPurchaseSuccess;
-			this.onShouldAddStorePayment = onShouldAddStorePayment;
-		}
+        public PaymentObserver(Action<InAppBillingPurchase>? onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool>? onShouldAddStorePayment)
+        {
+            this.onPurchaseSuccess = onPurchaseSuccess;
+            this.onShouldAddStorePayment = onShouldAddStorePayment;
+        }
 
-        public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product) => 
+        public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product) =>
             onShouldAddStorePayment?.Invoke(queue, payment, product) ?? false;
 
         public override void UpdatedTransactions(SKPaymentQueue? queue, SKPaymentTransaction[] transactions)
-		{
-			var rt = transactions.Where(pt => pt.TransactionState == SKPaymentTransactionState.Restored);
+        {
+            var rt = transactions.Where(pt => pt.TransactionState == SKPaymentTransactionState.Restored);
 
-			// Add our restored transactions to the list
-			// We might still get more from the initial request so we won't raise the event until
-			// RestoreCompletedTransactionsFinished is called
-			if (rt?.Any() ?? false)
-				restoredTransactions.AddRange(rt);
+            // Add our restored transactions to the list
+            // We might still get more from the initial request so we won't raise the event until
+            // RestoreCompletedTransactionsFinished is called
+            if (rt?.Any() ?? false)
+                restoredTransactions.AddRange(rt);
 
-			foreach (var transaction in transactions)
-			{
-				if (transaction?.TransactionState == null)
-					break;
+            foreach (var transaction in transactions)
+            {
+                if (transaction?.TransactionState == null)
+                    break;
 
-				Debug.WriteLine($"Updated Transaction | {transaction.ToStatusString()}");
+                Debug.WriteLine($"Updated Transaction | {transaction.ToStatusString()}");
 
-				switch (transaction.TransactionState)
-				{
-					case SKPaymentTransactionState.Restored:
-					case SKPaymentTransactionState.Purchased:
-						TransactionCompleted?.Invoke(transaction, true);
+                switch (transaction.TransactionState)
+                {
+                    case SKPaymentTransactionState.Restored:
+                    case SKPaymentTransactionState.Purchased:
+                        TransactionCompleted?.Invoke(transaction, true);
 
-						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
+                        onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 
-						Finish(transaction);
-						break;
-					case SKPaymentTransactionState.Failed:
-						TransactionCompleted?.Invoke(transaction, false);
-						Finish(transaction);
-						break;
-					default:
-						break;
-				}
-			}
-		}
+                        Finish(transaction);
+                        break;
+                    case SKPaymentTransactionState.Failed:
+                        TransactionCompleted?.Invoke(transaction, false);
+                        Finish(transaction);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
-		void Finish(SKPaymentTransaction transaction)
-		{
+        void Finish(SKPaymentTransaction transaction)
+        {
             //checks to see if we should or shouldn't finish this.
             var id = transaction.Payment?.ProductIdentifier ?? string.Empty;
             var containsId = DoNotFinishTransactionIds?.Contains(id) ?? false;
@@ -603,87 +603,87 @@ namespace Plugin.InAppBilling
                 return;
 
             try
-			{
-				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
-			}
-			catch(Exception ex)
-			{
-				Debug.WriteLine("Couldn't finish transaction: " + ex);
-			}
-		}
+            {
+                SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Couldn't finish transaction: " + ex);
+            }
+        }
 
-		public override void RestoreCompletedTransactionsFinished(SKPaymentQueue? queue)
-		{
-			if (restoredTransactions == null)
-				return;
+        public override void RestoreCompletedTransactionsFinished(SKPaymentQueue? queue)
+        {
+            if (restoredTransactions == null)
+                return;
 
-			// This is called after all restored transactions have hit UpdatedTransactions
-			// at this point we are done with the restore request so let's fire up the event
-			var allTransactions = restoredTransactions.ToArray();
+            // This is called after all restored transactions have hit UpdatedTransactions
+            // at this point we are done with the restore request so let's fire up the event
+            var allTransactions = restoredTransactions.ToArray();
 
-			// Clear out the list of incoming restore transactions for future requests
-			restoredTransactions.Clear();
+            // Clear out the list of incoming restore transactions for future requests
+            restoredTransactions.Clear();
 
-			TransactionsRestored?.Invoke(allTransactions);
+            TransactionsRestored?.Invoke(allTransactions);
 
 
             foreach (var transaction in allTransactions)
             {
                 Finish(transaction);
             }
-		}
+        }
 
-		// Failure, just fire with null
-		public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue? queue, NSError? error) =>
-			TransactionsRestored?.Invoke(null);
-	}
-
-
-
-	[Preserve(AllMembers = true)]
-	static class SKTransactionExtensions
-	{
-		public static string ToStatusString(this SKPaymentTransaction? transaction) =>
-			transaction?.ToIABPurchase()?.ToString() ?? string.Empty;
+        // Failure, just fire with null
+        public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue? queue, NSError? error) =>
+            TransactionsRestored?.Invoke(null);
+    }
 
 
-		public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
-		{
-			var p = transaction?.OriginalTransaction ?? transaction;
 
-			if (p == null)
-				return null!; // transaction shouldn't be null by contract
+    [Preserve(AllMembers = true)]
+    static class SKTransactionExtensions
+    {
+        public static string ToStatusString(this SKPaymentTransaction? transaction) =>
+            transaction?.ToIABPurchase()?.ToString() ?? string.Empty;
+
+
+        public static InAppBillingPurchase ToIABPurchase(this SKPaymentTransaction transaction)
+        {
+            var p = transaction?.OriginalTransaction ?? transaction;
+
+            if (p == null)
+                return null!; // transaction shouldn't be null by contract
 
 #if __IOS__ || __TVOS__
             var finalToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
             if (string.IsNullOrEmpty(finalToken))
-				finalToken = transaction!.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+                finalToken = transaction!.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
 
 #else
 			var finalToken = string.Empty;
 #endif
-			return new InAppBillingPurchase
-			{
-				TransactionDateUtc = NSDateToDateTimeUtc(transaction!.TransactionDate),
-				Id = p.TransactionIdentifier,
-				ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
+            return new InAppBillingPurchase
+            {
+                TransactionDateUtc = NSDateToDateTimeUtc(transaction!.TransactionDate),
+                Id = p.TransactionIdentifier,
+                ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
                 State = p.GetPurchaseState(),
-				PurchaseToken = finalToken
-			};
-		}
+                PurchaseToken = finalToken
+            };
+        }
 
-		static DateTime NSDateToDateTimeUtc(NSDate? date)
-		{
-			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        static DateTime NSDateToDateTimeUtc(NSDate? date)
+        {
+            var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-			return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
-		}
+            return reference.AddSeconds(date?.SecondsSinceReferenceDate ?? 0);
+        }
 
-		public static PurchaseState GetPurchaseState(this SKPaymentTransaction? transaction)
-		{
-			if (transaction?.TransactionState == null)
-				return PurchaseState.Unknown;
+        public static PurchaseState GetPurchaseState(this SKPaymentTransaction? transaction)
+        {
+            if (transaction?.TransactionState == null)
+                return PurchaseState.Unknown;
 
             return transaction.TransactionState switch
             {
@@ -699,33 +699,33 @@ namespace Plugin.InAppBilling
 
 
     [Preserve(AllMembers = true)]
-	static class SKProductExtension
-	{
-		/// <remarks>
-		/// Use Apple's sample code for formatting a SKProduct price
-		/// https://developer.apple.com/library/ios/#DOCUMENTATION/StoreKit/Reference/SKProduct_Reference/Reference/Reference.html#//apple_ref/occ/instp/SKProduct/priceLocale
-		/// Objective-C version:
-		///    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-		///    [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
-		///    [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-		///    [numberFormatter setLocale:product.priceLocale];
-		///    NSString *formattedString = [numberFormatter stringFromNumber:product.price];
-		/// </remarks>
-		public static string LocalizedPrice(this SKProduct? product)
-		{
-			if (product?.PriceLocale == null)
-				return string.Empty;
+    static class SKProductExtension
+    {
+        /// <remarks>
+        /// Use Apple's sample code for formatting a SKProduct price
+        /// https://developer.apple.com/library/ios/#DOCUMENTATION/StoreKit/Reference/SKProduct_Reference/Reference/Reference.html#//apple_ref/occ/instp/SKProduct/priceLocale
+        /// Objective-C version:
+        ///    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+        ///    [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+        ///    [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+        ///    [numberFormatter setLocale:product.priceLocale];
+        ///    NSString *formattedString = [numberFormatter stringFromNumber:product.price];
+        /// </remarks>
+        public static string LocalizedPrice(this SKProduct? product)
+        {
+            if (product?.PriceLocale == null)
+                return string.Empty;
 
-			var formatter = new NSNumberFormatter()
-			{
-				FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
-				NumberStyle = NSNumberFormatterStyle.Currency,
-				Locale = product.PriceLocale
-			};
-			var formattedString = formatter.StringFromNumber(product.Price);
-			Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
-			return formattedString;
-		}
+            var formatter = new NSNumberFormatter()
+            {
+                FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
+                NumberStyle = NSNumberFormatterStyle.Currency,
+                Locale = product.PriceLocale
+            };
+            var formattedString = formatter.StringFromNumber(product.Price);
+            Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
+            return formattedString;
+        }
 
         public static SubscriptionPeriod ToSubscriptionPeriod(this SKProduct? p)
         {
@@ -749,10 +749,10 @@ namespace Plugin.InAppBilling
         {
             if (!InAppBillingImplementation.HasIntroductoryOffer)
                 return null;
-            
+
             if (pd == null)
                 return null;
-            
+
             var discount = new InAppBillingProductDiscount
             {
                 LocalizedPrice = pd.LocalizedPrice(),
@@ -778,7 +778,7 @@ namespace Plugin.InAppBilling
                 _ => PaymentMode.Unknown,
             };
 
-            if(InAppBillingImplementation.HasProductDiscounts)
+            if (InAppBillingImplementation.HasProductDiscounts)
             {
                 discount.Id = pd.Identifier;
                 discount.Type = pd.Type switch
@@ -793,19 +793,19 @@ namespace Plugin.InAppBilling
         }
 
         public static string LocalizedPrice(this SKProductDiscount? product)
-		{
-			if (product?.PriceLocale == null)
-				return string.Empty;
+        {
+            if (product?.PriceLocale == null)
+                return string.Empty;
 
-			var formatter = new NSNumberFormatter()
-			{
-				FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
-				NumberStyle = NSNumberFormatterStyle.Currency,
-				Locale = product.PriceLocale
-			};
-			var formattedString = formatter.StringFromNumber(product.Price);
-			Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
-			return formattedString;
-		}
-	}
+            var formatter = new NSNumberFormatter()
+            {
+                FormatterBehavior = NSNumberFormatterBehavior.Version_10_4,
+                NumberStyle = NSNumberFormatterStyle.Currency,
+                Locale = product.PriceLocale
+            };
+            var formattedString = formatter.StringFromNumber(product.Price);
+            Console.WriteLine(" ** formatter.StringFromNumber(" + product.Price + ") = " + formattedString + " for locale " + product.PriceLocale.LocaleIdentifier);
+            return formattedString;
+        }
+    }
 }

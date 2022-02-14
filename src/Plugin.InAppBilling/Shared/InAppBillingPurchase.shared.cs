@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace Plugin.InAppBilling
 {
-	[Preserve(AllMembers = true)]
-	public class InAppBillingPurchaseComparer : IEqualityComparer<InAppBillingPurchase?>
-	{
-		public bool Equals(InAppBillingPurchase? x, InAppBillingPurchase? y) => 
-            (x is null && y is null) || 
+    [Preserve(AllMembers = true)]
+    public class InAppBillingPurchaseComparer : IEqualityComparer<InAppBillingPurchase?>
+    {
+        public bool Equals(InAppBillingPurchase? x, InAppBillingPurchase? y) =>
+            (x is null && y is null) ||
             (x is not null && x.Equals(y));
 
-		public int GetHashCode(InAppBillingPurchase x) => x.GetHashCode();
-	}
+        public int GetHashCode(InAppBillingPurchase x) => x.GetHashCode();
+    }
 
-	/// <summary>
-	/// Purchase from in app billing
-	/// </summary>
-	[Preserve(AllMembers = true)]
-	public class InAppBillingPurchase : IEquatable<InAppBillingPurchase>
+    /// <summary>
+    /// Purchase from in app billing
+    /// </summary>
+    [Preserve(AllMembers = true)]
+    public class InAppBillingPurchase : IEquatable<InAppBillingPurchase>
     {
         /// <summary>
         /// 
@@ -47,7 +47,7 @@ namespace Plugin.InAppBilling
         /// Quantity of the purchases product
         /// </summary>
         public int Quantity { get; set; } = 1;
-        
+
         /// <summary>
         /// Product Ids/Skus
         /// </summary>
@@ -88,13 +88,13 @@ namespace Plugin.InAppBilling
         public string Signature { get; set; } = string.Empty;
 
         public static bool operator ==(InAppBillingPurchase? left, InAppBillingPurchase? right) =>
-			Equals(left, right);
+            Equals(left, right);
 
-		public static bool operator !=(InAppBillingPurchase? left, InAppBillingPurchase? right) =>
-			!Equals(left, right);
+        public static bool operator !=(InAppBillingPurchase? left, InAppBillingPurchase? right) =>
+            !Equals(left, right);
 
-		public override bool Equals(object? obj) =>
-			obj is InAppBillingPurchase purchase && Equals(purchase);
+        public override bool Equals(object? obj) =>
+            obj is InAppBillingPurchase purchase && Equals(purchase);
 
         public bool Equals(InAppBillingPurchase? other)
         {
@@ -104,14 +104,14 @@ namespace Plugin.InAppBilling
         }
 
         public override int GetHashCode() =>
-			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId, Quantity, ProductIds, OriginalJson, Signature).GetHashCode();
+            (Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId, Quantity, ProductIds, OriginalJson, Signature).GetHashCode();
 
-		/// <summary>
-		/// Prints out product
-		/// </summary>
-		/// <returns></returns>
-		public override string ToString() => 
-			$"{nameof(ProductId)}:{ProductId}| " +
+        /// <summary>
+        /// Prints out product
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() =>
+            $"{nameof(ProductId)}:{ProductId}| " +
             $"{nameof(IsAcknowledged)}:{IsAcknowledged} | " +
             $"{nameof(AutoRenewing)}:{AutoRenewing} | " +
             $"{nameof(State)}:{State} | " +

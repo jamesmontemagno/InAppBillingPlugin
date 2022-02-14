@@ -10,15 +10,15 @@ namespace Plugin.InAppBilling
         static Lazy<IInAppBilling?> implementation = new(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
 
-		/// <summary>
-		/// Gets if the plugin is supported on the current platform.
-		/// </summary>
-		public static bool IsSupported => implementation.Value != null;
+        /// <summary>
+        /// Gets if the plugin is supported on the current platform.
+        /// </summary>
+        public static bool IsSupported => implementation.Value != null;
 
-		/// <summary>
-		/// Current plugin implementation to use
-		/// </summary>
-		public static IInAppBilling Current
+        /// <summary>
+        /// Current plugin implementation to use
+        /// </summary>
+        public static IInAppBilling Current
         {
             get
             {
@@ -37,14 +37,14 @@ namespace Plugin.InAppBilling
             return null;
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
-			return new InAppBillingImplementation();
+            return new InAppBillingImplementation();
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
-		}
+        }
 
         internal static Exception NotImplementedInReferenceAssembly() =>
-			new NotImplementedException("This functionality is not implemented in the portable version of this assembly.  You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
-        
+            new NotImplementedException("This functionality is not implemented in the portable version of this assembly.  You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
+
 
         /// <summary>
         /// Dispose of everything 

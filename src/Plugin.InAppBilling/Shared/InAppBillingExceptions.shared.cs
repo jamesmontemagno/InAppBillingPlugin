@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling
 {
@@ -11,10 +7,10 @@ namespace Plugin.InAppBilling
     /// </summary>
     public enum PurchaseError
     {
-		/// <summary>
-		/// Billing API version is not supported for the type requested (Android), client error (iOS)
-		/// </summary>
-		BillingUnavailable,
+        /// <summary>
+        /// Billing API version is not supported for the type requested (Android), client error (iOS)
+        /// </summary>
+        BillingUnavailable,
         /// <summary>
         /// Developer issue
         /// </summary>
@@ -59,19 +55,19 @@ namespace Plugin.InAppBilling
         /// Network connection is down
         /// </summary>
         ServiceUnavailable,
-		/// <summary>
-		/// Product is already owned
-		/// </summary>
-		AlreadyOwned,
-		/// <summary>
-		/// Item is not owned and can not be consumed
-		/// </summary>
-		NotOwned,
+        /// <summary>
+        /// Product is already owned
+        /// </summary>
+        AlreadyOwned,
+        /// <summary>
+        /// Item is not owned and can not be consumed
+        /// </summary>
+        NotOwned,
         FeatureNotSupported,
         ServiceDisconnected,
         ServiceTimeout,
         AppleTermsConditionsChanged
-	}
+    }
 
     /// <summary>
     /// Purchase exception

@@ -136,11 +136,11 @@ namespace Plugin.InAppBilling
     }
 
 
-	/// <summary>
-	/// Product being offered
-	/// </summary>
-	[Preserve(AllMembers = true)]
-	public class InAppBillingProduct
+    /// <summary>
+    /// Product being offered
+    /// </summary>
+    [Preserve(AllMembers = true)]
+    public class InAppBillingProduct
     {
         /// <summary>
         /// Name of the product
