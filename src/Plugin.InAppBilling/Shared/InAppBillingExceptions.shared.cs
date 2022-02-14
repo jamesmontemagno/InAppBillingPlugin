@@ -1,4 +1,6 @@
-﻿namespace Plugin.InAppBilling
+﻿using System;
+
+namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Type of purchase error

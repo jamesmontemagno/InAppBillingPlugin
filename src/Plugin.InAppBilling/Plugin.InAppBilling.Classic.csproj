@@ -2,10 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid10.0;Xamarin.iOS10;Xamarin.TVOS10;Xamarin.Mac20</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);uap10.0.16299;</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
-    <ImplicitUsings>enable</ImplicitUsings>
     
     <AssemblyName>Plugin.InAppBilling</AssemblyName>
     <RootNamespace>Plugin.InAppBilling</RootNamespace>

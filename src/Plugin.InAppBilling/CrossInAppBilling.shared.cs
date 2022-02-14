@@ -1,4 +1,6 @@
-﻿namespace Plugin.InAppBilling
+﻿using System;
+
+namespace Plugin.InAppBilling
 {
     /// <summary>
     /// Cross platform InAppBilling implementations

@@ -1,4 +1,6 @@
-﻿using Android.BillingClient.Api;
+﻿using System;
+using System.Linq;
+using Android.BillingClient.Api;
 
 namespace Plugin.InAppBilling
 {
