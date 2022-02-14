@@ -1,12 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Android.App;
-using Java.Security;
-using Java.Security.Spec;
-using Java.Lang;
-using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
 using System.Diagnostics.CodeAnalysis;
