@@ -1,6 +1,6 @@
-## Purchase Subsription
+## Purchase Subscription
 
-Subscriptions are purchases that expire (or sometimes auto-renew) after a set perior of time. You should track when the subscription was purchased, when it expires, or read this information from the existing purchases. They follow the same work flow as a normal Non-Consumable.
+Subscriptions are purchases that expire (or sometimes auto-renew) after a set period of time. You should track when the subscription was purchased, when it expires, or read this information from the existing purchases. They follow the same work flow as a normal Non-Consumable.
 
 Each app store calls them something slightly different:
 * Apple: Auto-Renewable and Non-Renewing Subscription
@@ -19,7 +19,7 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
 /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
 /// <returns>Purchase details</returns>
-/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+/// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
 Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 ```
 

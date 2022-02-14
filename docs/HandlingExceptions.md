@@ -99,7 +99,7 @@ catch (InAppBillingPurchaseException purchaseEx)
     switch (purchaseEx.PurchaseError)
     {
         case PurchaseError.AppStoreUnavailable:
-            message = "Currently the app store seems to be unavailble. Try again later.";
+            message = "Currently the app store seems to be unavailable. Try again later.";
             break;
         case PurchaseError.BillingUnavailable:
             message = "Billing seems to be unavailable, please try again later.";
