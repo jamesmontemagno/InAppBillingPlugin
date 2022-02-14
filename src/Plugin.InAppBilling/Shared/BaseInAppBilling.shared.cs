@@ -51,14 +51,14 @@ namespace Plugin.InAppBilling
         public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
 
-	
-		/// <summary>
-		/// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
-		/// </summary>
-		/// <param name="itemType">Type of product</param>
+
+        /// <summary>
+        /// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
+        /// </summary>
+        /// <param name="itemType">Type of product</param>
         /// <param name="doNotFinishTransactionIds">List of ids not to finish (iOS only)</param>
-		/// <returns>The current purchases</returns>
-		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null);
+        /// <returns>The current purchases</returns>
+        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null);
 
 
 
@@ -67,7 +67,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) => 
+        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) =>
             Task.FromResult<IEnumerable<InAppBillingPurchase>>(new List<InAppBillingPurchase>());
 
         /// <summary>
@@ -154,5 +154,10 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseToken"></param>
         /// <returns></returns>
         public virtual Task<bool> AcknowledgePurchaseAsync(string purchaseToken) => Task.FromResult(true);
+
+        /// <summary>
+        /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
+        /// </summary>
+        public virtual void PresentCodeRedemption() { }
     }
 }

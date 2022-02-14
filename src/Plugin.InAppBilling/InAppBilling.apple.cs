@@ -89,6 +89,18 @@ namespace Plugin.InAppBilling
         }
 #endif
 
+
+        /// <summary>
+        /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
+        /// </summary>
+        public override void PresentCodeRedemption() 
+        {
+#if __IOS__ && !__MACCATALYST__
+            if(HasFamilyShareable)
+                SKPaymentQueue.DefaultQueue.PresentCodeRedemptionSheet();
+#endif
+        }
+
         /// <summary>
         /// Gets if user can make payments
         /// </summary>
@@ -148,6 +160,7 @@ namespace Plugin.InAppBilling
 				CurrencyCode = p.PriceLocale?.CurrencyCode ?? string.Empty,
                 AppleExtras = new InAppBillingProductAppleExtras
                 {
+                    IsFamilyShareable = HasFamilyShareable && p.IsFamilyShareable,
                     SubscriptionGroupId = HasSubscriptionGroupId ? p.SubscriptionGroupIdentifier : null,
                     SubscriptionPeriod = p.ToSubscriptionPeriod(),
                     IntroductoryOffer = HasIntroductoryOffer ? p.IntroductoryPrice?.ToProductDiscount() : null,

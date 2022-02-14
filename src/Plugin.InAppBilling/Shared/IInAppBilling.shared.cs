@@ -119,5 +119,10 @@ namespace Plugin.InAppBilling
         /// </summary>
         bool CanMakePayments { get; }
 
-	}
+
+        /// <summary>
+        /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
+        /// </summary>
+        void PresentCodeRedemption();
+    }
 }

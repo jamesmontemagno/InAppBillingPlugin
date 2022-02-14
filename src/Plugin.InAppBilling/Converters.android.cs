@@ -4,9 +4,9 @@ using Android.BillingClient.Api;
 
 namespace Plugin.InAppBilling
 {
-    public static class Converters
+    internal static class Converters
     {
-        public static InAppBillingPurchase ToIABPurchase(this Purchase purchase)
+        internal static InAppBillingPurchase ToIABPurchase(this Purchase purchase)
         {
             var finalPurchase = new InAppBillingPurchase
             {
@@ -35,7 +35,7 @@ namespace Plugin.InAppBilling
             return finalPurchase;
         }
 
-        public static InAppBillingPurchase ToIABPurchase(this PurchaseHistoryRecord purchase)
+        internal static InAppBillingPurchase ToIABPurchase(this PurchaseHistoryRecord purchase)
         {
             return new InAppBillingPurchase
             {
@@ -52,7 +52,7 @@ namespace Plugin.InAppBilling
             };
         }
 
-        public static InAppBillingProduct ToIAPProduct(this SkuDetails product)
+        internal static InAppBillingProduct ToIAPProduct(this SkuDetails product)
         {
             return new InAppBillingProduct
             {
