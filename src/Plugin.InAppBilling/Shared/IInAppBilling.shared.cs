@@ -1,8 +1,3 @@
-
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace Plugin.InAppBilling
 {
     /// <summary>

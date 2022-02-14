@@ -1,12 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Android.App;
-using Java.Security;
-using Java.Security.Spec;
-using Java.Lang;
-using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
 using System.Diagnostics.CodeAnalysis;
@@ -18,10 +10,10 @@ using Xamarin.Essentials;
 
 namespace Plugin.InAppBilling
 {
-	/// <summary>
-	/// Implementation for Feature
-	/// </summary>
-	[Preserve(AllMembers = true)]
+    /// <summary>
+    /// Implementation for Feature
+    /// </summary>
+    [Preserve(AllMembers = true)]
     public class InAppBillingImplementation : BaseInAppBilling
     {
         /// <summary>

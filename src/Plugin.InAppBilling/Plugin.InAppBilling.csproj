@@ -2,9 +2,10 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid10.0;Xamarin.iOS10;Xamarin.TVOS10;Xamarin.Mac20;net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);uap10.0.19041;net6.0-windows10.0.19041;</TargetFrameworks>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
     
     <AssemblyName>Plugin.InAppBilling</AssemblyName>
     <RootNamespace>Plugin.InAppBilling</RootNamespace>
@@ -25,7 +26,7 @@
     <Title>In-App Billing Plugin for .NET MAUI, Xamarin, and Windows</Title>
     <Description>
       .NET MAUI, Xamarin, and Windows Plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
-      Read the full documenation on the projects page.
+      Read the full documentation on the projects page.
     </Description>
     <Copyright>Copyright 2022</Copyright>
     <RepositoryUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</RepositoryUrl>

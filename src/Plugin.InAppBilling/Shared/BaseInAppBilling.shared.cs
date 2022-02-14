@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Plugin.InAppBilling
 {
     /// <summary>
@@ -15,7 +10,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         public virtual bool CanMakePayments { get; } = true;
         /// <summary>
-        /// Gets receitpt data on iOS
+        /// Gets receipt data on iOS
         /// </summary>
         public virtual string? ReceiptData { get; } = string.Empty;
 
