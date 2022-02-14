@@ -3,7 +3,7 @@
 namespace Plugin.InAppBilling
 {
     /// <summary>
-    /// Cross platform InAppBilling implemenations
+    /// Cross platform InAppBilling implementations
     /// </summary>
     public class CrossInAppBilling
     {
@@ -33,7 +33,7 @@ namespace Plugin.InAppBilling
 
         static IInAppBilling CreateInAppBilling()
         {
-#if NETSTANDARD1_0 || NETSTANDARD2_0
+#if NETSTANDARD
             return null;
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
