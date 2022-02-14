@@ -9,6 +9,7 @@ using Java.Lang;
 using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
+using System.Diagnostics.CodeAnalysis;
 #if NET
 using Microsoft.Maui.Essentials;
 #else
@@ -26,7 +27,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets or sets a callback for out of band purchases to complete.
         /// </summary>
-        public static Action<BillingResult, List<InAppBillingPurchase>> OnAndroidPurchasesUpdated { get; set; } = null;
+        public static Action<BillingResult, List<InAppBillingPurchase>?>? OnAndroidPurchasesUpdated { get; set; } = null;
 
         /// <summary>
         /// Gets the context, aka the currently activity.
@@ -47,18 +48,21 @@ namespace Plugin.InAppBilling
         }
 
 
-        BillingClient BillingClient { get; set; }
-        BillingClient.Builder BillingClientBuilder { get; set; }
+        BillingClient? BillingClient { get; set; }
+        BillingClient.Builder? BillingClientBuilder { get; set; }
         /// <summary>
         /// Determines if it is connected to the backend actively (Android).
         /// </summary>
         public override bool IsConnected { get; set; }
-        TaskCompletionSource<(BillingResult billingResult, IList<Purchase> purchases)> tcsPurchase;
-        TaskCompletionSource<bool> tcsConnect;
+        TaskCompletionSource<(BillingResult billingResult, IList<Purchase> purchases)>? tcsPurchase;
+        TaskCompletionSource<bool>? tcsConnect;
         /// <summary>
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
+        [MemberNotNull(nameof(tcsConnect))]
+        [MemberNotNull(nameof(BillingClient))]
+        [MemberNotNull(nameof(BillingClientBuilder))]
         public override Task<bool> ConnectAsync(bool enablePendingPurchases = true)
         {
             tcsPurchase?.TrySetCanceled();
@@ -166,11 +170,11 @@ namespace Plugin.InAppBilling
             ParseBillingResult(skuDetailsResult?.Result);
 
 
-            return skuDetailsResult.SkuDetails.Select(product => product.ToIAPProduct());
+            return skuDetailsResult!.SkuDetails.Select(product => product.ToIAPProduct());
         }
 
         
-		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
+		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishTransactionIds = null)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -219,7 +223,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription,SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration)
+        public override async Task<InAppBillingPurchase?> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -238,7 +242,7 @@ namespace Plugin.InAppBilling
             return purchase;
         }
 
-        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode)
+        async Task<InAppBillingPurchase?> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode)
         {
             var itemType = BillingClient.SkuType.Subs;
 
@@ -252,7 +256,7 @@ namespace Plugin.InAppBilling
                 .SetSkusList(new List<string> { newProductId })
                 .Build();
 
-            var skuDetailsResult = await BillingClient.QuerySkuDetailsAsync(skuDetailsParams);
+            var skuDetailsResult = await BillingClient!.QuerySkuDetailsAsync(skuDetailsParams);
             ParseBillingResult(skuDetailsResult?.Result);
 
             var skuDetails = skuDetailsResult?.SkuDetails.FirstOrDefault();
@@ -304,7 +308,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        public async override Task<InAppBillingPurchase?> PurchaseAsync(string productId, ItemType itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -333,7 +337,7 @@ namespace Plugin.InAppBilling
             return null;
         }
 
-        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        async Task<InAppBillingPurchase?> PurchaseAsync(string productSku, string itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null)
         {            
 
             var skuDetailsParams = SkuDetailsParams.NewBuilder()
@@ -341,10 +345,10 @@ namespace Plugin.InAppBilling
                 .SetSkusList(new List<string> { productSku })
                 .Build();
 
-            var skuDetailsResult = await BillingClient.QuerySkuDetailsAsync(skuDetailsParams);
+            var skuDetailsResult = await BillingClient!.QuerySkuDetailsAsync(skuDetailsParams);
             ParseBillingResult(skuDetailsResult?.Result);
 
-            var skuDetails = skuDetailsResult.SkuDetails.FirstOrDefault();
+            var skuDetails = skuDetailsResult!.SkuDetails.FirstOrDefault();
 
             if (skuDetails == null)
                 throw new ArgumentException($"{productSku} does not exist");
@@ -420,7 +424,8 @@ namespace Plugin.InAppBilling
             return ParseBillingResult(result.BillingResult);            
         }
 
-        bool ParseBillingResult(BillingResult result)
+        /// <exception cref="InAppBillingPurchaseException">If result is null</exception>
+        bool ParseBillingResult(BillingResult? result)
         {
             if(result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);

@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Plugin.InAppBilling
 {
@@ -13,7 +14,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// The identifier of the subscription group to which the subscription belongs.
         /// </summary>
-        public string SubscriptionGroupId { get; set; }
+        public string? SubscriptionGroupId { get; set; }
 
         /// <summary>
         /// The period details for products that are subscriptions.
@@ -28,13 +29,13 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// iOS 11.2: gets information about product discunt
         /// </summary>
-        public InAppBillingProductDiscount IntroductoryOffer { get; set; } = null;
+        public InAppBillingProductDiscount? IntroductoryOffer { get; set; } = null;
 
 
         /// <summary>
         /// iOS 12.2: gets information about product discunt
         /// </summary>
-        public List<InAppBillingProductDiscount> Discounts { get; set; } = null;
+        public List<InAppBillingProductDiscount?>? Discounts { get; set; } = null;
     }
 
     /// <summary>
@@ -46,11 +47,11 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets the base price for the add-on (also called an in-app product or IAP) with the appropriate formatting for the current market.
         /// </summary>
-        public string FormattedBasePrice { get; set; }
+        public string FormattedBasePrice { get; set; } = string.Empty;
         /// <summary>
         /// Gets the URI of the image associated with the add-on (also called an in-app product or IAP).
         /// </summary>
-        public Uri ImageUri { get; set; }
+        public Uri ImageUri { get; set; } = null!;
         /// <summary>
         /// Gets a value that indicates whether the add-on (also called an in-app product or IAP) is on sale.
         /// </summary>
@@ -63,7 +64,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets the custom developer data string (also called a tag) that contains custom information about an add-on (also called an in-app product or IAP). This string corresponds to the value of the Custom developer data field in the properties page for the add-on in Partner Center.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag { get; set; } = string.Empty;
 
         /// <summary>
         /// Product type consumable
@@ -78,7 +79,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets the list of keywords associated with the add-on (also called an in-app product or IAP). These strings correspond to the value of the Keywords field in the properties page for the add-on in Partner Center. 
         /// </summary>
-        public IEnumerable<string> Keywords { get; set; }
+        public IEnumerable<string> Keywords { get; set; } = Enumerable.Empty<string>();
     }
     /// <summary>
     /// Extras specific to Android
@@ -89,23 +90,23 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Subscription period, specified in ISO 8601 format.
         /// </summary>
-        public string SubscriptionPeriod { get; set; }
+        public string SubscriptionPeriod { get; set; } = string.Empty;
 
         /// <summary>
         /// Trial period, specified in ISO 8601 format.
         /// </summary>
-        public string FreeTrialPeriod { get; set; }
+        public string FreeTrialPeriod { get; set; } = string.Empty;
 
         /// <summary>
         /// Icon of the product if present
         /// </summary>
-        public string IconUrl { get; set; }
+        public string IconUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the localized introductory price.
         /// </summary>
         /// <value>The localized introductory price.</value>
-        public string LocalizedIntroductoryPrice { get; set; }
+        public string LocalizedIntroductoryPrice { get; set; } = string.Empty;
 
         /// <summary>
         /// Number of subscription billing periods for which the user will be given the introductory price, such as 3
@@ -115,7 +116,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Billing period of the introductory price, specified in ISO 8601 format
         /// </summary>
-        public string IntroductoryPricePeriod { get; set; }
+        public string IntroductoryPricePeriod { get; set; } = string.Empty;
 
         /// <summary>
         /// Introductory price of the product in micor-units
@@ -126,7 +127,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Formatted original price of the item, including its currency sign.
         /// </summary>
-        public string OriginalPrice { get; set; }
+        public string OriginalPrice { get; set; } = string.Empty;
 
         /// <summary>
         /// Orginal price in micro-units, where 1,000,000, micro-units equal one unit of the currency
@@ -144,28 +145,28 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Name of the product
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Description of the product
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
 
         /// <summary>
         /// Product ID or sku
         /// </summary>
-        public string ProductId { get; set; }
+        public string ProductId { get; set; } = string.Empty;
 
         /// <summary>
         /// Localized Price (not including tax)
         /// </summary>
-        public string LocalizedPrice { get; set; }
+        public string LocalizedPrice { get; set; } = string.Empty;
 
         /// <summary>
         /// ISO 4217 currency code for price. For example, if price is specified in British pounds sterling is "GBP".
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public string CurrencyCode { get; set; } = string.Empty;
 
         /// <summary>
         /// Price in micro-units, where 1,000,000 micro-units equal one unit of the 
@@ -177,15 +178,15 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Extra information for apple platforms
         /// </summary>
-        public InAppBillingProductAppleExtras AppleExtras { get; set; } = null;
+        public InAppBillingProductAppleExtras? AppleExtras { get; set; } = null;
         /// <summary>
         /// Extra information for Android platforms
         /// </summary>
-        public InAppBillingProductAndroidExtras AndroidExtras { get; set; } = null;
+        public InAppBillingProductAndroidExtras? AndroidExtras { get; set; } = null;
         /// <summary>
         /// Extra information for Windows platforms
         /// </summary>
-        public InAppBillingProductWindowsExtras WindowsExtras { get; set; } = null;
+        public InAppBillingProductWindowsExtras? WindowsExtras { get; set; } = null;
 
     }
 }

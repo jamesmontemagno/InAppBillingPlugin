@@ -7,7 +7,7 @@ namespace Plugin.InAppBilling
     /// </summary>
     public class CrossInAppBilling
     {
-        static Lazy<IInAppBilling> implementation = new Lazy<IInAppBilling>(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        static Lazy<IInAppBilling?> implementation = new Lazy<IInAppBilling?>(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
 
 		/// <summary>
@@ -31,7 +31,7 @@ namespace Plugin.InAppBilling
             }
         }
 
-        static IInAppBilling CreateInAppBilling()
+        static IInAppBilling? CreateInAppBilling()
         {
 #if NETSTANDARD1_0 || NETSTANDARD2_0
             return null;
@@ -53,9 +53,9 @@ namespace Plugin.InAppBilling
         {
             if (implementation != null && implementation.IsValueCreated)
             {
-                implementation.Value.Dispose();
+                implementation.Value?.Dispose();
 
-                implementation = new Lazy<IInAppBilling>(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+                implementation = new Lazy<IInAppBilling?>(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
             }
         }
     }

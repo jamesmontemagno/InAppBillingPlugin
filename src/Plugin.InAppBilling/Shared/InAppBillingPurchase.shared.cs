@@ -4,10 +4,11 @@ using System.Collections.Generic;
 namespace Plugin.InAppBilling
 {
 	[Preserve(AllMembers = true)]
-	public class InAppBillingPurchaseComparer : IEqualityComparer<InAppBillingPurchase>
+	public class InAppBillingPurchaseComparer : IEqualityComparer<InAppBillingPurchase?>
 	{
-		public bool Equals(InAppBillingPurchase x, InAppBillingPurchase y) => x.Equals(y);
-
+		public bool Equals(InAppBillingPurchase? x, InAppBillingPurchase? y) => 
+            (x is null && y is null) || 
+            (x is not null && x.Equals(y));
 
 		public int GetHashCode(InAppBillingPurchase x) => x.GetHashCode();
 	}
@@ -23,13 +24,13 @@ namespace Plugin.InAppBilling
         /// </summary>
         public InAppBillingPurchase()
         {
-        }
 
+        }
 
         /// <summary>
         /// Purchase/Order Id
         /// </summary>
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         /// <summary>
         /// Trasaction date in UTC
@@ -39,7 +40,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Product Id/Sku
         /// </summary>
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Product Ids/Skus
         /// </summary>
-        public IList<string> ProductIds { get; set; }
+        public IList<string> ProductIds { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Indicates whether the subscritpion renewes automatically. If true, the sub is active, else false the user has canceled.
@@ -60,7 +61,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Unique token identifying the purchase for a given item
         /// </summary>
-        public string PurchaseToken { get; set; }
+        public string? PurchaseToken { get; set; }
 
         /// <summary>
         /// Gets the current purchase/subscription state
@@ -74,32 +75,35 @@ namespace Plugin.InAppBilling
 
         public bool IsAcknowledged { get; set; }
 
-        public string ObfuscatedAccountId { get; set; }
+        public string? ObfuscatedAccountId { get; set; }
 
-        public string ObfuscatedProfileId { get; set;  }
+        public string? ObfuscatedProfileId { get; set; }
 
         /// <summary>
         /// Developer payload
         /// </summary>
-        public string Payload { get; set; }
+        public string Payload { get; set; } = string.Empty;
 
-        public string OriginalJson { get; set; }
-        public string Signature { get; set; }
+        public string OriginalJson { get; set; } = string.Empty;
+        public string Signature { get; set; } = string.Empty;
 
-        public static bool operator ==(InAppBillingPurchase left, InAppBillingPurchase right) =>
+        public static bool operator ==(InAppBillingPurchase? left, InAppBillingPurchase? right) =>
 			Equals(left, right);
 
-		public static bool operator !=(InAppBillingPurchase left, InAppBillingPurchase right) =>
+		public static bool operator !=(InAppBillingPurchase? left, InAppBillingPurchase? right) =>
 			!Equals(left, right);
 
-		public override bool Equals(object obj) =>
-			(obj is InAppBillingPurchase purchase) && Equals(purchase);
+		public override bool Equals(object? obj) =>
+			obj is InAppBillingPurchase purchase && Equals(purchase);
 
-		public bool Equals(InAppBillingPurchase other) =>
-			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId, Quantity, ProductIds, OriginalJson, Signature) ==
-			(other.Id, other.TransactionDateUtc, other.IsAcknowledged, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload, other.ObfuscatedAccountId, other.ObfuscatedProfileId, other.Quantity, other.ProductIds, other.OriginalJson, other.Signature);
+        public bool Equals(InAppBillingPurchase? other)
+        {
+            if (other is null) return false;
+            return (Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId, Quantity, ProductIds, OriginalJson, Signature) ==
+                (other.Id, other.TransactionDateUtc, other.IsAcknowledged, other.ProductId, other.AutoRenewing, other.PurchaseToken, other.State, other.Payload, other.ObfuscatedAccountId, other.ObfuscatedProfileId, other.Quantity, other.ProductIds, other.OriginalJson, other.Signature);
+        }
 
-		public override int GetHashCode() =>
+        public override int GetHashCode() =>
 			(Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId, Quantity, ProductIds, OriginalJson, Signature).GetHashCode();
 
 		/// <summary>

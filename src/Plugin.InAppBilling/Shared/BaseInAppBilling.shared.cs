@@ -18,7 +18,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets receitpt data on iOS
         /// </summary>
-        public virtual string ReceiptData { get; } = string.Empty;
+        public virtual string? ReceiptData { get; } = string.Empty;
 
         /// <summary>
         /// If connected to the store
@@ -58,7 +58,7 @@ namespace Plugin.InAppBilling
 		/// <param name="itemType">Type of product</param>
         /// <param name="doNotFinishTransactionIds">List of ids not to finish (iOS only)</param>
 		/// <returns>The current purchases</returns>
-		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null);
+		public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishTransactionIds = null);
 
 
 
@@ -79,7 +79,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
+        public abstract Task<InAppBillingPurchase?> PurchaseAsync(string productId, ItemType itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null);
 
         /// <summary>
         /// (Android specific) Upgrade/Downgrade a previously purchased subscription
@@ -88,7 +88,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
         /// <param name="prorationMode">Proration mode</param>
         /// <returns>Purchase details</returns>
-        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
+        public abstract Task<InAppBillingPurchase?> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
 
         /// <summary>
         /// Consume a purchase with a purchase token.

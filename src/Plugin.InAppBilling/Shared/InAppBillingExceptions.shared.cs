@@ -87,7 +87,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="error"></param>
         /// <param name="ex"></param>
-        public InAppBillingPurchaseException(PurchaseError error, Exception ex) : base("Unable to process purchase.", ex) => PurchaseError = error;
+        public InAppBillingPurchaseException(PurchaseError error, Exception? ex) : base("Unable to process purchase.", ex) => PurchaseError = error;
         /// <summary>
         /// 
         /// </summary>
@@ -98,6 +98,6 @@ namespace Plugin.InAppBilling
         /// 
         /// </summary>
         /// <param name="error"></param>
-        public InAppBillingPurchaseException(PurchaseError error, string message) : base(message) => PurchaseError = error;
+        public InAppBillingPurchaseException(PurchaseError error, string? message) : base(message) => PurchaseError = error;
     }
 }

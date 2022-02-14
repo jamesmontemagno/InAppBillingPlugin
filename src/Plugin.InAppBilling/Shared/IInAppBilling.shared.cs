@@ -54,7 +54,7 @@ namespace Plugin.InAppBilling
 		/// <param name="itemType">Type of product</param>
         /// <param name="doNotFinishTransactionIds"></param>
 		/// <returns>The current purchases</returns>
-		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null);
+		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishTransactionIds = null);
 
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Android: Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
+        Task<InAppBillingPurchase?> PurchaseAsync(string productId, ItemType itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null);
 
         /// <summary>
         /// (Android specific) Upgrade/Downgrade a previously purchased subscription
@@ -83,7 +83,7 @@ namespace Plugin.InAppBilling
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
+        Task<InAppBillingPurchase?> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
 
         /// <summary>
         /// Consume a purchase with a purchase token.
@@ -111,7 +111,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Get receipt data on iOS
         /// </summary>
-        string ReceiptData { get; }
+        string? ReceiptData { get; }
 
 
         /// <summary>

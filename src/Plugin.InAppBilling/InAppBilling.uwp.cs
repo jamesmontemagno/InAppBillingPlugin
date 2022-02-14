@@ -1,6 +1,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -77,7 +79,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType"></param>
         /// <param name="doNotFinishTransactionIds"></param>
         /// <returns></returns>
-        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishTransactionIds = null)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
@@ -95,7 +97,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        public async override Task<InAppBillingPurchase?> PurchaseAsync(string productId, ItemType itemType, string? obfuscatedAccountId = null, string? obfuscatedProfileId = null)
         {
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
@@ -116,7 +118,8 @@ namespace Plugin.InAppBilling
         /// (UWP not supported) Upgrade/Downgrade/Change a previously purchased subscription
         /// </summary>
         /// <exception cref="NotImplementedException">UWP not supported</exception>
-        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration) =>
+        [DoesNotReturn]
+        public override Task<InAppBillingPurchase?> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration) =>
             throw new NotImplementedException("UWP not supported.");
 
         /// <summary>
@@ -199,13 +202,14 @@ namespace Plugin.InAppBilling
             for (var i = 0; i < xmlProductReceipts.Count; i++)
             {
                 var xmlProductReceipt = xmlProductReceipts[i];
+                Debug.Assert(xmlProductReceipt != null && xmlProductReceipt.Attributes != null);
 
                 // Create new InAppBillingPurchase with values from the xml element
                 var purchase = new InAppBillingPurchase()
                 {
-                    Id = xmlProductReceipt.Attributes["Id"].Value,
-                    TransactionDateUtc = Convert.ToDateTime(xmlProductReceipt.Attributes["PurchaseDate"].Value),
-                    ProductId = xmlProductReceipt.Attributes["ProductId"].Value,
+                    Id = xmlProductReceipt.Attributes["Id"]!.Value,
+                    TransactionDateUtc = Convert.ToDateTime(xmlProductReceipt.Attributes["PurchaseDate"]!.Value),
+                    ProductId = xmlProductReceipt.Attributes["ProductId"]!.Value,
                     AutoRenewing = false // Not supported by UWP yet
                 };
                 purchase.PurchaseToken = purchase.Id;

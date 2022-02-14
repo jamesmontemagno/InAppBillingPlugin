@@ -12,7 +12,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// A string used to uniquely identify a discount offer for a product.
         /// </summary>
-        public string Id { get; set; } = string.Empty;
+        public string? Id { get; set; } = string.Empty;
         /// <summary>
         /// The type of discount offer.
         /// </summary>
