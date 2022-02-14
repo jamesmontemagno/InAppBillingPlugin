@@ -27,7 +27,7 @@ The reason for forcing you to consume is that some platforms will not receive th
 /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
 /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
 /// <returns>Purchase details</returns>
-/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+/// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
 Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 ```
 
@@ -39,7 +39,7 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, II
 /// <param name="productId">Id or Sku of product</param>
 /// <param name="purchaseToken">Original Purchase Token</param>
 /// <returns>If consumed successful</returns>
-/// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+/// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
 Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
 ```
 

@@ -118,7 +118,7 @@ namespace Plugin.InAppBilling
         public string IntroductoryPricePeriod { get; set; }
 
         /// <summary>
-        /// Introductory price of the product in micor-units
+        /// Introductory price of the product in micro-units
         /// </summary>
         /// <value>The introductory price.</value>
         public Int64 MicrosIntroductoryPrice { get; set; }
@@ -129,7 +129,7 @@ namespace Plugin.InAppBilling
         public string OriginalPrice { get; set; }
 
         /// <summary>
-        /// Orginal price in micro-units, where 1,000,000, micro-units equal one unit of the currency
+        /// Original price in micro-units, where 1,000,000, micro-units equal one unit of the currency
         /// </summary>
         public long MicrosOriginalPriceAmount { get; set; }
     }

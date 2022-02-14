@@ -403,13 +403,13 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
 			FinishTransaction(purchaseToken);
 
 	
         /// <summary>
-        /// Manually finish a trasaction
+        /// Manually finish a transaction
         /// </summary>
         /// <param name="purchase"></param>
         /// <returns></returns>

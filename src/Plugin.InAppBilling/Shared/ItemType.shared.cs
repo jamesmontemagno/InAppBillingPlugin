@@ -26,7 +26,7 @@ namespace Plugin.InAppBilling
     }
 
     /// <summary>
-    /// Subcription proration mode
+    /// Subscription proration mode
     /// </summary>
     public enum SubscriptionProrationMode
     {
