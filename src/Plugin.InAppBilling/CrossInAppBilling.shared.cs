@@ -7,13 +7,13 @@ namespace Plugin.InAppBilling
     /// </summary>
     public class CrossInAppBilling
     {
-        static Lazy<IInAppBilling> implementation = new Lazy<IInAppBilling>(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        static Lazy<IInAppBilling> implementation = new(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
 
 		/// <summary>
 		/// Gets if the plugin is supported on the current platform.
 		/// </summary>
-		public static bool IsSupported => implementation.Value == null ? false : true;
+		public static bool IsSupported => implementation.Value != null;
 
 		/// <summary>
 		/// Current plugin implementation to use

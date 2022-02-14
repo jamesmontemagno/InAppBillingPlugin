@@ -107,10 +107,7 @@ namespace Plugin.InAppBilling
 		/// <summary>
 		/// Default constructor for In App Billing on iOS
 		/// </summary>
-		public InAppBillingImplementation()
-		{
-			Init();
-		}
+        public InAppBillingImplementation() => Init();
 
 		void Init()
 		{

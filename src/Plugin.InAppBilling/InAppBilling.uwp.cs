@@ -212,22 +212,13 @@ namespace Plugin.InAppBilling
                 purchase.ProductIds = new string[] { purchase.ProductId };
 
                 // Map native UWP status to PurchaseState
-                switch (status)
+                purchase.State = status switch
                 {
-                    case ProductPurchaseStatus.AlreadyPurchased:
-                    case ProductPurchaseStatus.Succeeded:
-                        purchase.State = PurchaseState.Purchased;
-                        break;
-                    case ProductPurchaseStatus.NotFulfilled:
-                        purchase.State = PurchaseState.Deferred;
-                        break;
-                    case ProductPurchaseStatus.NotPurchased:
-                        purchase.State = PurchaseState.Canceled;
-                        break;
-                    default:
-                        purchase.State = PurchaseState.Unknown;
-                        break;
-                }
+                    ProductPurchaseStatus.AlreadyPurchased or ProductPurchaseStatus.Succeeded => PurchaseState.Purchased,
+                    ProductPurchaseStatus.NotFulfilled => PurchaseState.Deferred,
+                    ProductPurchaseStatus.NotPurchased => PurchaseState.Canceled,
+                    _ => PurchaseState.Unknown,
+                };
 
                 // Add to list of purchases
                 purchases.Add(purchase);
