@@ -10,7 +10,7 @@ namespace Plugin.InAppBilling
             (x is null && y is null) ||
             (x is not null && x.Equals(y));
 
-        public int GetHashCode(InAppBillingPurchase x) => x.GetHashCode();
+        public int GetHashCode(InAppBillingPurchase? x) => x?.GetHashCode() ?? 0;
     }
 
     /// <summary>
