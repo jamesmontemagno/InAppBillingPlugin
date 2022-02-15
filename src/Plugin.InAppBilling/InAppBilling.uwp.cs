@@ -207,7 +207,7 @@ namespace Plugin.InAppBilling
                 // Create new InAppBillingPurchase with values from the xml element
                 var purchase = new InAppBillingPurchase()
                 {
-                    Id = xmlProductReceipt.Attributes["Id"]!.Value,
+                    Id = xmlProductReceipt!.Attributes!["Id"]!.Value,
                     TransactionDateUtc = Convert.ToDateTime(xmlProductReceipt.Attributes["PurchaseDate"]!.Value),
                     ProductId = xmlProductReceipt.Attributes["ProductId"]!.Value,
                     AutoRenewing = false // Not supported by UWP yet
