@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Plugin.InAppBilling
 {
@@ -93,10 +94,10 @@ namespace Plugin.InAppBilling
         public static bool operator !=(InAppBillingPurchase? left, InAppBillingPurchase? right) =>
             !Equals(left, right);
 
-        public override bool Equals(object? obj) =>
+        public override bool Equals([NotNullWhen(true)] object? obj) =>
             obj is InAppBillingPurchase purchase && Equals(purchase);
 
-        public bool Equals(InAppBillingPurchase? other)
+        public bool Equals([NotNullWhen(true)] InAppBillingPurchase? other)
         {
             if (other is null) return false;
             return (Id, TransactionDateUtc, IsAcknowledged, ProductId, AutoRenewing, PurchaseToken, State, Payload, ObfuscatedAccountId, ObfuscatedProfileId, Quantity, ProductIds, OriginalJson, Signature) ==
