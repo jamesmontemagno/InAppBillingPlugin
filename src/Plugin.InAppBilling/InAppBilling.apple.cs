@@ -204,7 +204,7 @@ namespace Plugin.InAppBilling
 
 
 
-		Task<SKPaymentTransaction[]> RestoreAsync(List<string> doNotFinishTransactionIds = null)
+		Task<SKPaymentTransaction[]> RestoreAsync(List<string> doNotFinishTransactionIds)
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
@@ -415,10 +415,11 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <param name="purchaseId">Original transaction id</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken) =>
-			FinishTransaction(purchaseToken);
+        public override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken, string purchaseId, List<string> doNotFinishProductIds = null) =>
+			FinishTransaction(purchaseId, doNotFinishProductIds);
 
 	
         /// <summary>
@@ -426,26 +427,26 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="purchase"></param>
         /// <returns></returns>
-		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase) =>
-			FinishTransaction(purchase?.Id);
+		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string> doNotFinishProductIds = null) =>
+			FinishTransaction(purchase?.Id, doNotFinishProductIds);
 
         /// <summary>
         /// Finish a transaction manually
         /// </summary>
-        /// <param name="purchaseToken"></param>
+        /// <param name="purchaseId"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-		public override async Task<bool> FinishTransaction(string purchaseToken)
+		public override async Task<bool> FinishTransaction(string purchaseId, List<string> doNotFinishProductIds = null)
 		{
-			if (string.IsNullOrWhiteSpace(purchaseToken))
-				throw new ArgumentException("Purchase Token must be valid", nameof(purchaseToken));
+			if (string.IsNullOrWhiteSpace(purchaseId))
+				throw new ArgumentException("Purchase Token must be valid", nameof(purchaseId));
 
-			var purchases = await RestoreAsync();
+			var purchases = await RestoreAsync(doNotFinishProductIds);
 
 			if (purchases == null)
 				return false;
 
-			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseToken).FirstOrDefault();
+			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseId).FirstOrDefault();
 			if (transaction == null)
 				return false;
 

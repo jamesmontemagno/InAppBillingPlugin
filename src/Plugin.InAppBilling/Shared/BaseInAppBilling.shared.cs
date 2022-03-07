@@ -56,9 +56,9 @@ namespace Plugin.InAppBilling
         /// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
         /// </summary>
         /// <param name="itemType">Type of product</param>
-        /// <param name="doNotFinishTransactionIds">List of ids not to finish (iOS only)</param>
+        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns>The current purchases</returns>
-        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null);
+        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishProductIds = null);
 
 
 
@@ -93,11 +93,12 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
-        /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <param name="purchaseId">Original transaction id</param>
+        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken);
+        public abstract Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken, string purchaseId, List<string> doNotFinishProductIds = null);
 
         /// <summary>
         /// Dispose of class and parent classes
@@ -138,15 +139,17 @@ namespace Plugin.InAppBilling
         /// Manually finish a transaction
         /// </summary>
         /// <param name="purchase"></param>
+        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase) => Task.FromResult(true);
+		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string> doNotFinishProductIds = null) => Task.FromResult(true);
 
         /// <summary>
         /// manually finish a transaction
         /// </summary>
-        /// <param name="purchaseToken"></param>
+        /// <param name="purchaseId">Original transaction id</param>
+        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(string purchaseToken) => Task.FromResult(true);
+		public virtual Task<bool> FinishTransaction(string purchaseId, List<string> doNotFinishProductIds = null) => Task.FromResult(true);
 
         /// <summary>
         /// acknowledge a purchase
