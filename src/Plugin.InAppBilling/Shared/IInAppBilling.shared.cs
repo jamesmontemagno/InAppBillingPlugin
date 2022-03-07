@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling
 {
-	/// <summary>
-	/// Interface for InAppBilling
-	/// </summary>
-	[Preserve(AllMembers = true)]
-	public interface IInAppBilling : IDisposable
+    /// <summary>
+    /// Interface for InAppBilling
+    /// </summary>
+    [Preserve(AllMembers = true)]
+    public interface IInAppBilling : IDisposable
     {
         /// <summary>
         /// Determines if it is connected to the backend actively (Android).
@@ -19,6 +19,11 @@ namespace Plugin.InAppBilling
         /// Gets or sets if in testing mode
         /// </summary>
         bool InTestingMode { get; set; }
+
+        /// <summary>
+        /// Represenation of the storefront if available
+        /// </summary>
+        Storefront Storefront { get; }
 
 
         /// <summary>

@@ -127,4 +127,5 @@
   <ItemGroup Condition=" $(TargetFramework.Contains('-mac')) ">
     <Compile Include="**\*.apple.cs" />
   </ItemGroup>
+
 </Project>

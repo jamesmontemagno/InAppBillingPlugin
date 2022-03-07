@@ -11,6 +11,12 @@ namespace Plugin.InAppBilling
 
     public abstract class BaseInAppBilling : IInAppBilling, IDisposable
     {
+
+        /// <summary>
+        /// Gets a representation of the storefront
+        /// </summary>
+        public virtual Storefront Storefront { get; } = null;
+
         /// <summary>
         /// Gets if the user can make payments
         /// </summary>

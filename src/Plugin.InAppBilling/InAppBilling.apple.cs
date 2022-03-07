@@ -18,9 +18,10 @@ namespace Plugin.InAppBilling
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
         internal static bool HasSubscriptionGroupId => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 0);
+        internal static bool HasStorefront => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(13, 0);
         internal static bool HasFamilyShareable => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(14, 0);
 #else
-		static bool initIntro, hasIntro, initDiscounts, hasDiscounts, initFamily, hasFamily, initSubGroup, hasSubGroup;
+		static bool initIntro, hasIntro, initDiscounts, hasDiscounts, initFamily, hasFamily, initSubGroup, hasSubGroup, initStore, hasStore;
 		internal static bool HasIntroductoryOffer
         {
 			get
@@ -37,7 +38,23 @@ namespace Plugin.InAppBilling
 
 			}
         }
-		internal static bool HasProductDiscounts
+        internal static bool HasStorefront
+        {
+            get
+            {
+                if (initStore)
+                    return hasStore;
+
+                initStore = true;
+
+
+                using var info = new NSProcessInfo();
+                hasStore = info.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(10, 15, 0));
+                return hasStore;
+
+            }
+        }
+        internal static bool HasProductDiscounts
         {
 			get
             {
@@ -100,6 +117,16 @@ namespace Plugin.InAppBilling
                 SKPaymentQueue.DefaultQueue.PresentCodeRedemptionSheet();
 #endif
         }
+
+        Storefront storefront;
+        /// <summary>
+        /// Returns representation of storefront on iOS 13+
+        /// </summary>
+        public override Storefront Storefront => HasStorefront ? (storefront ??= new Storefront
+        {
+            CountryCode = SKPaymentQueue.DefaultQueue.Storefront.CountryCode,
+            Id = SKPaymentQueue.DefaultQueue.Storefront.Identifier
+        }) : null;
 
         /// <summary>
         /// Gets if user can make payments
