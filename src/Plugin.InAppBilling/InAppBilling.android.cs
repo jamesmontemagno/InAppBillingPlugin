@@ -10,7 +10,7 @@ using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
 #if NET
-using Microsoft.Maui.Essentials;
+using Microsoft.Maui.ApplicationModel;
 #else
 using Xamarin.Essentials;
 #endif
