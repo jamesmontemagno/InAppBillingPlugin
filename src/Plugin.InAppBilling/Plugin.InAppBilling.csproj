@@ -98,6 +98,7 @@
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <Compile Include="**\*.android.cs" />
     <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="4.0.0" />
+    <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.6" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
