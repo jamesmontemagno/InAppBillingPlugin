@@ -21,7 +21,7 @@
     <Owners>JamesMontemagno</Owners>
     <PackageProjectUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</PackageProjectUrl>
     <Summary>Xamarin, .NET MAUI, and Windows plugin to In-App Billing.</Summary>
-    <PackageTags>xamarin, xamarin.forms, android, ios, uwp, windows phone, In-App Billing, purchases, plugin</PackageTags>
+    <PackageTags>.net maui, macos, windows, xamarin, xamarin.forms, android, ios, uwp, windows phone, In-App Billing, purchases, plugin</PackageTags>
     <Title>In-App Billing Plugin for .NET MAUI, Xamarin, and Windows</Title>
     <Description>
       .NET MAUI, Xamarin, and Windows Plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
@@ -44,6 +44,10 @@
     <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-android'))">21.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows10'))">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows10'))">10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('uap10.0')) ">
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
@@ -98,6 +102,7 @@
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <Compile Include="**\*.android.cs" />
     <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="4.0.0" />
+    <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.6" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
@@ -131,4 +136,5 @@
   <ItemGroup Condition=" $(TargetFramework.Contains('-mac')) ">
     <Compile Include="**\*.apple.cs" />
   </ItemGroup>
+
 </Project>

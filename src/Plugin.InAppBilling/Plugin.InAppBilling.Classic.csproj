@@ -20,11 +20,11 @@
     <PackageLicenseUrl>https://github.com/jamesmontemagno/InAppBillingPlugin/blob/master/LICENSE</PackageLicenseUrl>
     <Owners>JamesMontemagno</Owners>
     <PackageProjectUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</PackageProjectUrl>
-    <Summary>Xamarin and Windows plugin to In-App Billing.</Summary>
-    <PackageTags>xamarin, xamarin.forms, android, ios, uwp, windows phone, In-App Billing, purchases, plugin</PackageTags>
-    <Title>In-App Billing Plugin for Xamarin and Windows</Title>
+    <Summary>In-App Billing Plugin for iOS, Android, macOS, and Window</Summary>
+    <PackageTags>.net maui, maui, windows, macosxamarin, xamarin.forms, android, ios, uwp, windows phone, In-App Billing, purchases, plugin</PackageTags>
+    <Title>In-App Billing Plugin for .NET MAUI, Xamarin, and Windows</Title>
     <Description>
-      Xamarin and Windows Plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
+      .NET MAUI, Xamarin, and Windows Plugin to In-App Billing. Get item information, purchase items, and restore purchases with a cross-platform API.
       Read the full documenation on the projects page.
     </Description>
     <Copyright>Copyright 2022</Copyright>

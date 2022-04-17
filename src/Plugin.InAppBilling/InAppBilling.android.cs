@@ -11,7 +11,7 @@ using Android.BillingClient.Api;
 using Android.Content;
 using System.Diagnostics.CodeAnalysis;
 #if NET
-using Microsoft.Maui.Essentials;
+using Microsoft.Maui.ApplicationModel;
 #else
 using Xamarin.Essentials;
 #endif
@@ -405,7 +405,7 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public override async Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken)
+        public override async Task<bool> ConsumePurchaseAsync(string? productId, string? purchaseToken, string? purchaseId, List<string>? doNotFinishProductIds = null)
         {
             if (BillingClient == null || !IsConnected)
             {

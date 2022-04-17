@@ -19,9 +19,10 @@ namespace Plugin.InAppBilling
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
         internal static bool HasSubscriptionGroupId => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 0);
+        internal static bool HasStorefront => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(13, 0);
         internal static bool HasFamilyShareable => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(14, 0);
 #else
-		static bool initIntro, hasIntro, initDiscounts, hasDiscounts, initFamily, hasFamily, initSubGroup, hasSubGroup;
+		static bool initIntro, hasIntro, initDiscounts, hasDiscounts, initFamily, hasFamily, initSubGroup, hasSubGroup, initStore, hasStore;
 		internal static bool HasIntroductoryOffer
         {
 			get
@@ -37,6 +38,22 @@ namespace Plugin.InAppBilling
 				return hasIntro;
 
 			}
+        }
+        internal static bool HasStorefront
+        {
+            get
+            {
+                if (initStore)
+                    return hasStore;
+
+                initStore = true;
+
+
+                using var info = new NSProcessInfo();
+                hasStore = info.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(10, 15, 0));
+                return hasStore;
+
+            }
         }
 		internal static bool HasProductDiscounts
         {
@@ -101,6 +118,16 @@ namespace Plugin.InAppBilling
                 SKPaymentQueue.DefaultQueue.PresentCodeRedemptionSheet();
 #endif
         }
+
+        Storefront storefront;
+        /// <summary>
+        /// Returns representation of storefront on iOS 13+
+        /// </summary>
+        public override Storefront Storefront => HasStorefront ? (storefront ??= new Storefront
+        {
+            CountryCode = SKPaymentQueue.DefaultQueue.Storefront.CountryCode,
+            Id = SKPaymentQueue.DefaultQueue.Storefront.Identifier
+        }) : null;
 
         /// <summary>
         /// Gets if user can make payments
@@ -204,7 +231,7 @@ namespace Plugin.InAppBilling
 
 
 
-        Task<SKPaymentTransaction[]> RestoreAsync(List<string>? doNotFinishTransactionIds = null)
+		Task<SKPaymentTransaction[]> RestoreAsync(List<string>? doNotFinishTransactionIds)
         {
             var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
@@ -416,10 +443,11 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <param name="purchaseId">Original transaction id</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken) =>
-            FinishTransaction(purchaseToken);
+        public override Task<bool> ConsumePurchaseAsync(string? productId, string? purchaseToken, string? purchaseId, List<string>? doNotFinishProductIds = null) =>
+			FinishTransaction(purchaseId, doNotFinishProductIds);
 
 
         /// <summary>
@@ -427,26 +455,26 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="purchase"></param>
         /// <returns></returns>
-        public override Task<bool> FinishTransaction(InAppBillingPurchase purchase) =>
-            FinishTransaction(purchase?.Id!);
+		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string>? doNotFinishProductIds = null) =>
+			FinishTransaction(purchase?.Id, doNotFinishProductIds);
 
         /// <summary>
         /// Finish a transaction manually
         /// </summary>
-        /// <param name="purchaseToken"></param>
+        /// <param name="purchaseId"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-		public override async Task<bool> FinishTransaction(string purchaseToken)
+		public override async Task<bool> FinishTransaction(string purchaseId, List<string> doNotFinishProductIds = null)
         {
-            if (string.IsNullOrWhiteSpace(purchaseToken))
-                throw new ArgumentException("Purchase Token must be valid", nameof(purchaseToken));
+			if (string.IsNullOrWhiteSpace(purchaseId))
+				throw new ArgumentException("Purchase Token must be valid", nameof(purchaseId));
 
-            var purchases = await RestoreAsync();
+			var purchases = await RestoreAsync(doNotFinishProductIds);
 
             if (purchases == null)
                 return false;
 
-            var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseToken).FirstOrDefault();
+			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseId).FirstOrDefault();
             if (transaction == null)
                 return false;
 
