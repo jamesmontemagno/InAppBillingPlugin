@@ -14,7 +14,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets a representation of the storefront
         /// </summary>
-        public virtual Storefront Storefront { get; } = null;
+        public virtual Storefront? Storefront { get; } = null;
 
         /// <summary>
         /// Gets if the user can make payments
@@ -102,7 +102,7 @@ namespace Plugin.InAppBilling
         /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<bool> ConsumePurchaseAsync(string? productId, string? purchaseToken, string? purchaseId, List<string>? doNotFinishProductIds = null);
+        public abstract Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken, string purchaseId, List<string>? doNotFinishProductIds = null);
 
         /// <summary>
         /// Dispose of class and parent classes
@@ -145,7 +145,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchase"></param>
         /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string> doNotFinishProductIds = null) => Task.FromResult(true);
+		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string>? doNotFinishProductIds = null) => Task.FromResult(true);
 
         /// <summary>
         /// manually finish a transaction
@@ -153,7 +153,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseId">Original transaction id</param>
         /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(string purchaseId, List<string> doNotFinishProductIds = null) => Task.FromResult(true);
+		public virtual Task<bool> FinishTransaction(string purchaseId, List<string>? doNotFinishProductIds = null) => Task.FromResult(true);
 
         /// <summary>
         /// acknowledge a purchase

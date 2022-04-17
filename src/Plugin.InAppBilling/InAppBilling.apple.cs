@@ -119,13 +119,13 @@ namespace Plugin.InAppBilling
 #endif
         }
 
-        Storefront storefront;
+        Storefront? storefront;
         /// <summary>
         /// Returns representation of storefront on iOS 13+
         /// </summary>
-        public override Storefront Storefront => HasStorefront ? (storefront ??= new Storefront
+        public override Storefront? Storefront => HasStorefront ? (storefront ??= new Storefront
         {
-            CountryCode = SKPaymentQueue.DefaultQueue.Storefront.CountryCode,
+            CountryCode = SKPaymentQueue.DefaultQueue.Storefront!.CountryCode,
             Id = SKPaymentQueue.DefaultQueue.Storefront.Identifier
         }) : null;
 
@@ -446,7 +446,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseId">Original transaction id</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override Task<bool> ConsumePurchaseAsync(string? productId, string? purchaseToken, string? purchaseId, List<string>? doNotFinishProductIds = null) =>
+        public override Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken, string purchaseId, List<string>? doNotFinishProductIds = null) =>
 			FinishTransaction(purchaseId, doNotFinishProductIds);
 
 
@@ -456,7 +456,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchase"></param>
         /// <returns></returns>
 		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string>? doNotFinishProductIds = null) =>
-			FinishTransaction(purchase?.Id, doNotFinishProductIds);
+			FinishTransaction(purchase?.Id!, doNotFinishProductIds);
 
         /// <summary>
         /// Finish a transaction manually
@@ -464,7 +464,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseId"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-		public override async Task<bool> FinishTransaction(string purchaseId, List<string> doNotFinishProductIds = null)
+		public override async Task<bool> FinishTransaction(string purchaseId, List<string>? doNotFinishProductIds = null)
         {
 			if (string.IsNullOrWhiteSpace(purchaseId))
 				throw new ArgumentException("Purchase Token must be valid", nameof(purchaseId));

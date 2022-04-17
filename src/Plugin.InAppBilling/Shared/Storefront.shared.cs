@@ -12,10 +12,10 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// A value defined by Apple that uniquely identifies an App Store storefront.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         /// <summary>
         /// The three-letter code representing the country or region associated with the App Store storefront.
         /// </summary>
-        public string CountryCode { get; set; }
+        public string CountryCode { get; set; } = null!;
     }
 }
