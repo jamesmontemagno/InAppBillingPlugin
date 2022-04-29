@@ -605,15 +605,13 @@ namespace Plugin.InAppBilling
 				{
 					case SKPaymentTransactionState.Restored:
 					case SKPaymentTransactionState.Purchased:
-						TransactionCompleted?.Invoke(transaction, true);
-
-						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
-
 						Finish(transaction);
+						TransactionCompleted?.Invoke(transaction, true);
+						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 						break;
 					case SKPaymentTransactionState.Failed:
-						TransactionCompleted?.Invoke(transaction, false);
 						Finish(transaction);
+						TransactionCompleted?.Invoke(transaction, false);
 						break;
 					default:
 						break;
