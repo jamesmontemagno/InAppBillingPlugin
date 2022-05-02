@@ -144,6 +144,11 @@ namespace Plugin.InAppBilling
 		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
 
 		/// <summary>
+        /// Set this to false if you have consumable purchases. Remember to call ConsumePurchaseAsync or FinishTransaction on every PurchaseAsync.
+        /// </summary>
+		public static bool ShouldAutomaticallyFinishTransactions { get; set; } = true;
+
+		/// <summary>
 		/// Default constructor for In App Billing on iOS
 		/// </summary>
 		public InAppBillingImplementation()
@@ -212,14 +217,24 @@ namespace Plugin.InAppBilling
 			return productRequestDelegate.WaitForResponse();
 		}
 
-        /// <summary>
-        /// Get app purchaes
-        /// </summary>
-        /// <param name="itemType"></param>
-        /// <returns></returns>
+		/// <summary>
+		/// Get app purchases. Also automatically finishes all unfinished transactions unless their productId is in `doNotFinishTransactionIds`.
+		/// </summary>
+		/// <param name="itemType"></param>
+		/// <returns></returns>
 		public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
 		{
 			Init();
+
+			var unfinishedPurchases = GetCurrentTransactions().Select(o => o.ToIABPurchase());
+			foreach (var purchase in unfinishedPurchases)
+            {
+				if (!doNotFinishTransactionIds.Contains(purchase.ProductId))
+                {
+					await FinishTransaction(purchase);
+                }
+            }
+
 			var purchases = await RestoreAsync(doNotFinishTransactionIds);
 
 			var comparer = new InAppBillingPurchaseComparer();
@@ -230,12 +245,29 @@ namespace Plugin.InAppBilling
 		}
 
 
+		SKPaymentTransaction[] GetCurrentTransactions()
+        {
+			var allTransactions = new List<SKPaymentTransaction>();
+
+			Debug.WriteLine($"There are {SKPaymentQueue.DefaultQueue.Transactions.Length} transactions in the queue at the moment");
+
+			foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
+			{
+				var original = FindOriginalTransaction(trans);
+				if (original == null)
+					continue;
+
+				allTransactions.Add(original);
+			}
+
+			return allTransactions.ToArray();
+		}
 
 		Task<SKPaymentTransaction[]> RestoreAsync(List<string> doNotFinishTransactionIds)
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
-			var allTransactions = new List<SKPaymentTransaction>();
+			var allTransactions = new List<SKPaymentTransaction>(GetCurrentTransactions());
 
 			Action<SKPaymentTransaction[]> handler = null;
 			handler = new Action<SKPaymentTransaction[]>(transactions =>
@@ -260,16 +292,7 @@ namespace Plugin.InAppBilling
 
 
             paymentObserver.DoNotFinishTransactionIds = doNotFinishTransactionIds;
-            paymentObserver.TransactionsRestored += handler;
-
-			foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
-			{
-				var original = FindOriginalTransaction(trans);
-				if (original == null)
-					continue;
-
-				allTransactions.Add(original);
-			}
+            paymentObserver.TransactionsRestored += handler; 
 
 			// Start receiving restored transactions
 			SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
@@ -452,8 +475,8 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Manually finish a transaction
         /// </summary>
-        /// <param name="purchase"></param>
-        /// <returns></returns>
+		/// <param name="purchase"></param>
+		/// <returns></returns>
 		public override Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string> doNotFinishProductIds = null) =>
 			FinishTransaction(purchase?.Id, doNotFinishProductIds);
 
@@ -468,10 +491,8 @@ namespace Plugin.InAppBilling
 			if (string.IsNullOrWhiteSpace(purchaseId))
 				throw new ArgumentException("Purchase Token must be valid", nameof(purchaseId));
 
-			var purchases = await RestoreAsync(doNotFinishProductIds);
-
-			if (purchases == null)
-				return false;
+			// You can't finish transactions that aren't in the queue, so no point restoring here.
+			var purchases = GetCurrentTransactions();
 
 			var transaction = purchases.Where(p => p.TransactionIdentifier == purchaseId).FirstOrDefault();
 			if (transaction == null)
@@ -480,6 +501,7 @@ namespace Plugin.InAppBilling
 			try
 			{
 				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+				Debug.WriteLine($"Finished Transaction | {transaction.ToStatusString()}");
 			}
 			catch(Exception ex)
 			{
@@ -603,10 +625,17 @@ namespace Plugin.InAppBilling
 
 				switch (transaction.TransactionState)
 				{
-					case SKPaymentTransactionState.Restored:
-					case SKPaymentTransactionState.Purchased:
-						Finish(transaction);
+                    case SKPaymentTransactionState.Restored:
+						// Restored transactions have already been finished
 						TransactionCompleted?.Invoke(transaction, true);
+						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
+						break;
+					case SKPaymentTransactionState.Purchased:
+						if (InAppBillingImplementation.ShouldAutomaticallyFinishTransactions)
+						{
+							Finish(transaction);
+						}
+                        TransactionCompleted?.Invoke(transaction, true);
 						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 						break;
 					case SKPaymentTransactionState.Failed:
@@ -631,6 +660,7 @@ namespace Plugin.InAppBilling
             try
 			{
 				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+				Debug.WriteLine($"Finished Transaction | {transaction.ToStatusString()}");
 			}
 			catch(Exception ex)
 			{
