@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:InAppBillingTests"
              xmlns:iap="clr-namespace:Plugin.InAppBilling;assembly=Plugin.InAppBilling"
-             x:Class="InAppBillingTests.MainPage">
+             xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
+             x:Class="InAppBillingTests.MainPage"
+             ios:Page.UseSafeArea="True">
 
     <StackLayout>
 		<Button Text="Buy Consumable" x:Name="ButtonConsumable" Clicked="ButtonConsumable_Clicked"/>
+        <Button Text="Buy Consumable (broken)" x:Name="ButtonConsumableBroken" Clicked="ButtonConsumable_Clicked" />
+        <Button Text="Finalise broken Consumable" x:Name="FinaliseConsumable" Clicked="FinaliseConsumable_Clicked" />
 		<Button Text="Buy Non-Consumable" x:Name="ButtonNonConsumable" Clicked="ButtonNonConsumable_Clicked"/>
 		<Button Text="Buy Sub" x:Name="ButtonSub" Clicked="ButtonSub_Clicked"/>
         <Button Text="Buy Renewing Sub" x:Name="ButtonRenewingSub" Clicked="ButtonRenewingSub_Clicked"/>

@@ -28,7 +28,8 @@ namespace InAppBillingTests.iOS
 
 			//initialize current one.
 			Plugin.InAppBilling.InAppBillingImplementation.OnShouldAddStorePayment = OnShouldAddStorePayment;
-			var current = Plugin.InAppBilling.CrossInAppBilling.Current;
+            Plugin.InAppBilling.InAppBillingImplementation.ShouldAutomaticallyFinishTransactions = false;
+            var current = Plugin.InAppBilling.CrossInAppBilling.Current;
 
 			return base.FinishedLaunching(app, options);
         }
