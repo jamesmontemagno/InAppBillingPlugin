@@ -170,7 +170,7 @@ namespace Plugin.InAppBilling
         }
 
         
-		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
+		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -381,13 +381,13 @@ namespace Plugin.InAppBilling
         }
 
 
-        public async override Task<bool> AcknowledgePurchaseAsync(string purchaseToken)
+        public async override Task<bool> FinalizeAndAcknowlegeAsync(string transactionIdentifier)
         {
             if (BillingClient == null || !IsConnected)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
 
             var acknowledgeParams = AcknowledgePurchaseParams.NewBuilder()
-                    .SetPurchaseToken(purchaseToken).Build();
+                    .SetPurchaseToken(transactionIdentifier).Build();
 
             var result = await BillingClient.AcknowledgePurchaseAsync(acknowledgeParams);
 
@@ -400,9 +400,9 @@ namespace Plugin.InAppBilling
         /// Consume a purchase with a purchase token.
         /// </summary>
         /// <param name="productId">Id or Sku of product</param>
-        /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public override async Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken, string purchaseId, List<string> doNotFinishProductIds = null)
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -411,7 +411,7 @@ namespace Plugin.InAppBilling
 
             
             var consumeParams = ConsumeParams.NewBuilder()
-                .SetPurchaseToken(purchaseToken)
+                .SetPurchaseToken(transactionIdentifier)
                 .Build();
 
             var result = await BillingClient.ConsumeAsync(consumeParams);

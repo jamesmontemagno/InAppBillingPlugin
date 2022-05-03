@@ -62,9 +62,8 @@ namespace Plugin.InAppBilling
         /// Get all current purchases for a specific product type. If verification fails for some purchase, it's not contained in the result.
         /// </summary>
         /// <param name="itemType">Type of product</param>
-        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
         /// <returns>The current purchases</returns>
-        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishProductIds = null);
+        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
 
 
@@ -99,12 +98,11 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Consume a purchase with a purchase token.
         /// </summary>
-        /// <param name="purchaseToken">Original Purchase Token</param>
-        /// <param name="purchaseId">Original transaction id</param>
-        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
+        /// <param name="productId">Product Id</param>
+        /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken, string purchaseId, List<string> doNotFinishProductIds = null);
+        public abstract Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier);
 
         /// <summary>
         /// Dispose of class and parent classes
@@ -140,29 +138,12 @@ namespace Plugin.InAppBilling
                 disposed = true;
             }
         }
-
-        /// <summary>
-        /// Manually finish a transaction
-        /// </summary>
-        /// <param name="purchase"></param>
-        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
-        /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string> doNotFinishProductIds = null) => Task.FromResult(true);
-
-        /// <summary>
-        /// manually finish a transaction
-        /// </summary>
-        /// <param name="purchaseId">Original transaction id</param>
-        /// <param name="doNotFinishProductIds">List of ids not to finish (iOS only)</param>
-        /// <returns></returns>
-		public virtual Task<bool> FinishTransaction(string purchaseId, List<string> doNotFinishProductIds = null) => Task.FromResult(true);
-
         /// <summary>
         /// acknowledge a purchase
         /// </summary>
-        /// <param name="purchaseToken"></param>
+        /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
-        public virtual Task<bool> AcknowledgePurchaseAsync(string purchaseToken) => Task.FromResult(true);
+        public virtual Task<bool> FinalizeAndAcknowlegeAsync(string transactionIdentifier) => Task.FromResult(true);
 
         /// <summary>
         /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.

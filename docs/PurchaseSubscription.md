@@ -23,7 +23,10 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 ```
 
-On Android you must call `AcknowledgePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
+On Android you must call `FinalizeAndAcknowlegeAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
+
+
+You must also call this on iOS to finalize and acknowlege the transation.
 
 Example:
 ```csharp
@@ -47,13 +50,11 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         {
             //did not purchase
         }
-        else
+        else if(purchase.State == PurchaseState.Purchased)
         {
-             //purchased!
-             if(Device.RuntimePlatform == Device.Android)
-             {
-                // Must call AcknowledgePurchaseAsync else the purchase will be refunded
-             }	
+            var ack = await CrossInAppBilling.Current.FinalizeAndAcknowlegeAsync(purchase.TransactionIdentifier);
+
+            // Handle if acknowledge was successful or not
         }
     }
     catch (InAppBillingPurchaseException purchaseEx)
