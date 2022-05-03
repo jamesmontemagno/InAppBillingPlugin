@@ -11,7 +11,7 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 
 Consumables are unique and work a bit different on each platform and the `ConsumePurchaseAsync` may need to be called after making the purchase:
 * Apple: You must consume the purchase (this finishes the transaction), starting in 5.x and 6.x will not auto do this.
-* Android: You must consume before purchasing again, it also acts as a way of acknowledging the transation
+* Android: You must consume before purchasing again, it also acts as a way of acknowledging the transaction
 * Microsoft: You must consume before purchasing again
 
 ### Purchase Item

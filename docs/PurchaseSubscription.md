@@ -26,7 +26,7 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, II
 On Android you must call `FinalizeAndAcknowlegeAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
 
 
-You must also call this on iOS to finalize and acknowlege the transation.
+You must also call this on iOS to finalize and acknowlege the transaction.
 
 Example:
 ```csharp
