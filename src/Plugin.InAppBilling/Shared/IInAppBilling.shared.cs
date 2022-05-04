@@ -31,7 +31,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
-        Task<bool> FinalizeAndAcknowlegeAsync(string transactionIdentifier);
+        Task<bool> FinalizePurchaseAsync(string transactionIdentifier);
 
         /// <summary>
         /// Connect to billing service

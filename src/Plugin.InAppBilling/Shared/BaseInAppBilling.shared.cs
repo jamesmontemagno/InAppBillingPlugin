@@ -143,7 +143,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
-        public virtual Task<bool> FinalizeAndAcknowlegeAsync(string transactionIdentifier) => Task.FromResult(true);
+        public virtual Task<bool> FinalizePurchaseAsync(string transactionIdentifier) => Task.FromResult(true);
 
         /// <summary>
         /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.

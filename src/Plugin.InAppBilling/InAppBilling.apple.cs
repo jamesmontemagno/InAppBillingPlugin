@@ -438,7 +438,7 @@ namespace Plugin.InAppBilling
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
         public override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier) =>
-			FinalizeAndAcknowlegeAsync(transactionIdentifier);
+			FinalizePurchaseAsync(transactionIdentifier);
 
         /// <summary>
         /// Finish a transaction manually
@@ -446,7 +446,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async override Task<bool> FinalizeAndAcknowlegeAsync(string transactionIdentifier)
+        public async override Task<bool> FinalizePurchaseAsync(string transactionIdentifier)
         {
 			if (string.IsNullOrWhiteSpace(transactionIdentifier))
 				throw new ArgumentException("Purchase Token must be valid", nameof(transactionIdentifier));
