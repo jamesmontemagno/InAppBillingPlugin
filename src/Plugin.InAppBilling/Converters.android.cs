@@ -23,7 +23,8 @@ namespace Plugin.InAppBilling
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
                 ObfuscatedAccountId = purchase.AccountIdentifiers?.ObfuscatedAccountId,
-                ObfuscatedProfileId = purchase.AccountIdentifiers?.ObfuscatedProfileId
+                ObfuscatedProfileId = purchase.AccountIdentifiers?.ObfuscatedProfileId,
+                TransactionIdentifier = purchase.PurchaseToken
             };
 
             finalPurchase.State = purchase.PurchaseState switch
@@ -48,7 +49,8 @@ namespace Plugin.InAppBilling
                 ProductIds = purchase.Skus,
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
-                State = PurchaseState.Unknown
+                State = PurchaseState.Unknown,
+                TransactionIdentifier = purchase.PurchaseToken
             };
         }
 

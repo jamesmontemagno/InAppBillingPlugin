@@ -11,10 +11,8 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 
 Consumables are unique and work a bit different on each platform and the `ConsumePurchaseAsync` may need to be called after making the purchase:
 * Apple: You must consume the purchase (this finishes the transaction), starting in 5.x and 6.x will not auto do this.
-* Android: You must consume before purchasing again
+* Android: You must consume before purchasing again, it also acts as a way of acknowledging the transaction
 * Microsoft: You must consume before purchasing again
-
-The reason for forcing you to consume is that some platforms will not receive the consumable purchase based when getting them. For this reason, we have introduced `ItemType.InAppPurchaseConsumable` specificaly for iOS. If you pass in `ItemType.InAppPurchase` then it will auto consume the purchase. This is what used to happen in 4.0.
 
 ### Purchase Item
 ```csharp
@@ -37,10 +35,10 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, II
 /// Consume a purchase with a purchase token.
 /// </summary>
 /// <param name="productId">Id or Sku of product</param>
-/// <param name="purchaseToken">Original Purchase Token</param>
+/// <param name="transactionIdentifier">Original Purchase Token</param>
 /// <returns>If consumed successful</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string purchaseToken);
+Task<InAppBillingPurchase> ConsumePurchaseAsync(string productId, string transactionIdentifier);
 ```
 
 
@@ -72,7 +70,7 @@ public async Task<bool> PurchaseItem(string productId)
             // here you may want to call your backend or process something in your app.
                         
                 
-            var wasConsumed = await CrossInAppBilling.Current.ConsumePurchaseAsync(purchase.ProductId, purchase.PurchaseToken);
+            var wasConsumed = await CrossInAppBilling.Current.ConsumePurchaseAsync(purchase.ProductId, purchase.TransactionIdentifier);
 
             if(wasConsumed)
             {

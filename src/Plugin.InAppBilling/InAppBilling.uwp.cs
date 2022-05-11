@@ -75,9 +75,8 @@ namespace Plugin.InAppBilling
         /// Get all pruchases
         /// </summary>
         /// <param name="itemType"></param>
-        /// <param name="doNotFinishTransactionIds"></param>
         /// <returns></returns>
-        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string> doNotFinishTransactionIds = null)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
@@ -123,12 +122,12 @@ namespace Plugin.InAppBilling
         /// Consume a purchase with a purchase token.
         /// </summary>
         /// <param name="productId">Id or Sku of product</param>
-        /// <param name="purchaseToken">Original Purchase Token</param>
+        /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<bool> ConsumePurchaseAsync(string productId, string purchaseToken, string purchaseId, List<string> doNotFinishProductIds = null)
+        public async override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
         {
-            var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(purchaseToken));
+            var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(transactionIdentifier));
             return result switch
             {
                 FulfillmentResult.ServerError => throw new InAppBillingPurchaseException(PurchaseError.AppStoreUnavailable),
@@ -209,6 +208,7 @@ namespace Plugin.InAppBilling
                     AutoRenewing = false // Not supported by UWP yet
                 };
                 purchase.PurchaseToken = purchase.Id;
+                purchase.TransactionIdentifier = purchase.Id;
                 purchase.ProductIds = new string[] { purchase.ProductId };
 
                 // Map native UWP status to PurchaseState

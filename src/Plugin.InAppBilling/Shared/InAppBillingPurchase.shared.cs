@@ -32,6 +32,11 @@ namespace Plugin.InAppBilling
         public string Id { get; set; }
 
         /// <summary>
+        /// TransactionIdentifier - This is the Id/Token that needs to be acknowledge/finalized
+        /// </summary>
+        public string TransactionIdentifier { get; set; }
+
+        /// <summary>
         /// Transaction date in UTC
         /// </summary>
         public DateTime TransactionDateUtc { get; set; }
