@@ -29,9 +29,9 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Manually acknowledge a purchase
         /// </summary>
-        /// <param name="purchaseToken"></param>
+        /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
-        Task<bool> AcknowledgePurchaseAsync(string purchaseToken);
+        Task<bool> FinalizePurchaseAsync(string transactionIdentifier);
 
         /// <summary>
         /// Connect to billing service
@@ -57,9 +57,8 @@ namespace Plugin.InAppBilling
         /// Get all current purchases for a specific product type. If you use verification and it fails for some purchase, it's not contained in the result.
         /// </summary>
         /// <param name="itemType">Type of product</param>
-        /// <param name="doNotFinishProductIds">All of Ids of products that you do not want to auto finish (iOS consumables)</param>
         /// <returns>The current purchases</returns>
-		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, List<string>? doNotFinishProductIds = null);
+		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
         /// <summary>
         /// Android only: Returns the most recent purchase made by the user for each SKU, even if that purchase is expired, canceled, or consumed.
@@ -93,34 +92,15 @@ namespace Plugin.InAppBilling
         /// Consume a purchase with a purchase token.
         /// </summary>
         /// <param name="productId">Product id or sku</param>
-        /// <param name="purchaseToken">Original Purchase Token</param>
-        /// <param name="purchaseId">Original Transaction Id</param>
-        /// <param name="doNotFinishProductIds">All of Ids of products that you do not want to auto finish (iOS consumables)</param>
+        /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        Task<bool> ConsumePurchaseAsync(string? productId, string purchaseToken, string purchaseId, List<string>? doNotFinishProductIds = null);
-
-        /// <summary>
-        /// Manually finish a transaction
-        /// </summary>
-        /// <param name="purchase"></param>
-        /// <param name="doNotFinishProductIds">All of Ids of products that you do not want to auto finish (iOS consumables)</param>
-        /// <returns></returns>
-		Task<bool> FinishTransaction(InAppBillingPurchase purchase, List<string>? doNotFinishProductIds = null);
-
-        /// <summary>
-        /// Manually finish a transaction
-        /// </summary>
-        /// <param name="purchaseId">Original transaction id</param>
-        /// <param name="doNotFinishProductIds">All of Ids of products that you do not want to auto finish (iOS consumables)</param>
-        /// <returns></returns>
-		Task<bool> FinishTransaction(string purchaseId, List<string>? doNotFinishProductIds = null);
+        Task<bool> ConsumePurchaseAsync(string? productId, string transactionIdentifier);
 
         /// <summary>
         /// Get receipt data on iOS
         /// </summary>
         string? ReceiptData { get; }
-
 
         /// <summary>
         /// Gets if user is allowed to make a payment.
