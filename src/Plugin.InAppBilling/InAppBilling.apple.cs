@@ -307,7 +307,7 @@ namespace Plugin.InAppBilling
         public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
 		{
 			Init();
-			var p = await PurchaseAsync(productId, itemType);
+			var p = await PurchaseAsync(productId, itemType, obfuscatedAccountId);
 
 			var reference = new DateTime(2001, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
@@ -329,7 +329,7 @@ namespace Plugin.InAppBilling
 		}
 
 
-		async Task<SKPaymentTransaction> PurchaseAsync(string productId, ItemType itemType)
+		async Task<SKPaymentTransaction> PurchaseAsync(string productId, ItemType itemType, string applicationUserName)
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction>();
 
@@ -396,12 +396,22 @@ namespace Plugin.InAppBilling
 			if (product == null)
 				throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
 
-			var payment = SKPayment.CreateFrom(product);
-			//var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
-			
-			SKPaymentQueue.DefaultQueue.AddPayment(payment);
+            if (string.IsNullOrWhiteSpace(applicationUserName))
+            {
+                var payment = SKPayment.CreateFrom(product);
+                //var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
+                
+                SKPaymentQueue.DefaultQueue.AddPayment(payment);
+            }
+            else
+            {
+                var payment = SKMutablePayment.PaymentWithProduct(product);
+                payment.ApplicationUsername = applicationUserName;
 
-			return await tcsTransaction.Task;
+                SKPaymentQueue.DefaultQueue.AddPayment(payment);
+            }
+
+            return await tcsTransaction.Task;
 		}
 
         /// <summary>
@@ -652,8 +662,9 @@ namespace Plugin.InAppBilling
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
                 State = p.GetPurchaseState(),
-				PurchaseToken = finalToken
-			};
+				PurchaseToken = finalToken,
+                Payload = p.Payment?.ApplicationUsername
+            };
 		}
 
 		static DateTime NSDateToDateTimeUtc(NSDate date)
