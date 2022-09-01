@@ -396,14 +396,22 @@ namespace Plugin.InAppBilling
 			if (product == null)
 				throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
 
-            var payment = SKMutablePayment.PaymentWithProduct(product);
-            payment.ApplicationUsername = applicationUserName;          
-            //var payment = SKPayment.CreateFrom(product);
-            //var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
+            if (string.IsNullOrWhiteSpace(applicationUserName))
+            {
+                var payment = SKPayment.CreateFrom(product);
+                //var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
+                
+                SKPaymentQueue.DefaultQueue.AddPayment(payment);
+            }
+            else
+            {
+                var payment = SKMutablePayment.PaymentWithProduct(product);
+                payment.ApplicationUsername = applicationUserName;
 
-            SKPaymentQueue.DefaultQueue.AddPayment(payment);
+                SKPaymentQueue.DefaultQueue.AddPayment(payment);
+            }
 
-			return await tcsTransaction.Task;
+            return await tcsTransaction.Task;
 		}
 
         /// <summary>
