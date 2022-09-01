@@ -75,6 +75,12 @@ public async Task<bool> PurchaseItem(string productId, string payload)
 
 * [The Ultimate Guide to iOS Subscription Testing](https://www.revenuecat.com/blog/the-ultimate-guide-to-subscription-testing-on-ios) **PLEASE READ for iOS Testing**
 
+
+If you are on Android you must also now provide functionality to allow users to unsubscribe via 1 of 2 options:
+
+1. If you sell outside of the store you need to link to your page to cancel in the app
+1. if you use in app billing you need to deep link to -> https://developer.android.com/google/play/billing/subscriptions#deep-link
+
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 
 
