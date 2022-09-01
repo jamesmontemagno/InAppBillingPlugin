@@ -132,5 +132,9 @@
   <ItemGroup Condition=" $(TargetFramework.Contains('-mac')) ">
     <Compile Include="**\*.apple.cs" />
   </ItemGroup>
-
+  
+  <ItemGroup Condition=" $(TargetFramework.Contains('-tvos')) ">
+    <Compile Include="**\*.apple.cs" />
+  </ItemGroup>
+  
 </Project>
