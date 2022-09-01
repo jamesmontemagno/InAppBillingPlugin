@@ -320,8 +320,9 @@ namespace Plugin.InAppBilling
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
                 State = p.GetPurchaseState(),
+                ApplicationUsername = p.Payment?.ApplicationUsername ?? string.Empty,
 #if __IOS__ || __TVOS__
-				PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
+                PurchaseToken = p.TransactionReceipt?.GetBase64EncodedString(NSDataBase64EncodingOptions.None) ?? string.Empty
 #endif
 			};
 
@@ -663,7 +664,7 @@ namespace Plugin.InAppBilling
                 ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
                 State = p.GetPurchaseState(),
 				PurchaseToken = finalToken,
-                Payload = p.Payment?.ApplicationUsername
+                ApplicationUsername = p.Payment?.ApplicationUsername
             };
 		}
 

@@ -86,6 +86,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Developer payload
         /// </summary>
+        public string ApplicationUsername { get; set; }
         public string Payload { get; set; }
 
         public string OriginalJson { get; set; }
