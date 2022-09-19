@@ -23,7 +23,7 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, II
 
 On Android you must call `FinalizePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
 
-On iOS you must also call 
+On iOS you must also call `FinalizePurchaseAsync`. This is a change from earlier versions of the plugin which would finalize the purchase for you.
 
 Example:
 ```csharp
