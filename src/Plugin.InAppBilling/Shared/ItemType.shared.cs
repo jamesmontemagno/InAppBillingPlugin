@@ -33,6 +33,7 @@ namespace Plugin.InAppBilling
         ImmediateWithTimeProration = 1,
         ImmediateAndChargeProratedPrice = 2,
         ImmediateWithoutProration = 3,
-        Deferred = 4
+        Deferred = 4,
+        ImmediateAndChargeFullPrice = 5
     }
 }

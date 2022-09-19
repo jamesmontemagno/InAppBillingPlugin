@@ -264,6 +264,7 @@ namespace Plugin.InAppBilling
             //2 - BillingFlowParams.ProrationMode.ImmediateAndChargeProratedPrice
             //3 - BillingFlowParams.ProrationMode.ImmediateWithoutProration
             //4 - BillingFlowParams.ProrationMode.Deferred
+            //5 - BillingFlowParams.ProrationMode.ImmediateAndChargeFullPrice
 
             var updateParams = BillingFlowParams.SubscriptionUpdateParams.NewBuilder()
                 .SetOldSkuPurchaseToken(purchaseTokenOfOriginalSubscription)
