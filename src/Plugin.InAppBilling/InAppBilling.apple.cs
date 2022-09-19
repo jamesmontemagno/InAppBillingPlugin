@@ -14,6 +14,11 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	public class InAppBillingImplementation : BaseInAppBilling
 	{
+        /// <summary>
+        /// Backwards compat flag that may be removed in the future to auto finish all transactions like in v4
+        /// </summary>
+        public static bool FinishAllTransactions { get; set; } = false;
+
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
         internal static bool HasProductDiscounts => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(12, 2);
@@ -138,6 +143,12 @@ namespace Plugin.InAppBilling
         /// </summary>
         public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
 
+
+        /// <summary>
+        /// Gets or sets a callback for out of band failures to complete.
+        /// </summary>
+        public static Action<InAppBillingPurchase> OnPurchaseFailure { get; set; } = null;
+
         /// <summary>
         /// 
         /// </summary>
@@ -156,7 +167,7 @@ namespace Plugin.InAppBilling
 			if(paymentObserver != null)
 				return;
 
-			paymentObserver = new PaymentObserver(OnPurchaseComplete, OnShouldAddStorePayment);
+			paymentObserver = new PaymentObserver(OnPurchaseComplete, OnPurchaseFailure, OnShouldAddStorePayment);
 			SKPaymentQueue.DefaultQueue.AddTransactionObserver(paymentObserver);
 		}
 
@@ -564,13 +575,15 @@ namespace Plugin.InAppBilling
 		public event Action<SKPaymentTransaction[]> TransactionsRestored;
 
 		readonly List<SKPaymentTransaction> restoredTransactions = new ();
-		readonly Action<InAppBillingPurchase> onPurchaseSuccess;
-		readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment;
+        readonly Action<InAppBillingPurchase> onPurchaseSuccess;
+        readonly Action<InAppBillingPurchase> onPurchaseFailure;
+        readonly Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment;
 
-		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess, Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment)
+		public PaymentObserver(Action<InAppBillingPurchase> onPurchaseSuccess, Action<InAppBillingPurchase> onPurchaseFailure, Func<SKPaymentQueue, SKPayment, SKProduct, bool> onShouldAddStorePayment)
 		{
 			this.onPurchaseSuccess = onPurchaseSuccess;
-			this.onShouldAddStorePayment = onShouldAddStorePayment;
+            this.onPurchaseFailure = onPurchaseFailure;
+            this.onShouldAddStorePayment = onShouldAddStorePayment;
 		}
 
         public override bool ShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product) => 
@@ -600,10 +613,17 @@ namespace Plugin.InAppBilling
 						TransactionCompleted?.Invoke(transaction, true);
 
 						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
-						break;
+
+                        if(InAppBillingImplementation.FinishAllTransactions)
+                            SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                        break;
 					case SKPaymentTransactionState.Failed:
 						TransactionCompleted?.Invoke(transaction, false);
-						break;
+                        onPurchaseFailure?.Invoke(transaction?.ToIABPurchase());
+
+                        if (InAppBillingImplementation.FinishAllTransactions)
+                            SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                        break;
 					default:
 						break;
 				}
@@ -622,8 +642,13 @@ namespace Plugin.InAppBilling
 			// Clear out the list of incoming restore transactions for future requests
 			restoredTransactions.Clear();
 
-			TransactionsRestored?.Invoke(allTransactions);		
-		}
+			TransactionsRestored?.Invoke(allTransactions);
+
+
+            if (InAppBillingImplementation.FinishAllTransactions)
+                foreach (var transaction in allTransactions)
+                    SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+        }
 
 		// Failure, just fire with null
 		public override void RestoreCompletedTransactionsFailedWithError(SKPaymentQueue queue, NSError error) =>
