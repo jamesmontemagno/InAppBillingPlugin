@@ -478,13 +478,14 @@ namespace Plugin.InAppBilling
 			if (purchases == null)
 				return false;
 
-			var transaction = purchases.Where(p => p.TransactionIdentifier == transactionIdentifier).FirstOrDefault();
-			if (transaction == null)
-				return false;
+			var transactions = purchases.Where(p => p.TransactionIdentifier == transactionIdentifier);
 
+            if ((transactions?.Count() ?? 0) == 0)
+                return false;
 			try
 			{
-				SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                foreach(var transaction in transactions)
+				    SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
 			}
 			catch(Exception ex)
 			{
