@@ -31,14 +31,14 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="transactionIdentifier"></param>
         /// <returns>if all were acknowledged/finalized</returns>
-        Task<List<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier);
+        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier);
 
         /// <summary>
         /// Manually acknowledge/finalize a product id
         /// </summary>
         /// <param name="productIds"></param>
         /// <returns>if all were acknowledged/finalized</returns>
-        Task<List<Tuple<string, bool>>> FinalizePurchaseOfProductAsync(params string[] productIds);
+        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(params string[] productIds);
 
 
         /// <summary>

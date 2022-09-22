@@ -459,8 +459,13 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier) =>
-			FinalizePurchaseAsync(transactionIdentifier);
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        {
+            var items = await FinalizePurchaseAsync(transactionIdentifier);
+            var item = items.FirstOrDefault();              
+
+            return item.Success;
+        }
 
 
         /// <summary>
@@ -468,11 +473,11 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productIds"></param>
         /// <returns></returns>
-        public override async Task<List<Tuple<string, bool>>> FinalizePurchaseOfProductAsync(params string[] productIds)
+        public override async Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(params string[] productIds)
         {
             var purchases = await RestoreAsync();
 
-            var items = new List<Tuple<string, bool>>();
+            var items = new List<(string Id, bool Success)>();
 
 
             if (purchases == null)
@@ -485,7 +490,7 @@ namespace Plugin.InAppBilling
             {
                 if (string.IsNullOrWhiteSpace(t))
                 {
-                    items.Add(new Tuple<string, bool>(t, false));
+                    items.Add((t, false));
                     continue;
                 }
 
@@ -494,7 +499,7 @@ namespace Plugin.InAppBilling
 
                 if ((transactions?.Count() ?? 0) == 0)
                 {
-                    items.Add(new Tuple<string, bool>(t, false));
+                    items.Add((t, false));
                     continue;
                 }
 
@@ -515,7 +520,7 @@ namespace Plugin.InAppBilling
                 }
 
 
-                items.Add(new Tuple<string, bool>(t, success));
+                items.Add((t, success));
             }
 
             return items;
@@ -527,11 +532,11 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async override Task<List<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier)
+        public async override Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier)
         {
             var purchases = await RestoreAsync();
             
-            var items = new List<Tuple<string, bool>>();
+            var items = new List<(string Id, bool Success)>();
 
 
             if (purchases == null)
@@ -544,7 +549,7 @@ namespace Plugin.InAppBilling
             {
                 if (string.IsNullOrWhiteSpace(t))
                 {
-                    items.Add(new Tuple<string, bool>(t, false));
+                    items.Add((t, false));
                     continue;
                 }
 
@@ -552,7 +557,7 @@ namespace Plugin.InAppBilling
 
                 if ((transactions?.Count() ?? 0) == 0)
                 {
-                    items.Add(new Tuple<string, bool>(t, false));
+                    items.Add((t, false));
                     continue;
                 }
 
@@ -571,7 +576,7 @@ namespace Plugin.InAppBilling
                     }
                 }
 
-                items.Add(new Tuple<string, bool>(t, true));
+                items.Add((t, success));
             }
 
             return items;

@@ -382,13 +382,13 @@ namespace Plugin.InAppBilling
         }
 
 
-        public async override Task<List<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier)
+        public async override Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier)
         {
             if (BillingClient == null || !IsConnected)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
 
 
-            var items = new List<IEnumerable<Tuple<string, bool>>>();
+            var items = new List<(string Id, bool Success)>();
             foreach (var t in transactionIdentifier)
             {
 
@@ -397,8 +397,7 @@ namespace Plugin.InAppBilling
 
                 var result = await BillingClient.AcknowledgePurchaseAsync(acknowledgeParams);
 
-
-                items.Add(new Tuple<string,bool>(t, ParseBillingResult(result)));
+                items.Add((t, ParseBillingResult(result)));
             }
 
             return items;

@@ -54,7 +54,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product offering</param>
         /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <returns>List of products</returns>
-        public abstract Task<List<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
+        public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
 
 
@@ -63,7 +63,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public abstract Task<List<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
 
 
@@ -143,14 +143,14 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier) => Task.FromResult(new List<Tuple<string,bool>>().AsEnumerable());
+        public virtual Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier) => Task.FromResult(new List<(string Id, bool Success)>().AsEnumerable());
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="productIds"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<Tuple<string, bool>>> FinalizePurchaseOfProductAsync(params string[] productIds) => Task.FromResult(new List<Tuple<string, bool>>().AsEnumerable());
+        public virtual Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(params string[] productIds) => Task.FromResult(new List<(string Id, bool Success)>().AsEnumerable());
 
         /// <summary>
         /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
