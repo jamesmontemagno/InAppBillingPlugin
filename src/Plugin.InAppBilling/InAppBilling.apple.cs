@@ -17,7 +17,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Backwards compat flag that may be removed in the future to auto finish all transactions like in v4
         /// </summary>
-        public static bool FinishAllTransactions { get; set; } = false;
+        public static bool FinishAllTransactions { get; set; } = true;
 
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
@@ -459,8 +459,72 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier) =>
-			FinalizePurchaseAsync(transactionIdentifier);
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        {
+            var items = await FinalizePurchaseAsync(transactionIdentifier);
+            var item = items.FirstOrDefault();              
+
+            return item.Success;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="productIds"></param>
+        /// <returns></returns>
+        public override async Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(params string[] productIds)
+        {
+            var purchases = await RestoreAsync();
+
+            var items = new List<(string Id, bool Success)>();
+
+
+            if (purchases == null)
+            {
+                return items;
+            }
+
+            
+            foreach (var t in productIds)
+            {
+                if (string.IsNullOrWhiteSpace(t))
+                {
+                    items.Add((t, false));
+                    continue;
+                }
+
+
+                var transactions = purchases.Where(p => p.Payment?.ProductIdentifier == t);
+
+                if ((transactions?.Count() ?? 0) == 0)
+                {
+                    items.Add((t, false));
+                    continue;
+                }
+
+                var success = true;
+                foreach (var transaction in transactions)
+                {
+
+                    try
+                    { 
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Unable to finish transaction: " + ex);
+
+                        success = false;
+                    }
+                }
+
+
+                items.Add((t, success));
+            }
+
+            return items;
+        }
 
         /// <summary>
         /// Finish a transaction manually
@@ -468,32 +532,54 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async override Task<bool> FinalizePurchaseAsync(string transactionIdentifier)
+        public async override Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier)
         {
-			if (string.IsNullOrWhiteSpace(transactionIdentifier))
-				throw new ArgumentException("Purchase Token must be valid", nameof(transactionIdentifier));
+            var purchases = await RestoreAsync();
             
-			var purchases = await RestoreAsync();
+            var items = new List<(string Id, bool Success)>();
 
-			if (purchases == null)
-				return false;
 
-			var transactions = purchases.Where(p => p.TransactionIdentifier == transactionIdentifier);
+            if (purchases == null)
+            {
+                return items;
+            }
 
-            if ((transactions?.Count() ?? 0) == 0)
-                return false;
-			try
-			{
-                foreach(var transaction in transactions)
-				    SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
-			}
-			catch(Exception ex)
-			{
-                Debug.WriteLine("Unable to finish transaction: " + ex);
-				return false;
-			}
 
-			return true;
+            foreach (var t in transactionIdentifier)
+            {
+                if (string.IsNullOrWhiteSpace(t))
+                {
+                    items.Add((t, false));
+                    continue;
+                }
+
+                var transactions = purchases.Where(p => p.TransactionIdentifier == t);
+
+                if ((transactions?.Count() ?? 0) == 0)
+                {
+                    items.Add((t, false));
+                    continue;
+                }
+
+                var success = true;
+                foreach (var transaction in transactions)
+                {
+
+                    try
+                    {
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Unable to finish transaction: " + ex);
+                        success = false;
+                    }
+                }
+
+                items.Add((t, success));
+            }
+
+            return items;
 		}
 
 		PaymentObserver paymentObserver;

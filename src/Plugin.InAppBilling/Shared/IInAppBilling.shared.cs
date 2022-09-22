@@ -27,11 +27,19 @@ namespace Plugin.InAppBilling
 
 
         /// <summary>
-        /// Manually acknowledge a purchase
+        /// Manually acknowledge/finalize a purchase
         /// </summary>
         /// <param name="transactionIdentifier"></param>
-        /// <returns></returns>
-        Task<bool> FinalizePurchaseAsync(string transactionIdentifier);
+        /// <returns>if all were acknowledged/finalized</returns>
+        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier);
+
+        /// <summary>
+        /// Manually acknowledge/finalize a product id
+        /// </summary>
+        /// <param name="productIds"></param>
+        /// <returns>if all were acknowledged/finalized</returns>
+        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(params string[] productIds);
+
 
         /// <summary>
         /// Connect to billing service

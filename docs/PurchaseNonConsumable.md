@@ -23,7 +23,8 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, II
 
 On Android you must call `FinalizePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
 
-On iOS you must also call `FinalizePurchaseAsync`. This is a change from earlier versions of the plugin which would finalize the purchase for you.
+* iOS: Beta - In version 4 we auto finalized all transactions and after testing I decided to keep this feature on in 5/6... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `FinalizePurchaseAsync`.
+
 
 Example:
 ```csharp
@@ -48,7 +49,8 @@ public async Task<bool> PurchaseItem(string productId)
             //did not purchase
         }
         else if(purchase.State == PurchaseState.Purchased)
-        {              
+        {     
+            // only need to finalize if on Android unless you turn off auto finalize on iOS
              var ack = await CrossInAppBilling.Current.FinalizePurchaseAsync(purchase.TransactionIdentifier);
 
              // Handle if acknowledge was successful or not

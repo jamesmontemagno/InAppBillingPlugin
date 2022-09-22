@@ -30,6 +30,11 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, II
 ```
 
 ### Consume Purchase
+* Android & Windows: You must consume your purchase when your user uses it before buying another one.
+
+* iOS: Beta - In version 4 we auto finalized all transactions and after testing I decided to keep this feature on in 5/6... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `ConsumePurchaseAsync` or `FinalizePurchaseAsync`.
+
+
 ```csharp
 /// <summary>
 /// Consume a purchase with a purchase token.
@@ -69,7 +74,7 @@ public async Task<bool> PurchaseItem(string productId)
             // purchased, we can now consume the item or do it later
             // here you may want to call your backend or process something in your app.
                         
-                
+            //only required on Android & Windows    
             var wasConsumed = await CrossInAppBilling.Current.ConsumePurchaseAsync(purchase.ProductId, purchase.TransactionIdentifier);
 
             if(wasConsumed)
