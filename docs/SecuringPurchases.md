@@ -17,6 +17,7 @@ Based on the platform this data is a bit different and is returned as part of th
 
 ### Android
 * Signature, OriginalJson, DeveloperPayload can all be used.
+* See https://developer.android.com/google/play/billing/developer-payload for more information
 
 ### UWP
 No additional authentication is provided.
