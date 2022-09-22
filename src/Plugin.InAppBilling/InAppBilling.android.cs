@@ -382,17 +382,25 @@ namespace Plugin.InAppBilling
         }
 
 
-        public async override Task<bool> FinalizePurchaseAsync(string transactionIdentifier)
+        public async override Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier)
         {
             if (BillingClient == null || !IsConnected)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
 
-            var acknowledgeParams = AcknowledgePurchaseParams.NewBuilder()
-                    .SetPurchaseToken(transactionIdentifier).Build();
 
-            var result = await BillingClient.AcknowledgePurchaseAsync(acknowledgeParams);
+            var items = new List<(string Id, bool Success)>();
+            foreach (var t in transactionIdentifier)
+            {
 
-            return ParseBillingResult(result);
+                var acknowledgeParams = AcknowledgePurchaseParams.NewBuilder()
+                        .SetPurchaseToken(t).Build();
+
+                var result = await BillingClient.AcknowledgePurchaseAsync(acknowledgeParams);
+
+                items.Add((t, ParseBillingResult(result)));
+            }
+
+            return items;
         }
 
         //inapp:{Context.PackageName}:{productSku}
