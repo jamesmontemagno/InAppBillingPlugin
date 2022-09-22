@@ -520,7 +520,6 @@ namespace Plugin.InAppBilling
 
             return items;
         }
-    }
 
         /// <summary>
         /// Finish a transaction manually
