@@ -5,6 +5,7 @@ A simple In-App Purchase plugin for .NET MAUI, Xamarin, and Windows to query ite
 ## Important Version Information
 * For .NET 6 & .NET MAUI you must use version 6.x+
 * For Xamarin.Forms and pre-.NET 6 it is recommended to use version 5.x
+* See migration guides below
 
 ## Documentation
 Get started by reading through the [In-App Billing Plugin documentation](https://jamesmontemagno.github.io/InAppBillingPlugin/).
@@ -42,6 +43,13 @@ I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm
 
 * [28: Demystifying In-App Purchases](https://www.mergeconflict.fm/57678-merge-conflict-28-demystifying-in-app-purchases)
 * [292: Developer Guide to In-App Subscriptions](https://www.mergeconflict.fm/292)
+
+## Version 5 & 6 Major Update
+* This version of the plugins now target .NET 6! (Still including support for Xamarin). Versions 5 & 6 are the same source code, but Version 5 doesn't include 6.0. I would recommend this version for Xamarin apps.
+* Android: We now use Google Play Billing Version 4.0!
+* iOS: Beta - In version 4 we auto finalized all transactions... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `FinalizePurchaseAsync`
+* All: There are now "Extras" for all products that give you back tons of info for each platform
+* Android: `AcknowledgePurchaseAsync` is now `FinalizePurchaseAsync`
 
 ## Version 4 Major Update - Android
 
