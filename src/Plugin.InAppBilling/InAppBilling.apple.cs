@@ -17,7 +17,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Backwards compat flag that may be removed in the future to auto finish all transactions like in v4
         /// </summary>
-        public static bool FinishAllTransactions { get; set; } = false;
+        public static bool FinishAllTransactions { get; set; } = true;
 
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
