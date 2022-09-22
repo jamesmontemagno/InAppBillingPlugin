@@ -462,38 +462,120 @@ namespace Plugin.InAppBilling
         public override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier) =>
 			FinalizePurchaseAsync(transactionIdentifier);
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="productIds"></param>
+        /// <returns></returns>
+        public override async Task<IEnumerable<Tuple<string, bool>>> FinalizePurchaseOfProductAsync(params string[] productIds)
+        {
+            var purchases = await RestoreAsync();
+
+            var items = new List<Tuple<string, bool>>();
+
+
+            if (purchases == null)
+            {
+                return items;
+            }
+
+            
+            foreach (var t in productIds)
+            {
+                if (string.IsNullOrWhiteSpace(t))
+                {
+                    items.Add(new Tuple<string, bool>(t, false));
+                    continue;
+                }
+
+
+                var transactions = purchases.Where(p => p.Payment?.ProductIdentifier == t);
+
+                if ((transactions?.Count() ?? 0) == 0)
+                {
+                    items.Add(new Tuple<string, bool>(t, false));
+                    continue;
+                }
+
+                var success = true;
+                foreach (var transaction in transactions)
+                {
+
+                    try
+                    { 
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Unable to finish transaction: " + ex);
+
+                        success = false;
+                    }
+                }
+
+
+                items.Add(new Tuple<string, bool>(t, success));
+            }
+
+            return items;
+        }
+    }
+
         /// <summary>
         /// Finish a transaction manually
         /// </summary>
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async override Task<bool> FinalizePurchaseAsync(string transactionIdentifier)
+        public async override Task<IEnumerable<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier)
         {
-			if (string.IsNullOrWhiteSpace(transactionIdentifier))
-				throw new ArgumentException("Purchase Token must be valid", nameof(transactionIdentifier));
+            var purchases = await RestoreAsync();
             
-			var purchases = await RestoreAsync();
+            var items = new List<Tuple<string, bool>>();
 
-			if (purchases == null)
-				return false;
 
-			var transactions = purchases.Where(p => p.TransactionIdentifier == transactionIdentifier);
+            if (purchases == null)
+            {
+                return items;
+            }
 
-            if ((transactions?.Count() ?? 0) == 0)
-                return false;
-			try
-			{
-                foreach(var transaction in transactions)
-				    SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
-			}
-			catch(Exception ex)
-			{
-                Debug.WriteLine("Unable to finish transaction: " + ex);
-				return false;
-			}
 
-			return true;
+            foreach (var t in transactionIdentifier)
+            {
+                if (string.IsNullOrWhiteSpace(t))
+                {
+                    items.Add(new Tuple<string, bool>(t, false));
+                    continue;
+                }
+
+                var transactions = purchases.Where(p => p.TransactionIdentifier == t);
+
+                if ((transactions?.Count() ?? 0) == 0)
+                {
+                    items.Add(new Tuple<string, bool>(t, false));
+                    continue;
+                }
+
+                var success = true;
+                foreach (var transaction in transactions)
+                {
+
+                    try
+                    {
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Unable to finish transaction: " + ex);
+                        success = false;
+                    }
+                }
+
+                items.Add(new Tuple<string, bool>(t, true));
+            }
+
+            return items;
 		}
 
 		PaymentObserver paymentObserver;

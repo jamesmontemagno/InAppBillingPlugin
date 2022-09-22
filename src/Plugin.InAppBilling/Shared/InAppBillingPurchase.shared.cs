@@ -77,8 +77,11 @@ namespace Plugin.InAppBilling
         /// </summary>
         public ConsumptionState ConsumptionState { get; set; }
 
-        public bool IsAcknowledged { get; set; }
-
+        /// <summary>
+        /// Only valid on Android, tells us if our purchase is acknowledged or not and needs to be finalized
+        /// </summary>
+        public bool? IsAcknowledged { get; set; }
+        
         public string ObfuscatedAccountId { get; set; }
 
         public string ObfuscatedProfileId { get; set;  }

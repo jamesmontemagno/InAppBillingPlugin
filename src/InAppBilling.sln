@@ -39,7 +39,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InAppBillingTests.Mac", "In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InAppBillingTests.UWP", "InAppBillingTests\InAppBillingTests.UWP\InAppBillingTests.UWP.csproj", "{EBD6A824-A56E-4F33-B352-B4E72D711B00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InAppBillingMauiTest", "InAppBillingTests\InAppBillingMauiTest\InAppBillingMauiTest.csproj", "{BAE4393A-4E17-4E60-BF53-E916505F44E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InAppBillingMauiTest", "InAppBillingTests\InAppBillingMauiTest\InAppBillingMauiTest.csproj", "{BAE4393A-4E17-4E60-BF53-E916505F44E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
