@@ -382,7 +382,7 @@ namespace Plugin.InAppBilling
         }
 
 
-        public async override Task<IEnumerable<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier)
+        public async override Task<List<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier)
         {
             if (BillingClient == null || !IsConnected)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");

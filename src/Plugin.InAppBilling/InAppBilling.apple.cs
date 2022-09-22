@@ -468,7 +468,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="productIds"></param>
         /// <returns></returns>
-        public override async Task<IEnumerable<Tuple<string, bool>>> FinalizePurchaseOfProductAsync(params string[] productIds)
+        public override async Task<List<Tuple<string, bool>>> FinalizePurchaseOfProductAsync(params string[] productIds)
         {
             var purchases = await RestoreAsync();
 
@@ -527,7 +527,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async override Task<IEnumerable<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier)
+        public async override Task<List<Tuple<string, bool>>> FinalizePurchaseAsync(params string[] transactionIdentifier)
         {
             var purchases = await RestoreAsync();
             

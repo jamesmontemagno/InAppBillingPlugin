@@ -54,7 +54,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product offering</param>
         /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <returns>List of products</returns>
-        public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
+        public abstract Task<List<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
 
 
 
@@ -63,7 +63,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+        public abstract Task<List<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
 
 
 
