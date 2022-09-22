@@ -47,7 +47,7 @@ I co-host a weekly development podcast, [Merge Conflict](http://mergeconflict.fm
 ## Version 5 & 6 Major Update
 * This version of the plugins now target .NET 6! (Still including support for Xamarin). Versions 5 & 6 are the same source code, but Version 5 doesn't include 6.0. I would recommend this version for Xamarin apps.
 * Android: We now use Google Play Billing Version 4.0!
-* iOS: Beta - In version 4 we auto finalized all transactions... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `FinalizePurchaseAsync`
+* iOS: Beta - In version 4 we auto finalized all transactions and after testing I decided to keep this feature on in 5/6... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `FinalizePurchaseAsync`
 * All: There are now "Extras" for all products that give you back tons of info for each platform
 * Android: `AcknowledgePurchaseAsync` is now `FinalizePurchaseAsync`
 
