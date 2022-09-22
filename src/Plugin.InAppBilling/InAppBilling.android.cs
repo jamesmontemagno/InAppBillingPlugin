@@ -389,16 +389,16 @@ namespace Plugin.InAppBilling
 
 
             var items = new List<IEnumerable<Tuple<string, bool>>>();
-            foreach (var item in transactionIdentifier)
+            foreach (var t in transactionIdentifier)
             {
 
                 var acknowledgeParams = AcknowledgePurchaseParams.NewBuilder()
-                        .SetPurchaseToken(transactionIdentifier).Build();
+                        .SetPurchaseToken(t).Build();
 
                 var result = await BillingClient.AcknowledgePurchaseAsync(acknowledgeParams);
 
 
-                items.Add(new Tuple<string,bool>(item, ParseBillingResult(result)));
+                items.Add(new Tuple<string,bool>(t, ParseBillingResult(result)));
             }
 
             return items;
