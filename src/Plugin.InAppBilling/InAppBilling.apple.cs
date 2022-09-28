@@ -876,7 +876,7 @@ namespace Plugin.InAppBilling
             {
                 LocalizedPrice = pd.LocalizedPrice(),
                 Price = (pd.Price?.DoubleValue ?? 0) * 1000000d,
-                NumberOfPeriods = (int)pd.NumberOfPeriods,
+                NumberOfPeriods = (int)pd.SubscriptionPeriod.NumberOfUnits,
                 CurrencyCode = pd.PriceLocale?.CurrencyCode ?? string.Empty
             };
 
