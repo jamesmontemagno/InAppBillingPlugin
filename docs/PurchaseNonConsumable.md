@@ -18,7 +18,7 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 /// <param name="verifyPurchase">Verify Purchase implementation</param>
 /// <returns>Purchase details</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, IInAppBillingVerifyPurchase verifyPurchase = null);
+Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType);
 ```
 
 On Android you must call `FinalizePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
@@ -41,7 +41,7 @@ public async Task<bool> PurchaseItem(string productId)
         }
 
         //check purchases
-        var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchase, payload);
+        var purchase = await billing.PurchaseAsync(productId, ItemType.InAppPurchase);
 
         //possibility that a null came through.
         if(purchase == null)
