@@ -40,10 +40,27 @@ namespace Plugin.InAppBilling
         /// An integer that indicates the number of periods the product discount is available.
         /// </summary>
         public int NumberOfPeriods { get; set; } = 0;
+
         /// <summary>
-        /// An integer that indicates the number of periods the product discount is available.
+        /// An object containing the subscription period duration information.
         /// </summary>
-        public SubscriptionPeriod SubscriptionPeriod { get; set; } = SubscriptionPeriod.Unknown;
+        public SubscriptionPeriod SubscriptionPeriod { get; set; } = new();
+    }
+
+    /// <summary>
+    /// An object containing the subscription period duration information.
+    /// </summary>
+    public class SubscriptionPeriod
+    {
+        /// <summary>
+        /// The number of units per subscription period.
+        /// </summary>
+        public int NumberOfUnits { get; set; } = 0;
+
+        /// <summary>
+        /// The increment of time that a subscription period is specified in. From day to up to a year
+        /// </summary>
+        public SubscriptionPeriodUnit Unit { get; set; } = SubscriptionPeriodUnit.Unknown;
     }
 
     /// <summary>
@@ -72,7 +89,7 @@ namespace Plugin.InAppBilling
     /// <summary>
     /// An object that defines the period for the product discount.
     /// </summary>
-    public enum SubscriptionPeriod
+    public enum SubscriptionPeriodUnit
     {
         /// <summary>
         /// A day unit

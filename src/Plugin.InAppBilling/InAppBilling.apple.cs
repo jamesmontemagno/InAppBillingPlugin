@@ -848,19 +848,25 @@ namespace Plugin.InAppBilling
         public static SubscriptionPeriod ToSubscriptionPeriod(this SKProduct p)
         {
             if (!InAppBillingImplementation.HasIntroductoryOffer)
-                return SubscriptionPeriod.Unknown;
+                return null;
 
             if (p?.SubscriptionPeriod?.Unit == null)
-                return SubscriptionPeriod.Unknown;
+                return null;
 
-            return p.SubscriptionPeriod.Unit switch
+            var subPeriod = new SubscriptionPeriod();
+
+            subPeriod.Unit = p.SubscriptionPeriod.Unit switch
             {
-                SKProductPeriodUnit.Day => SubscriptionPeriod.Day,
-                SKProductPeriodUnit.Month => SubscriptionPeriod.Month,
-                SKProductPeriodUnit.Year => SubscriptionPeriod.Year,
-                SKProductPeriodUnit.Week => SubscriptionPeriod.Week,
-                _ => SubscriptionPeriod.Unknown,
+                SKProductPeriodUnit.Day => SubscriptionPeriodUnit.Day,
+                SKProductPeriodUnit.Month => SubscriptionPeriodUnit.Month,
+                SKProductPeriodUnit.Year => SubscriptionPeriodUnit.Year,
+                SKProductPeriodUnit.Week => SubscriptionPeriodUnit.Week,
+                _ => SubscriptionPeriodUnit.Unknown,
             };
+
+            subPeriod.NumberOfUnits = (int)p.SubscriptionPeriod.NumberOfUnits;
+
+            return subPeriod;
         }
 
         public static InAppBillingProductDiscount ToProductDiscount(this SKProductDiscount pd)
@@ -880,13 +886,15 @@ namespace Plugin.InAppBilling
                 CurrencyCode = pd.PriceLocale?.CurrencyCode ?? string.Empty
             };
 
-            discount.SubscriptionPeriod = pd.SubscriptionPeriod.Unit switch
+            discount.SubscriptionPeriod.NumberOfUnits = (int)pd.SubscriptionPeriod.NumberOfUnits;
+
+            discount.SubscriptionPeriod.Unit = pd.SubscriptionPeriod.Unit switch
             {
-                SKProductPeriodUnit.Day => SubscriptionPeriod.Day,
-                SKProductPeriodUnit.Month => SubscriptionPeriod.Month,
-                SKProductPeriodUnit.Year => SubscriptionPeriod.Year,
-                SKProductPeriodUnit.Week => SubscriptionPeriod.Week,
-                _ => SubscriptionPeriod.Unknown
+                SKProductPeriodUnit.Day => SubscriptionPeriodUnit.Day,
+                SKProductPeriodUnit.Month => SubscriptionPeriodUnit.Month,
+                SKProductPeriodUnit.Year => SubscriptionPeriodUnit.Year,
+                SKProductPeriodUnit.Week => SubscriptionPeriodUnit.Week,
+                _ => SubscriptionPeriodUnit.Unknown
             };
 
             discount.PaymentMode = pd.PaymentMode switch
