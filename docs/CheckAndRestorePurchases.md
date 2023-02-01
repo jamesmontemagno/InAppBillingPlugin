@@ -41,7 +41,7 @@ public async Task<bool> WasItemPurchased(string productId)
         if(purchases?.Any(p => p.ProductId == productId) ?? false)
         {
             //Purchase restored
-            // if on Android may be good to 
+            // if on Android may be good to check if these purchases need to be acknowledge
             return true;
         }
         else
