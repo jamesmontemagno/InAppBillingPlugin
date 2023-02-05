@@ -1,6 +1,6 @@
 ## Securing In-App Purchases (Receipt Validation)
 
-Each platform handles security of In-App Purchases a bit different. To handle this whenever you make a purchase request or a request where validation needs to be done there is an optional parameter that takes in a `IInAppBillingVerifyPurchase`. 
+Each platform handles security of In-App Purchases a bit different. To handle this whenever you make a purchase you should use the date from the purchase to validate on your backend.
 
 ## Recommended Reading:
 * [Xamarin.iOS Securing Purchases Documentation](https://developer.xamarin.com/guides/ios/platform_features/in-app_purchasing/transactions_and_verification/#Securing_Purchases)
