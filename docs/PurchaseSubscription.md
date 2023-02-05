@@ -15,7 +15,6 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 /// </summary>
 /// <param name="productId">Sku or ID of product</param>
 /// <param name="itemType">Type of product being requested</param>
-/// <param name="verifyPurchase">Verify Purchase implementation</param>
 /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
 /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
 /// <returns>Purchase details</returns>
@@ -26,7 +25,7 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, II
 On Android you must call `FinalizePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
 
 
-* iOS: Beta - In version 4 we auto finalized all transactions and after testing I decided to keep this feature on in 5/6... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `FinalizePurchaseAsync`.
+* iOS: In version 4 we auto finalized all transactions and after testing I decided to keep this feature on in 5/6... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `FinalizePurchaseAsync`.
 
 Example:
 ```csharp
@@ -81,6 +80,11 @@ If you are on Android you must also now provide functionality to allow users to 
 
 1. If you sell outside of the store you need to link to your page to cancel in the app
 1. if you use in app billing you need to deep link to -> https://developer.android.com/google/play/billing/subscriptions#deep-link
+
+
+## obfuscatedAccountId & obfuscatedProfileId
+* iOS: Optional, only obfuscatedAccountId is used at this time. See [https://developer.apple.com/documentation/storekit/skmutablepayment/1506088-applicationusername](ApplicationUsername) on the payment.
+* Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId(java.lang.String)](Android documentation) for more info
 
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 
