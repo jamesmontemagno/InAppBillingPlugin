@@ -75,9 +75,8 @@ public async Task<bool> PurchaseItem(string productId)
 
 #### obfuscatedAccountId & obfuscatedProfileId
 * iOS: Optional, only obfuscatedAccountId is used at this time. See [https://developer.apple.com/documentation/storekit/skmutablepayment/1506088-applicationusername](ApplicationUsername) on the payment.
-* Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId(java.lang.String)](Android documentation) for more info
+* Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder](Android documentation) for more info
 
-Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 
 
 <= Back to [Table of Contents](README.md)
