@@ -82,9 +82,9 @@ If you are on Android you must also now provide functionality to allow users to 
 1. if you use in app billing you need to deep link to -> https://developer.android.com/google/play/billing/subscriptions#deep-link
 
 
-## obfuscatedAccountId & obfuscatedProfileId
+#### obfuscatedAccountId & obfuscatedProfileId
 * iOS: Optional, only obfuscatedAccountId is used at this time. See [https://developer.apple.com/documentation/storekit/skmutablepayment/1506088-applicationusername](ApplicationUsername) on the payment.
-* Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId(java.lang.String)](Android documentation) for more info
+* Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder](Android documentation) for more info
 
 
 
