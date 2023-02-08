@@ -2,6 +2,8 @@
 
 A simple In-App Purchase plugin for .NET MAUI, Xamarin, and Windows to query item information, purchase items, restore items, and more.
 
+Subscriptions are supported on iOS, Android, and Mac. Windows/UWP/WinUI 3 - does not support subscriptions at this time.
+
 ## Important Version Information
 * For .NET 6 & .NET MAUI you must use version 6.x+
 * For Xamarin.Forms and pre-.NET 6 it is recommended to use version 5.x
