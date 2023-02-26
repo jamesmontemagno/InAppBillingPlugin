@@ -224,7 +224,7 @@ namespace Plugin.InAppBilling
 		}
 
         /// <summary>
-        /// Get app purchaes
+        /// Get app purchases
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>

@@ -1,7 +1,8 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid10.0;Xamarin.iOS10;Xamarin.TVOS10;Xamarin.Mac20;net6.0-android;net6.0-ios;net6.0-maccatalyst;net6.0-tvos;net6.0-macos</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;MonoAndroid10.0;Xamarin.iOS10;Xamarin.TVOS10;Xamarin.Mac20;net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);uap10.0.19041;net6.0-windows10.0.19041;</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">$(TargetFrameworks);net6.0-tvos;net6.0-macos;</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <AssemblyName>Plugin.InAppBilling</AssemblyName>
     <RootNamespace>Plugin.InAppBilling</RootNamespace>
@@ -145,5 +146,11 @@
 			<HintPath Condition="Exists('C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\Extensions\Xamarin.VisualStudio')">C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\Extensions\Xamarin.VisualStudio\Xamarin.Mac.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+   
+   <ItemGroup>
+     <Reference Include="Windows.Foundation.UniversalApiContract">
+       <HintPath>C:\Program Files (x86)\Windows Kits\10\References\10.0.19041.0\Windows.Foundation.UniversalApiContract\10.0.0.0\Windows.Foundation.UniversalApiContract.winmd</HintPath>
+     </Reference>
+   </ItemGroup>
   
 </Project>
