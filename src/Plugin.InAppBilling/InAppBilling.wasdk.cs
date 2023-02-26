@@ -35,11 +35,11 @@ namespace Plugin.InAppBilling
 
             var context = StoreContext.GetDefault();
             // Obtain window handle by passing in pointer to the window object
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             // Initialize the dialog using wrapper function for IInitializeWithWindow
             WinRT.Interop.InitializeWithWindow.Initialize(context, hwnd);
             
-            return StoreContext.GetDefault();
+            return context;
         }
 
 
