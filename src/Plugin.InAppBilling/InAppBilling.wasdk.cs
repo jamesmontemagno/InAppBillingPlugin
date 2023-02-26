@@ -54,7 +54,7 @@ namespace Plugin.InAppBilling
             switch (result.Status)
             {
                 case StoreConsumableStatus.InsufficentQuantity:
-                    throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned, result.ExtendedError?.Message);
+                    throw new InAppBillingPurchaseException(PurchaseError.InsufficentQuantity, result.ExtendedError?.Message);
                 case StoreConsumableStatus.Succeeded:
                     {
                         return true;
