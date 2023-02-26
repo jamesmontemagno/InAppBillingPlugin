@@ -5,8 +5,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.UI.Xaml;
 using Windows.Services.Store;
-using Windows.UI.Xaml;
 
 namespace Plugin.InAppBilling
 {
@@ -21,17 +21,13 @@ namespace Plugin.InAppBilling
         public InAppBillingImplementation()
         {
         }
-#if NET6_0_OR_GREATER
         /// <summary>
         /// Returns the active windows
         /// </summary>
         public static Func<Window> GetActiveWindow { get; set; }
-#endif
 
         StoreContext GetStoreContext()
         {
-#if NET6_0_OR_GREATER
-
             var window = GetActiveWindow?.Invoke();
             
             if(window is null)
@@ -42,7 +38,7 @@ namespace Plugin.InAppBilling
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             // Initialize the dialog using wrapper function for IInitializeWithWindow
             WinRT.Interop.InitializeWithWindow.Initialize(context, hwnd);
-#endif
+            
             return StoreContext.GetDefault();
         }
 
@@ -129,26 +125,40 @@ namespace Plugin.InAppBilling
                 {
                     return null;
                 }
-
-                // Check if the first SKU is a trial and notify the customer that a trial is available.
-                // If a trial is available, the Skus array will always have 2 purchasable SKUs and the
-                // first one is the trial. Otherwise, this array will only have one SKU.
-                var sku = subscriptionStoreProduct.Skus[0];
-                if (sku.SubscriptionInfo.HasTrialPeriod)
-                {
-                    // You can display the subscription trial info to the customer here. You can use 
-                    // sku.SubscriptionInfo.TrialPeriod and sku.SubscriptionInfo.TrialPeriodUnit 
-                    // to get the trial details.
-                }
-                else
-                {
-                    // You can display the subscription purchase info to the customer here. You can use 
-                    // sku.SubscriptionInfo.BillingPeriod and sku.SubscriptionInfo.BillingPeriodUnit
-                    // to provide the renewal details.
-                }
-
+                
                 // Prompt the customer to purchase the subscription.
-                await PromptUserToPurchaseAsync(subscriptionStoreProduct);
+                // Request a purchase of the subscription product. If a trial is available it will be offered 
+                // to the customer. Otherwise, the non-trial SKU will be offered.
+                var result = await subscriptionStoreProduct.RequestPurchaseAsync();
+
+                // Capture the error message for the operation, if any.
+                var extendedError = string.Empty;
+                if (result.ExtendedError != null)
+                {
+                    extendedError = result.ExtendedError.Message;
+                }
+
+                switch (result.Status)
+                {
+                    case StorePurchaseStatus.AlreadyPurchased:
+                        throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned, result.ExtendedError?.Message);
+                    case StorePurchaseStatus.Succeeded:
+                        {
+                            return new InAppBillingPurchase
+                            {
+                                ProductId = productId,
+                                State = PurchaseState.Purchased
+                            };
+                        }
+                    case StorePurchaseStatus.NotPurchased:
+                        throw new InAppBillingPurchaseException(PurchaseError.UserCancelled, result.ExtendedError?.Message);
+                    case StorePurchaseStatus.NetworkError:
+                        throw new InAppBillingPurchaseException(PurchaseError.ProductRequestFailed, result.ExtendedError?.Message);
+                    case StorePurchaseStatus.ServerError:
+                        throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, result.ExtendedError?.Message);
+                    default:
+                        throw new InAppBillingPurchaseException(PurchaseError.GeneralError, result.ExtendedError?.Message);
+                }
             }
           
         }
@@ -204,44 +214,6 @@ namespace Plugin.InAppBilling
 
             System.Diagnostics.Debug.WriteLine("The subscription was not found.");
             return null;
-        }
-
-        private async Task PromptUserToPurchaseAsync(StoreProduct subscriptionStoreProduct)
-        {
-            // Request a purchase of the subscription product. If a trial is available it will be offered 
-            // to the customer. Otherwise, the non-trial SKU will be offered.
-            var result = await subscriptionStoreProduct.RequestPurchaseAsync();
-
-            // Capture the error message for the operation, if any.
-            var extendedError = string.Empty;
-            if (result.ExtendedError != null)
-            {
-                extendedError = result.ExtendedError.Message;
-            }
-
-            switch (result.Status)
-            {
-                case StorePurchaseStatus.Succeeded:
-                    // Show a UI to acknowledge that the customer has purchased your subscription 
-                    // and unlock the features of the subscription. 
-                    break;
-
-                case StorePurchaseStatus.NotPurchased:
-                    System.Diagnostics.Debug.WriteLine("The purchase did not complete. " +
-                        "The customer may have cancelled the purchase. ExtendedError: " + extendedError);
-                    break;
-
-                case StorePurchaseStatus.ServerError:
-                case StorePurchaseStatus.NetworkError:
-                    System.Diagnostics.Debug.WriteLine("The purchase was unsuccessful due to a server or network error. " +
-                        "ExtendedError: " + extendedError);
-                    break;
-
-                case StorePurchaseStatus.AlreadyPurchased:
-                    System.Diagnostics.Debug.WriteLine("The customer already owns this subscription." +
-                            "ExtendedError: " + extendedError);
-                    break;
-            }
         }
     }    
 
