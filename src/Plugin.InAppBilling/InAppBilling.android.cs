@@ -411,7 +411,7 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, int quantity)
         {
             if (BillingClient == null || !IsConnected)
             {

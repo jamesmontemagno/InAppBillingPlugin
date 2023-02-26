@@ -459,7 +459,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, int quantity)
         {
             var items = await FinalizePurchaseAsync(transactionIdentifier);
             var item = items.FirstOrDefault();              

@@ -45,12 +45,12 @@ namespace Plugin.InAppBilling
 
         public override bool InTestingMode { get; set; } = false;
         
-        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, int quantity)
         {
             var context = GetStoreContext();
             
             var trackingId = Guid.NewGuid();
-            var result = await context.ReportConsumableFulfillmentAsync(productId, 10, trackingId);;
+            var result = await context.ReportConsumableFulfillmentAsync(productId, (uint)quantity, trackingId);
             switch (result.Status)
             {
                 case StoreConsumableStatus.InsufficentQuantity:
