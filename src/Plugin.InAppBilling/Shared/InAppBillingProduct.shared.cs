@@ -89,7 +89,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// The period details for products that are subscriptions.
         /// </summary>
-        public List<SubscriptionOfferDetails> SubscriptionOfferDetails { get; set; }
+        public List<SubscriptionOfferDetail> SubscriptionOfferDetails { get; set; }
 
         ///// <summary>
         ///// Subscription period, specified in ISO 8601 format.

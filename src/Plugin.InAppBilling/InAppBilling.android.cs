@@ -9,6 +9,7 @@ using Java.Lang;
 using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
+using static Android.BillingClient.Api.BillingClient;
 #if NET
 using Microsoft.Maui.ApplicationModel;
 #else
@@ -34,7 +35,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <value>The context.</value>
         Activity Activity =>
-            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials in your source code so the In App Billing can use it.");
+            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials/.NET MAUI in your source code so the In App Billing can use it.");
 
         Context Context => Android.App.Application.Context;
 
@@ -146,12 +147,12 @@ namespace Plugin.InAppBilling
 
             var skuType = itemType switch
             {
-                ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
-                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
-                _ => BillingClient.SkuType.Subs
+                ItemType.InAppPurchase => BillingClient.ProductType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.ProductType.Inapp,
+                _ => BillingClient.ProductType.Subs
             };
 
-            if(skuType == BillingClient.SkuType.Subs)
+            if(skuType == BillingClient.ProductType.Subs)
             {
                 var result = BillingClient.IsFeatureSupported(BillingClient.FeatureType.Subscriptions);
                 ParseBillingResult(result);
@@ -173,23 +174,23 @@ namespace Plugin.InAppBilling
         }
 
         
-		public override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+		public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
 
             var skuType = itemType switch
             {
-                ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
-                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
-                _ => BillingClient.SkuType.Subs
+                ItemType.InAppPurchase => BillingClient.ProductType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.ProductType.Inapp,
+                _ => BillingClient.ProductType.Subs
             };
 
-            var purchasesResult = BillingClient.QueryPurchases(skuType);
+            var purchasesResult = await BillingClient.QueryPurchasesAsync(QueryPurchasesParams.NewBuilder().SetProductType(skuType).Build());
 
-            ParseBillingResult(purchasesResult.BillingResult);
+            ParseBillingResult(purchasesResult.Result);
 
-            return Task.FromResult(purchasesResult.PurchasesList.Select(p => p.ToIABPurchase()));
+            return purchasesResult.Purchases.Select(p => p.ToIABPurchase());
         }
 
         /// <summary>
@@ -204,9 +205,9 @@ namespace Plugin.InAppBilling
 
             var skuType = itemType switch
             {
-                ItemType.InAppPurchase => BillingClient.SkuType.Inapp,
-                ItemType.InAppPurchaseConsumable => BillingClient.SkuType.Inapp,
-                _ => BillingClient.SkuType.Subs
+                ItemType.InAppPurchase => BillingClient.ProductType.Inapp,
+                ItemType.InAppPurchaseConsumable => BillingClient.ProductType.Inapp,
+                _ => BillingClient.ProductType.Subs
             };
 
             var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(skuType);
@@ -243,7 +244,7 @@ namespace Plugin.InAppBilling
 
         async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode)
         {
-            var itemType = BillingClient.SkuType.Subs;
+            var itemType = BillingClient.ProductType.Subs;
 
             if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
             {
@@ -293,7 +294,7 @@ namespace Plugin.InAppBilling
             //for some reason the data didn't come back
             if (androidPurchase == null)
             {
-                var purchases = await GetPurchasesAsync(itemType == BillingClient.SkuType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription);
+                var purchases = await GetPurchasesAsync(itemType == BillingClient.ProductType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription);
                 return purchases.FirstOrDefault(p => p.ProductId == newProductId);
             }
 
@@ -326,58 +327,75 @@ namespace Plugin.InAppBilling
             {
                 case ItemType.InAppPurchase:
                 case ItemType.InAppPurchaseConsumable:
-                    return await PurchaseAsync(productId, BillingClient.SkuType.Inapp, obfuscatedAccountId, obfuscatedProfileId);
+                    return await PurchaseAsync(productId, BillingClient.ProductType.Inapp, obfuscatedAccountId, obfuscatedProfileId);
                 case ItemType.Subscription:
 
                     var result = BillingClient.IsFeatureSupported(BillingClient.FeatureType.Subscriptions);
                     ParseBillingResult(result);
-                    return await PurchaseAsync(productId, BillingClient.SkuType.Subs, obfuscatedAccountId, obfuscatedProfileId);
+                    return await PurchaseAsync(productId, BillingClient.ProductType.Subs, obfuscatedAccountId, obfuscatedProfileId);
             }
 
             return null;
         }
 
         async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
-        {            
+        {
 
-            var skuDetailsParams = SkuDetailsParams.NewBuilder()
-                .SetType(itemType)
-                .SetSkusList(new List<string> { productSku })
+            var productList = QueryProductDetailsParams.Product.NewBuilder()
+                .SetProductType(itemType)
+                .SetProductId(productSku)
                 .Build();
 
-            var skuDetailsResult = await BillingClient.QuerySkuDetailsAsync(skuDetailsParams);
-            ParseBillingResult(skuDetailsResult?.Result);
+            var skuDetailsParams = QueryProductDetailsParams.NewBuilder().SetProductList(new[] {productList});
 
-            var skuDetails = skuDetailsResult.SkuDetails.FirstOrDefault();
+            var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams.Build());
+
+            ParseBillingResult(skuDetailsResult.Result);
+
+            var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault();
+
 
             if (skuDetails == null)
                 throw new ArgumentException($"{productSku} does not exist");
 
-            var flowParamsBuilder = BillingFlowParams.NewBuilder()
-                .SetSkuDetails(skuDetails);
+
+            var productDetailsParamsList = BillingFlowParams.ProductDetailsParams.NewBuilder()
+                .SetProductDetails(skuDetails)
+                //OFFER TOKEN NEEDED?
+                .Build();
+
+            var billingFlowParams = BillingFlowParams.NewBuilder()
+                .SetProductDetailsParamsList(new[] { productDetailsParamsList });
+
+
 
             if (!string.IsNullOrWhiteSpace(obfuscatedAccountId))
-                flowParamsBuilder.SetObfuscatedAccountId(obfuscatedAccountId);
+                billingFlowParams.SetObfuscatedAccountId(obfuscatedAccountId);
 
             if (!string.IsNullOrWhiteSpace(obfuscatedProfileId))
-                flowParamsBuilder.SetObfuscatedProfileId(obfuscatedProfileId);
+                billingFlowParams.SetObfuscatedProfileId(obfuscatedProfileId);
 
-            var flowParams = flowParamsBuilder.Build();
+            var flowParams = billingFlowParams.Build();
+
+
 
             tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)>();
+
+
             var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
+
             ParseBillingResult(responseCode);        
 
             var result = await tcsPurchase.Task;
             ParseBillingResult(result.billingResult);
 
             //we are only buying 1 thing.
-            var androidPurchase = result.purchases?.FirstOrDefault(p => p.Skus.Contains(productSku));
+            var androidPurchase = result.purchases?.FirstOrDefault(p => p.Products.Contains(productSku));
 
             //for some reason the data didn't come back
             if (androidPurchase == null)
             {
-                var purchases = await GetPurchasesAsync(itemType == BillingClient.SkuType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription);
+                var purchases = await GetPurchasesAsync(itemType == BillingClient.ProductType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription);
                 return purchases.FirstOrDefault(p => p.ProductId == productSku);
             }
 
