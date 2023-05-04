@@ -26,13 +26,13 @@ namespace Plugin.InAppBilling
         public bool IsFamilyShareable { get; set; }
 
         /// <summary>
-        /// iOS 11.2: gets information about product discunt
+        /// iOS 11.2: gets information about product discount
         /// </summary>
         public InAppBillingProductDiscount IntroductoryOffer { get; set; } = null;
 
 
         /// <summary>
-        /// iOS 12.2: gets information about product discunt
+        /// iOS 12.2: gets information about product discount
         /// </summary>
         public List<InAppBillingProductDiscount> Discounts { get; set; } = null;
     }
@@ -87,51 +87,56 @@ namespace Plugin.InAppBilling
     public class InAppBillingProductAndroidExtras
     {
         /// <summary>
-        /// Subscription period, specified in ISO 8601 format.
+        /// The period details for products that are subscriptions.
         /// </summary>
-        public string SubscriptionPeriod { get; set; }
+        public List<SubscriptionOfferDetails> SubscriptionOfferDetails { get; set; }
 
-        /// <summary>
-        /// Trial period, specified in ISO 8601 format.
-        /// </summary>
-        public string FreeTrialPeriod { get; set; }
+        ///// <summary>
+        ///// Subscription period, specified in ISO 8601 format.
+        ///// </summary>
+        //public string SubscriptionPeriod { get; set; }
 
-        /// <summary>
-        /// Icon of the product if present
-        /// </summary>
-        public string IconUrl { get; set; }
+        ///// <summary>
+        ///// Trial period, specified in ISO 8601 format.
+        ///// </summary>
+        //public string FreeTrialPeriod { get; set; }
 
-        /// <summary>
-        /// Gets or sets the localized introductory price.
-        /// </summary>
-        /// <value>The localized introductory price.</value>
-        public string LocalizedIntroductoryPrice { get; set; }
+        ///// <summary>
+        ///// Icon of the product if present
+        ///// </summary>
+        //public string IconUrl { get; set; }
 
-        /// <summary>
-        /// Number of subscription billing periods for which the user will be given the introductory price, such as 3
-        /// </summary>
-        public int IntroductoryPriceCycles { get; set; }
+        ///// <summary>
+        ///// Gets or sets the localized introductory price.
+        ///// </summary>
+        ///// <value>The localized introductory price.</value>
+        //public string LocalizedIntroductoryPrice { get; set; }
 
-        /// <summary>
-        /// Billing period of the introductory price, specified in ISO 8601 format
-        /// </summary>
-        public string IntroductoryPricePeriod { get; set; }
+        ///// <summary>
+        ///// Number of subscription billing periods for which the user will be given the introductory price, such as 3
+        ///// </summary>
+        //public int IntroductoryPriceCycles { get; set; }
 
-        /// <summary>
-        /// Introductory price of the product in micro-units
-        /// </summary>
-        /// <value>The introductory price.</value>
-        public Int64 MicrosIntroductoryPrice { get; set; }
+        ///// <summary>
+        ///// Billing period of the introductory price, specified in ISO 8601 format
+        ///// </summary>
+        //public string IntroductoryPricePeriod { get; set; }
 
-        /// <summary>
-        /// Formatted original price of the item, including its currency sign.
-        /// </summary>
-        public string OriginalPrice { get; set; }
+        ///// <summary>
+        ///// Introductory price of the product in micro-units
+        ///// </summary>
+        ///// <value>The introductory price.</value>
+        //public Int64 MicrosIntroductoryPrice { get; set; }
 
-        /// <summary>
-        /// Original price in micro-units, where 1,000,000, micro-units equal one unit of the currency
-        /// </summary>
-        public long MicrosOriginalPriceAmount { get; set; }
+        ///// <summary>
+        ///// Formatted original price of the item, including its currency sign.
+        ///// </summary>
+        //public string OriginalPrice { get; set; }
+
+        ///// <summary>
+        ///// Original price in micro-units, where 1,000,000, micro-units equal one unit of the currency
+        ///// </summary>
+        //public long MicrosOriginalPriceAmount { get; set; }
     }
 
 

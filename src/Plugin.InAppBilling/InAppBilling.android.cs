@@ -157,16 +157,19 @@ namespace Plugin.InAppBilling
                 ParseBillingResult(result);
             }
 
-            var skuDetailsParams = SkuDetailsParams.NewBuilder()
-                .SetType(skuType)
-                .SetSkusList(productIds)
-                .Build();
 
-            var skuDetailsResult = await BillingClient.QuerySkuDetailsAsync(skuDetailsParams);
+            var productList = productIds.Select(p => QueryProductDetailsParams.Product.NewBuilder()
+                .SetProductType(skuType)
+                .SetProductId(p)
+                .Build()).ToList();
+
+            var skuDetailsParams = QueryProductDetailsParams.NewBuilder().SetProductList(productList);
+
+            var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams.Build());
             ParseBillingResult(skuDetailsResult?.Result);
 
 
-            return skuDetailsResult.SkuDetails.Select(product => product.ToIAPProduct());
+            return skuDetailsResult.ProductDetails.Select(product => product.ToIAPProduct());
         }
 
         
