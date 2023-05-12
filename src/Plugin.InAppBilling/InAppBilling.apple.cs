@@ -731,10 +731,20 @@ namespace Plugin.InAppBilling
 
 			TransactionsRestored?.Invoke(allTransactions);
 
-
             if (InAppBillingImplementation.FinishAllTransactions)
+            {
                 foreach (var transaction in allTransactions)
-                    SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                {
+                    try
+                    {
+                        SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                }
+            }
         }
 
 		// Failure, just fire with null
