@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
-using Java.Security;
-using Java.Security.Spec;
-using Java.Lang;
-using System.Text;
 using Android.BillingClient.Api;
 using Android.Content;
 using static Android.BillingClient.Api.BillingClient;
@@ -18,10 +14,10 @@ using Xamarin.Essentials;
 
 namespace Plugin.InAppBilling
 {
-	/// <summary>
-	/// Implementation for Feature
-	/// </summary>
-	[Preserve(AllMembers = true)]
+    /// <summary>
+    /// Implementation for Feature
+    /// </summary>
+    [Preserve(AllMembers = true)]
     public class InAppBillingImplementation : BaseInAppBilling
     {
         /// <summary>
@@ -34,10 +30,10 @@ namespace Plugin.InAppBilling
         /// This is set from the MainApplication.cs file that was laid down by the plugin
         /// </summary>
         /// <value>The context.</value>
-        Activity Activity =>
+        static Activity Activity =>
             Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials/.NET MAUI in your source code so the In App Billing can use it.");
 
-        Context Context => Application.Context;
+        static Context Context => Application.Context;
 
         /// <summary>
         /// Default Constructor for In App Billing Implementation on Android
@@ -263,10 +259,7 @@ namespace Plugin.InAppBilling
 
             ParseBillingResult(skuDetailsResult.Result);
 
-            var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault();
-
-            if (skuDetails == null)
-                throw new ArgumentException($"{newProductId} does not exist");
+            var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault() ?? throw new ArgumentException($"{newProductId} does not exist");
 
             //1 - BillingFlowParams.ProrationMode.ImmediateWithTimeProration
             //2 - BillingFlowParams.ProrationMode.ImmediateAndChargeProratedPrice
@@ -288,7 +281,7 @@ namespace Plugin.InAppBilling
                 .SetSubscriptionUpdateParams(updateParams)
                 .Build();
 
-            tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)>();
+            tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Purchase> purchases)>();
             var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
 
             ParseBillingResult(responseCode);
@@ -360,13 +353,7 @@ namespace Plugin.InAppBilling
 
             ParseBillingResult(skuDetailsResult.Result);
 
-            var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault();
-
-
-            if (skuDetails == null)
-                throw new ArgumentException($"{productSku} does not exist");
-
-
+            var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault() ?? throw new ArgumentException($"{productSku} does not exist");
             var productDetailsParamsList = BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails)
                 //OFFER TOKEN NEEDED?
@@ -459,7 +446,7 @@ namespace Plugin.InAppBilling
             return ParseBillingResult(result.BillingResult);            
         }
 
-        bool ParseBillingResult(BillingResult result)
+        static bool ParseBillingResult(BillingResult result)
         {
             if(result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
