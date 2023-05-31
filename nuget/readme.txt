@@ -1,9 +1,12 @@
 In-App Billing Plugin for .NET MAUI, Xamarin, & Windows
 
-Version 7.0+ 
-1.) Major changes to Android product details. Now using Android Billing v5
+Version 7.0+  - Major Android updates
+1.) You must compile and target against Android 12 or higher
+2.) Android: Now using Android Billing v6
+3.) Android: Major changes to Android product details, subscriptions, and more
 
-Please read through: https://developer.android.com/google/play/billing/migrate-gpblv5
+Please read through: https://developer.android.com/google/play/billing/migrate-gpblv6
+
 
 Version 5.0+ has significant updates!
 1.) We have removed IInAppBillingVerifyPurchase from all methods. All data required to handle this yourself is returned.
