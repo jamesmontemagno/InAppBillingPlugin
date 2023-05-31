@@ -1,7 +1,7 @@
 In-App Billing Plugin for .NET MAUI, Xamarin, & Windows
 
 Version 7.0+ 
-1.) Major changes to Android product details. Now using Android Billing v4
+1.) Major changes to Android product details. Now using Android Billing v5
 
 Please read through: https://developer.android.com/google/play/billing/migrate-gpblv5
 
