@@ -6,6 +6,7 @@ using Android.App;
 using Android.BillingClient.Api;
 using Android.Content;
 using static Android.BillingClient.Api.BillingClient;
+using BillingResponseCode = Android.BillingClient.Api.BillingResponseCode;
 #if NET
 using Microsoft.Maui.ApplicationModel;
 #else
@@ -182,7 +183,8 @@ namespace Plugin.InAppBilling
                 _ => ProductType.Subs
             };
 
-            var purchasesResult = await BillingClient.QueryPurchasesAsync(QueryPurchasesParams.NewBuilder().SetProductType(skuType).Build());
+            var query = QueryPurchasesParams.NewBuilder().SetProductType(skuType).Build();
+            var purchasesResult = await BillingClient.QueryPurchasesAsync(query);
 
             ParseBillingResult(purchasesResult.Result);
 
@@ -271,9 +273,10 @@ namespace Plugin.InAppBilling
                 .SetOldPurchaseToken(purchaseTokenOfOriginalSubscription)
                 .SetReplaceProrationMode((int)prorationMode)
                 .Build();
-
+ 
             var prodDetailsParams = BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails)
+                .SetOfferToken(skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken)
                 .Build();
 
             var flowParams = BillingFlowParams.NewBuilder()
