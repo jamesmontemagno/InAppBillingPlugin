@@ -454,6 +454,9 @@ namespace Plugin.InAppBilling
             if(result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
 
+            if ((int)result.ResponseCode == Android.BillingClient.Api.BillingClient.BillingResponseCode.NetworkError)
+                throw new InAppBillingPurchaseException(PurchaseError.ServiceTimeout);//Network connection is down
+
             return result.ResponseCode switch
             {
                 BillingResponseCode.Ok => true,
