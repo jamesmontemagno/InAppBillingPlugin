@@ -149,7 +149,7 @@ namespace Plugin.InAppBilling
                 _ => ProductType.Subs
             };
 
-            if(skuType == ProductType.Subs)
+            if (skuType == ProductType.Subs)
             {
                 var result = BillingClient.IsFeatureSupported(FeatureType.Subscriptions);
                 ParseBillingResult(result);
@@ -170,8 +170,8 @@ namespace Plugin.InAppBilling
             return skuDetailsResult.ProductDetails.Select(product => product.ToIAPProduct());
         }
 
-        
-		public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+
+        public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -222,7 +222,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription,SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration)
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -273,7 +273,7 @@ namespace Plugin.InAppBilling
                 .SetOldPurchaseToken(purchaseTokenOfOriginalSubscription)
                 .SetReplaceProrationMode((int)prorationMode)
                 .Build();
- 
+
             var prodDetailsParams = BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails)
                 .SetOfferToken(skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken)
@@ -350,16 +350,20 @@ namespace Plugin.InAppBilling
                 .SetProductId(productSku)
                 .Build();
 
-            var skuDetailsParams = QueryProductDetailsParams.NewBuilder().SetProductList(new[] {productList});
+            var skuDetailsParams = QueryProductDetailsParams.NewBuilder().SetProductList(new[] { productList });
 
             var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams.Build());
 
             ParseBillingResult(skuDetailsResult.Result);
 
             var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault() ?? throw new ArgumentException($"{productSku} does not exist");
-            var productDetailsParamsList = BillingFlowParams.ProductDetailsParams.NewBuilder()
+            var productDetailsParamsList = itemType == ProductType.Subs ?
+                BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails)
-                //OFFER TOKEN NEEDED?
+                .SetOfferToken(skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken)
+                .Build()
+                : BillingFlowParams.ProductDetailsParams.NewBuilder()
+                .SetProductDetails(skuDetails)
                 .Build();
 
             var billingFlowParams = BillingFlowParams.NewBuilder()
@@ -382,7 +386,7 @@ namespace Plugin.InAppBilling
 
             var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
 
-            ParseBillingResult(responseCode);        
+            ParseBillingResult(responseCode);
 
             var result = await tcsPurchase.Task;
             ParseBillingResult(result.billingResult);
@@ -438,7 +442,7 @@ namespace Plugin.InAppBilling
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
             }
 
-            
+
             var consumeParams = ConsumeParams.NewBuilder()
                 .SetPurchaseToken(transactionIdentifier)
                 .Build();
@@ -446,12 +450,12 @@ namespace Plugin.InAppBilling
             var result = await BillingClient.ConsumeAsync(consumeParams);
 
 
-            return ParseBillingResult(result.BillingResult);            
+            return ParseBillingResult(result.BillingResult);
         }
 
         static bool ParseBillingResult(BillingResult result)
         {
-            if(result == null)
+            if (result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
 
             if ((int)result.ResponseCode == Android.BillingClient.Api.BillingClient.BillingResponseCode.NetworkError)
@@ -473,7 +477,7 @@ namespace Plugin.InAppBilling
                 BillingResponseCode.ItemUnavailable => throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable),
                 _ => false,
             };
-        }       
+        }
     }
 }
- 
+
