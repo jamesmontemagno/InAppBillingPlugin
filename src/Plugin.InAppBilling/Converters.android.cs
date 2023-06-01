@@ -73,7 +73,7 @@ namespace Plugin.InAppBilling
                     PriceCurrencyCode = p.PriceCurrencyCode,
                     RecurrenceMode = p.RecurrenceMode
                 }).ToList()
-            }); 
+            }).ToList(); 
  
             return new InAppBillingProduct
             {
@@ -83,10 +83,9 @@ namespace Plugin.InAppBilling
                 LocalizedPrice = oneTime?.FormattedPrice,
                 ProductId = product.ProductId,
                 MicrosPrice = oneTime?.PriceAmountMicros ?? 0,
-               
                 AndroidExtras = new InAppBillingProductAndroidExtras
                 {
-                    
+                    SubscriptionOfferDetails = subs
                 }
             };
         }
