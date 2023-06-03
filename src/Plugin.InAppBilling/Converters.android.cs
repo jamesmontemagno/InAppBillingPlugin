@@ -17,9 +17,9 @@ namespace Plugin.InAppBilling
                 Signature = purchase.Signature,
                 IsAcknowledged = purchase.IsAcknowledged,
                 Payload = purchase.DeveloperPayload,
-                ProductId = purchase.Skus.FirstOrDefault(),
+                ProductId = purchase.Products?.FirstOrDefault(),
                 Quantity = purchase.Quantity,
-                ProductIds = purchase.Skus,
+                ProductIds = purchase.Products,
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
                 ObfuscatedAccountId = purchase.AccountIdentifiers?.ObfuscatedAccountId,
@@ -44,9 +44,9 @@ namespace Plugin.InAppBilling
                 OriginalJson = purchase.OriginalJson,
                 Signature = purchase.Signature,
                 Payload = purchase.DeveloperPayload,
-                ProductId = purchase.Skus.FirstOrDefault(),
+                ProductId = purchase.Products?.FirstOrDefault(),
                 Quantity = purchase.Quantity,
-                ProductIds = purchase.Skus,
+                ProductIds = purchase.Products,
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
                 State = PurchaseState.Unknown,
@@ -74,15 +74,17 @@ namespace Plugin.InAppBilling
                     RecurrenceMode = p.RecurrenceMode
                 }).ToList()
             }).ToList(); 
+
+            var firstSub = subs?.FirstOrDefault()?.PricingPhases?.FirstOrDefault();
  
             return new InAppBillingProduct
             {
                 Name = product.Title,
                 Description = product.Description,
-                CurrencyCode = oneTime?.PriceCurrencyCode,
-                LocalizedPrice = oneTime?.FormattedPrice,
+                CurrencyCode = oneTime?.PriceCurrencyCode ?? firstSub?.PriceCurrencyCode,
+                LocalizedPrice = oneTime?.FormattedPrice ?? firstSub?.FormattedPrice,
                 ProductId = product.ProductId,
-                MicrosPrice = oneTime?.PriceAmountMicros ?? 0,
+                MicrosPrice = oneTime?.PriceAmountMicros ?? firstSub?.PriceAmountMicros ?? 0,
                 AndroidExtras = new InAppBillingProductAndroidExtras
                 {
                     SubscriptionOfferDetails = subs
