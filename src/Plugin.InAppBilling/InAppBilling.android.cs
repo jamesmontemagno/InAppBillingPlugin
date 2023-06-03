@@ -313,7 +313,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -336,13 +336,13 @@ namespace Plugin.InAppBilling
 
                     var result = BillingClient.IsFeatureSupported(FeatureType.Subscriptions);
                     ParseBillingResult(result);
-                    return await PurchaseAsync(productId, ProductType.Subs, obfuscatedAccountId, obfuscatedProfileId);
+                    return await PurchaseAsync(productId, ProductType.Subs, obfuscatedAccountId, obfuscatedProfileId, subOfferToken);
             }
 
             return null;
         }
 
-        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null)
         {
 
             var productList = QueryProductDetailsParams.Product.NewBuilder()
@@ -360,7 +360,7 @@ namespace Plugin.InAppBilling
             var productDetailsParamsList = itemType == ProductType.Subs ?
                 BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails)
-                .SetOfferToken(skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken)
+                .SetOfferToken(subOfferToken ?? skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken ?? string.Empty)
                 .Build()
                 : BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails)
