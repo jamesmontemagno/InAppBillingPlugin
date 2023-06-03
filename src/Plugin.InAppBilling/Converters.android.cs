@@ -17,9 +17,9 @@ namespace Plugin.InAppBilling
                 Signature = purchase.Signature,
                 IsAcknowledged = purchase.IsAcknowledged,
                 Payload = purchase.DeveloperPayload,
-                ProductId = purchase.Skus.FirstOrDefault(),
+                ProductId = purchase.Products?.FirstOrDefault(),
                 Quantity = purchase.Quantity,
-                ProductIds = purchase.Skus,
+                ProductIds = purchase.Products,
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
                 ObfuscatedAccountId = purchase.AccountIdentifiers?.ObfuscatedAccountId,
@@ -44,9 +44,9 @@ namespace Plugin.InAppBilling
                 OriginalJson = purchase.OriginalJson,
                 Signature = purchase.Signature,
                 Payload = purchase.DeveloperPayload,
-                ProductId = purchase.Skus.FirstOrDefault(),
+                ProductId = purchase.Products?.FirstOrDefault(),
                 Quantity = purchase.Quantity,
-                ProductIds = purchase.Skus,
+                ProductIds = purchase.Products,
                 PurchaseToken = purchase.PurchaseToken,
                 TransactionDateUtc = DateTimeOffset.FromUnixTimeMilliseconds(purchase.PurchaseTime).DateTime,
                 State = PurchaseState.Unknown,
@@ -54,27 +54,40 @@ namespace Plugin.InAppBilling
             };
         }
 
-        internal static InAppBillingProduct ToIAPProduct(this SkuDetails product)
+        internal static InAppBillingProduct ToIAPProduct(this ProductDetails product)
         {
+            var oneTime = product.GetOneTimePurchaseOfferDetails();
+            var subs = product.GetSubscriptionOfferDetails()?.Select(s => new SubscriptionOfferDetail
+            {
+                BasePlanId = s.BasePlanId,
+                OfferId = s.OfferId,
+                OfferTags = s.OfferTags?.ToList(),
+                OfferToken = s.OfferToken,
+                PricingPhases = s?.PricingPhases?.PricingPhaseList?.Select(p =>
+                new PricingPhase
+                {
+                    BillingCycleCount = p.BillingCycleCount,
+                    BillingPeriod = p.BillingPeriod,
+                    FormattedPrice = p.FormattedPrice,
+                    PriceAmountMicros = p.PriceAmountMicros,
+                    PriceCurrencyCode = p.PriceCurrencyCode,
+                    RecurrenceMode = p.RecurrenceMode
+                }).ToList()
+            }).ToList(); 
+
+            var firstSub = subs?.FirstOrDefault()?.PricingPhases?.FirstOrDefault();
+ 
             return new InAppBillingProduct
             {
                 Name = product.Title,
                 Description = product.Description,
-                CurrencyCode = product.PriceCurrencyCode,
-                LocalizedPrice = product.Price,
-                ProductId = product.Sku,
-                MicrosPrice = product.PriceAmountMicros,
+                CurrencyCode = oneTime?.PriceCurrencyCode ?? firstSub?.PriceCurrencyCode,
+                LocalizedPrice = oneTime?.FormattedPrice ?? firstSub?.FormattedPrice,
+                ProductId = product.ProductId,
+                MicrosPrice = oneTime?.PriceAmountMicros ?? firstSub?.PriceAmountMicros ?? 0,
                 AndroidExtras = new InAppBillingProductAndroidExtras
                 {
-                    SubscriptionPeriod = product.SubscriptionPeriod,
-                    LocalizedIntroductoryPrice = product.IntroductoryPrice,
-                    MicrosIntroductoryPrice = product.IntroductoryPriceAmountMicros,
-                    FreeTrialPeriod = product.FreeTrialPeriod,
-                    IconUrl = product.IconUrl,
-                    IntroductoryPriceCycles = product.IntroductoryPriceCycles,
-                    IntroductoryPricePeriod = product.IntroductoryPricePeriod,
-                    MicrosOriginalPriceAmount = product.OriginalPriceAmountMicros,
-                    OriginalPrice = product.OriginalPrice
+                    SubscriptionOfferDetails = subs
                 }
             };
         }

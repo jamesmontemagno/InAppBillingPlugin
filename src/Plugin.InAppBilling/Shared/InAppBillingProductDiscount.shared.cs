@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Plugin.InAppBilling
 {
@@ -127,5 +128,24 @@ namespace Plugin.InAppBilling
         /// Purchase state unknown
         /// </summary>
         Unknown
+    }
+
+    public class SubscriptionOfferDetail
+    {
+        public string BasePlanId { get; set; }  
+        public string OfferId { get; set; }
+        public List<string> OfferTags { get; set; }
+        public string OfferToken { get; set; }
+        public List<PricingPhase> PricingPhases { get; set; }
+    }
+
+    public class PricingPhase
+    {
+        public int BillingCycleCount { get; set; }  
+        public string BillingPeriod { get; set; }
+        public string FormattedPrice { get; set; }
+        public long PriceAmountMicros { get; set; }
+        public string PriceCurrencyCode { get; set; }
+        public int RecurrenceMode { get; set; }
     }
 }
