@@ -325,7 +325,7 @@ namespace Plugin.InAppBilling
 
 			var purchase = new InAppBillingPurchase
 			{
-				TransactionDateUtc = reference.AddSeconds(p.TransactionDate.SecondsSinceReferenceDate),
+				TransactionDateUtc = reference.AddSeconds(p.TransactionDate?.SecondsSinceReferenceDate ?? 0),
 				Id = p.TransactionIdentifier,
                 TransactionIdentifier = p.TransactionIdentifier,
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
