@@ -20,6 +20,12 @@ namespace Plugin.InAppBilling
         /// </summary>
         bool InTestingMode { get; set; }
 
+
+        /// <summary>
+        /// If you want to ignore invalid products when getting details
+        /// </summary>
+        bool IgnoreInvalidProducts { get; set; }
+
         /// <summary>
         /// Represenation of the storefront if available
         /// </summary>

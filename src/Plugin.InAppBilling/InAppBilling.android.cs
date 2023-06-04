@@ -164,7 +164,7 @@ namespace Plugin.InAppBilling
             var skuDetailsParams = QueryProductDetailsParams.NewBuilder().SetProductList(productList);
 
             var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams.Build());
-            ParseBillingResult(skuDetailsResult?.Result);
+            ParseBillingResult(skuDetailsResult?.Result, IgnoreInvalidProducts);
 
 
             return skuDetailsResult.ProductDetails.Select(product => product.ToIAPProduct());
@@ -453,7 +453,7 @@ namespace Plugin.InAppBilling
             return ParseBillingResult(result.BillingResult);
         }
 
-        static bool ParseBillingResult(BillingResult result)
+        static bool ParseBillingResult(BillingResult result, bool ignoreInvalidProducts = false)
         {
             if (result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
@@ -474,7 +474,7 @@ namespace Plugin.InAppBilling
                 BillingResponseCode.Error => throw new InAppBillingPurchaseException(PurchaseError.GeneralError),//Generic Error
                 BillingResponseCode.FeatureNotSupported => throw new InAppBillingPurchaseException(PurchaseError.FeatureNotSupported),
                 BillingResponseCode.ItemAlreadyOwned => throw new InAppBillingPurchaseException(PurchaseError.AlreadyOwned),
-                BillingResponseCode.ItemUnavailable => throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable),
+                BillingResponseCode.ItemUnavailable => ignoreInvalidProducts ? false : throw new InAppBillingPurchaseException(PurchaseError.ItemUnavailable),
                 _ => false,
             };
         }

@@ -31,6 +31,12 @@ namespace Plugin.InAppBilling
         /// </summary>
         public virtual bool IsConnected { get; set; } = true;
 
+
+        /// <summary>
+        /// If you want to ignore invalid products when getting details
+        /// </summary>
+        public virtual bool IgnoreInvalidProducts { get; set; } = false;
+
         /// <summary>
         /// Gets or sets if in testing mode
         /// </summary>

@@ -211,7 +211,7 @@ namespace Plugin.InAppBilling
 		{
 			var productIdentifiers = NSSet.MakeNSObjectSet<NSString>(productId.Select(i => new NSString(i)).ToArray());
 
-			var productRequestDelegate = new ProductRequestDelegate();
+			var productRequestDelegate = new ProductRequestDelegate(IgnoreInvalidProducts);
 
 			//set up product request for in-app purchase
 			var productsRequest = new SKProductsRequest(productIdentifiers)
@@ -224,7 +224,7 @@ namespace Plugin.InAppBilling
 		}
 
         /// <summary>
-        /// Get app purchaes
+        /// Get app purchase
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>
@@ -625,6 +625,12 @@ namespace Plugin.InAppBilling
 	[Preserve(AllMembers = true)]
 	class ProductRequestDelegate : NSObject, ISKProductsRequestDelegate, ISKRequestDelegate
 	{
+        bool ignoreInvalidProducts;
+        public ProductRequestDelegate(bool ignoreInvalidProducts)
+        {
+            this.ignoreInvalidProducts = ignoreInvalidProducts;
+        }
+
         readonly TaskCompletionSource<IEnumerable<SKProduct>> tcsResponse = new();
 
 		public Task<IEnumerable<SKProduct>> WaitForResponse() =>
@@ -638,12 +644,15 @@ namespace Plugin.InAppBilling
 
 		public void ReceivedResponse(SKProductsRequest request, SKProductsResponse response)
 		{
-			var invalidProduct = response.InvalidProducts;
-			if (invalidProduct?.Any() ?? false)
-			{
-				tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.InvalidProduct, $"Invalid Product: {invalidProduct.First()}"));
-				return;
-			}
+            if (!ignoreInvalidProducts)
+            {
+                var invalidProducts = response.InvalidProducts;
+                if (invalidProducts?.Any() ?? false)
+                {
+                    tcsResponse.TrySetException(new InAppBillingPurchaseException(PurchaseError.InvalidProduct, "Invalid products found when querying product list", invalidProducts));
+                    return;
+                }
+            }
 
 			var product = response.Products;
 			if (product != null)

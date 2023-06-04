@@ -76,7 +76,7 @@ namespace Plugin.InAppBilling
             }).ToList(); 
 
             var firstSub = subs?.FirstOrDefault()?.PricingPhases?.FirstOrDefault();
- 
+             
             return new InAppBillingProduct
             {
                 Name = product.Title,
