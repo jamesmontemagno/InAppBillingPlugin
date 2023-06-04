@@ -326,6 +326,9 @@ namespace Plugin.InAppBilling
             {
                 return null;
             }
+            
+            if(!string.IsNullOrWhiteSpace(obfuscatedProfileId) && string.IsNullOrWhiteSpace(obfuscatedAccountId))
+                throw new ArgumentNullException("You must set an account id if you are setting a profile id");
 
             switch (itemType)
             {
