@@ -39,7 +39,7 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// OriginalTransactionIdentifier - This is the Id/Token of restored transaction from the AppStore
         /// </summary>
-        public string? OriginalTransactionIdentifier { get; set; }        
+        public string OriginalTransactionIdentifier { get; set; }        
 
         /// <summary>
         /// Transaction date in UTC
