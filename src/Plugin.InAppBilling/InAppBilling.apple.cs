@@ -327,6 +327,7 @@ namespace Plugin.InAppBilling
 			{
 				TransactionDateUtc = reference.AddSeconds(p.TransactionDate?.SecondsSinceReferenceDate ?? 0),
 				Id = p.TransactionIdentifier,
+                OriginalTransactionIdentifier = p.OriginalTransaction?.TransactionIdentifier,
                 TransactionIdentifier = p.TransactionIdentifier,
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
@@ -790,6 +791,7 @@ namespace Plugin.InAppBilling
 			{
 				TransactionDateUtc = NSDateToDateTimeUtc(transaction.TransactionDate),
 				Id = p.TransactionIdentifier,
+                OriginalTransactionIdentifier = p.OriginalTransaction?.TransactionIdentifier,
                 TransactionIdentifier = p.TransactionIdentifier,
                 ProductId = p.Payment?.ProductIdentifier ?? string.Empty,
                 ProductIds = new string[] { p.Payment?.ProductIdentifier ?? string.Empty },
