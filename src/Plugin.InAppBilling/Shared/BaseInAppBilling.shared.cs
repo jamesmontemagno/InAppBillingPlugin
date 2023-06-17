@@ -102,7 +102,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier);
+        public abstract Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, int quantity);
 
         /// <summary>
         /// Dispose of class and parent classes

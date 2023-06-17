@@ -53,17 +53,17 @@ namespace Plugin.InAppBilling
                     Description = product.Description,
                     ProductId = product.ProductId,
                     LocalizedPrice = product.FormattedPrice,
-                    WindowsExtras = new InAppBillingProductWindowsExtras 
+                    WindowsExtras = new InAppBillingProductWindowsExtras
                     {
                         FormattedBasePrice = product.FormattedBasePrice,
                         ImageUri = product.ImageUri,
-                        IsOnSale = product.IsOnSale,   
+                        IsOnSale = product.IsOnSale,
                         SaleEndDate = product.SaleEndDate,
                         Tag = product.Tag,
                         IsConsumable = product.ProductType == ProductType.Consumable,
                         IsDurable = product.ProductType == ProductType.Durable,
                         Keywords = product.Keywords
-                    }                    
+                    }
                     //CurrencyCode = product.CurrencyCode // Does not work at the moment, as UWP throws an InvalidCastException when getting CurrencyCode
                 });
             }
@@ -72,7 +72,7 @@ namespace Plugin.InAppBilling
         }
 
         /// <summary>
-        /// Get all pruchases
+        /// Get all purchases
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>
@@ -100,15 +100,15 @@ namespace Plugin.InAppBilling
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
 
 
-			if (purchaseResult == null)
-				return null;
+            if (purchaseResult == null)
+                return null;
 
-			if (string.IsNullOrWhiteSpace(purchaseResult.ReceiptXml))
-				return null;
+            if (string.IsNullOrWhiteSpace(purchaseResult.ReceiptXml))
+                return null;
 
-			// Transform it to InAppBillingPurchase
-			return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();
-			
+            // Transform it to InAppBillingPurchase
+            return purchaseResult.ReceiptXml.ToInAppBillingPurchase(purchaseResult.Status).FirstOrDefault();
+
         }
 
         /// <summary>
@@ -124,8 +124,8 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
+        public async override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, int quantity)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(transactionIdentifier));
             return result switch
@@ -184,14 +184,14 @@ namespace Plugin.InAppBilling
             var purchases = new List<InAppBillingPurchase>();
 
             var xmlDoc = new XmlDocument();
-			try
-			{
-				xmlDoc.LoadXml(xml);
-			}
-			catch
-			{
-				//Invalid XML, we haven't finished this transaction yet.
-			}
+            try
+            {
+                xmlDoc.LoadXml(xml);
+            }
+            catch
+            {
+                //Invalid XML, we haven't finished this transaction yet.
+            }
 
             // Iterate through all ProductReceipt elements
             var xmlProductReceipts = xmlDoc.GetElementsByTagName("ProductReceipt");

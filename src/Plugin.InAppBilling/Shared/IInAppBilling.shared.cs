@@ -104,7 +104,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
 		/// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier);
+        Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, int quantity);
 
         /// <summary>
         /// Get receipt data on iOS

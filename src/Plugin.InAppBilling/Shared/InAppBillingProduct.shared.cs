@@ -47,10 +47,21 @@ namespace Plugin.InAppBilling
         /// Gets the base price for the add-on (also called an in-app product or IAP) with the appropriate formatting for the current market.
         /// </summary>
         public string FormattedBasePrice { get; set; }
-        /// <summary>
-        /// Gets the URI of the image associated with the add-on (also called an in-app product or IAP).
-        /// </summary>
-        public Uri ImageUri { get; set; }
+
+        public string FormattedRecurrencePrice { get; set; }
+        
+        public string ExtendedJsonData { get; set; }
+
+        public bool HasDigitalDownload { get; set; }
+
+        public string InAppOfferToken { get; set; }
+
+        public bool IsInUserCollection { get; set;  }
+
+        public string Language { get; set; }
+
+        public Uri LinkUri { get; set; }
+
         /// <summary>
         /// Gets a value that indicates whether the add-on (also called an in-app product or IAP) is on sale.
         /// </summary>
@@ -69,6 +80,8 @@ namespace Plugin.InAppBilling
         /// Product type consumable
         /// </summary>
         public bool IsConsumable { get; set; }
+
+        public bool IsUnmanagedConsumable { get; set; }
 
         /// <summary>
         /// Product type durable

@@ -224,7 +224,7 @@ namespace Plugin.InAppBilling
 		}
 
         /// <summary>
-        /// Get app purchaes
+        /// Get app purchases
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>
@@ -460,7 +460,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, int quantity)
         {
             var items = await FinalizePurchaseAsync(transactionIdentifier);
             var item = items.FirstOrDefault();              
