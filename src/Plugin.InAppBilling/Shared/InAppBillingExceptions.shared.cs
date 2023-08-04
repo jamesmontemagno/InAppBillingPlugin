@@ -82,6 +82,9 @@ namespace Plugin.InAppBilling
         /// Type of error
         /// </summary>
         public PurchaseError PurchaseError { get; }
+
+        public string[] Invalid { get; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -99,5 +102,16 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="error"></param>
         public InAppBillingPurchaseException(PurchaseError error, string message) : base(message) => PurchaseError = error;
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        public InAppBillingPurchaseException(PurchaseError error, string message, string[] invalid) : base(message)
+        {
+            PurchaseError = error;
+            Invalid = invalid;
+        }
     }
 }

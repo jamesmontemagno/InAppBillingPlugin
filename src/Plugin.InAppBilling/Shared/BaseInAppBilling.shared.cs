@@ -31,6 +31,12 @@ namespace Plugin.InAppBilling
         /// </summary>
         public virtual bool IsConnected { get; set; } = true;
 
+
+        /// <summary>
+        /// If you want to ignore invalid products when getting details
+        /// </summary>
+        public virtual bool IgnoreInvalidProducts { get; set; } = false;
+
         /// <summary>
         /// Gets or sets if in testing mode
         /// </summary>
@@ -84,7 +90,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
+        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null);
 
         /// <summary>
         /// (Android specific) Upgrade/Downgrade a previously purchased subscription

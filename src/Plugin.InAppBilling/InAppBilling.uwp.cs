@@ -94,7 +94,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null)
         {
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
