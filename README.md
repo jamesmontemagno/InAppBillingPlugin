@@ -14,7 +14,7 @@ Get started by reading through the [In-App Billing Plugin documentation](https:/
 
 There are changes in version 4.0 so read below.
 
-Source code reference of non-conumables -> https://github.com/jamesmontemagno/app-ac-islandtracker/blob/master/TurnipTracker/ViewModel/ProViewModel.cs
+Source code reference of non-consumables -> https://github.com/jamesmontemagno/app-ac-islandtracker/blob/master/TurnipTracker/ViewModel/ProViewModel.cs
 
 Full blog on subscriptions: https://montemagno.com/ios-android-subscription-implemenation-strategies/
 
