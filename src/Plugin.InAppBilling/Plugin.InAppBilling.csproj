@@ -98,14 +98,14 @@
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <Compile Include="**\*.android.cs" />
-    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.0.0" />
-    <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.13" />
+    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.0.1.1" />
+    <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.15" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
     <Compile Include="**\*.android.cs" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.7.5" />
-    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.0.0" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.8.0" />
+    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.0.1.1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
