@@ -66,7 +66,7 @@ namespace Plugin.InAppBilling
                 PricingPhases = s?.PricingPhases?.PricingPhaseList?.Select(p =>
                 new PricingPhase
                 {
-                    BillingCycleCount = p.BillingCycleCount,
+                    BillingCycleCount = p.,
                     BillingPeriod = p.BillingPeriod,
                     FormattedPrice = p.FormattedPrice,
                     PriceAmountMicros = p.PriceAmountMicros,
@@ -75,7 +75,7 @@ namespace Plugin.InAppBilling
                 }).ToList()
             }).ToList(); 
 
-            var firstSub = subs?.FirstOrDefault()?.PricingPhases.Where(p => p.PriceAmountMicros != 0)?.FirstOrDefault();
+            var firstSub = subs?.FirstOrDefault()?.PricingPhases?.Where(p => p.PriceAmountMicros != 0)?.FirstOrDefault();
              
             return new InAppBillingProduct
             {
