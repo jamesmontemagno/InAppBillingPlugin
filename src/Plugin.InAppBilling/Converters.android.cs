@@ -75,7 +75,7 @@ namespace Plugin.InAppBilling
                 }).ToList()
             }).ToList(); 
 
-            var firstSub = subs?.FirstOrDefault()?.PricingPhases?.FirstOrDefault();
+            var firstSub = subs?.FirstOrDefault()?.PricingPhases?.Where(p => p.PriceAmountMicros != 0)?.FirstOrDefault();
              
             return new InAppBillingProduct
             {
