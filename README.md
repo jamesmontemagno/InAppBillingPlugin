@@ -36,7 +36,7 @@ Get started by reading through the [In-App Billing Plugin documentation](https:/
 
 
 ## Version 7 Major Updates
-* Android: You must compile and target against Android 12 or higher
+* Android: You must compile and target against Android 12 or higher  (or Android 13 if v7.1)
 * Android: Now using Android Billing v6
 * Android: Major changes to Android product details, subscriptions, and more
 * Android: Please read through: https://developer.android.com/google/play/billing/migrate-gpblv6
