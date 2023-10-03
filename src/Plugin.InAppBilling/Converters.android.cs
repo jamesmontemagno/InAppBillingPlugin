@@ -66,7 +66,7 @@ namespace Plugin.InAppBilling
                 PricingPhases = s?.PricingPhases?.PricingPhaseList?.Select(p =>
                 new PricingPhase
                 {
-                    BillingCycleCount = p.,
+                    BillingCycleCount = p.BillingCycleCount,
                     BillingPeriod = p.BillingPeriod,
                     FormattedPrice = p.FormattedPrice,
                     PriceAmountMicros = p.PriceAmountMicros,
