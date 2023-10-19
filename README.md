@@ -97,6 +97,13 @@ For linking if you are setting **Link All** you may need to add:
 Plugin.InAppBilling;Xamarin.Android.Google.BillingClient
 ```
 
+#### Android Progaurd Rules
+
+```
+-keep class com.android.billingclient.api.** { *; }
+-keep class com.android.vending.billing.** { *; }
+```
+
 #### iOS:
 ```
 --linkskip=Plugin.InAppBilling
