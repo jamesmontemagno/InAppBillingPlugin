@@ -1,3 +1,4 @@
+[assembly: MetaData("com.google.android.play.billingclient.version", Value = "6.0.1")]
 using System;
 using System.Collections.Generic;
 using System.Linq;
