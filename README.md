@@ -43,6 +43,15 @@ Get started by reading through the [In-App Billing Plugin documentation](https:/
 * Android: `AcknowledgePurchaseAsync` is now `FinalizePurchaseAsync`
 * All: There are now "Extras" for all products that give you back tons of info for each platform
 
+
+If you receive an error in Google Play you may need to add this to your AndroidManifest.xml inside the application node:
+
+```xml
+<meta-data
+  android:name="com.google.android.play.billingclient.version"
+  android:value="6.0.1" />
+```
+
 ### Pending Transactions:
 * If the result of PurchaseAsync is PurchaseState.PaymentPending, store the order details locally and inform the user that they will have access to the product when the payment completes
 * When the user starts the app (and/or visits a particular page), if the stored PurchaseState is PaymentPending, call GetPurchasesAsync and query the result for a purchase that matches the stored purchase.
