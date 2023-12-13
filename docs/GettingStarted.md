@@ -95,7 +95,7 @@ Then add this method in the `AppDelegate`:
 
 ## Android
 
-In version 4 we use Xamarin.Essentials so you must ensure you initialize it in your Android project. It is setup by default in new projects:
+For Xamarin.Android apps, in version 4 we use Xamarin.Essentials so you must ensure you initialize it in your Android project. It is setup by default in new projects:
 
 ```csharp
 protected override void OnCreate(Bundle savedInstanceState) {
@@ -105,7 +105,7 @@ protected override void OnCreate(Bundle savedInstanceState) {
     //...
 ```
 
-The `com.android.vending.BILLING` permission is required to use In-App Billing on Android and this library will automatically added it your Android Manifest when you compile. No need to add them manually!
+This is not needed in .NET 6 or .NET MAUI apps as we use built in .NET MAUI APIs to handle this for us.
 
 
 <= Back to [Table of Contents](README.md)
