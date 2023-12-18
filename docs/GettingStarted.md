@@ -76,7 +76,10 @@ Each app store has you create them in a different area.
 ## Permissions & Additional Setup
 
 ## iOS
-iOS also has the ability to make In-App Purchases from the app store if you mark them as so. To support this you must open your `AppDelegate` and add the following to your `FinishedLaunching`:
+
+**ONLY if you are enabling "promoted items" through the app store:**
+
+iOS also has the ability to make In-App Purchases from the app store if you mark them as so. To support this you must open your `AppDelegate` and add the following to your `FinishedLaunching`. 
 
 ```csharp
 Plugin.InAppBilling.InAppBillingImplementation.OnShouldAddStorePayment = OnShouldAddStorePayment;
@@ -93,9 +96,63 @@ Then add this method in the `AppDelegate`:
 }
 ```
 
+For .NET MAUI apps you can override FinishedLaunching in the AppDelegate or you can implement this in your MauiProgram file like this:
+```csharp
+using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
+#if IOS
+using StoreKit;
+#endif
+
+namespace MauiApp4;
+
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            })
+             .ConfigureLifecycleEvents(AppLifecycle =>
+             {
+#if IOS
+                 AppLifecycle.AddiOS(ios =>
+                     ios.FinishedLaunching((del, b) =>
+                    {
+                        Plugin.InAppBilling.InAppBillingImplementation.OnShouldAddStorePayment = OnShouldAddStorePayment;
+                        var current = Plugin.InAppBilling.CrossInAppBilling.Current;
+                        return true;
+                    }));
+#endif
+             });
+
+#if IOS
+        bool OnShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
+        {
+            //Process and check purchases
+            return true;
+        }
+#endif
+
+#if DEBUG
+        builder.Logging.AddDebug();
+#endif
+
+
+        return builder.Build();
+    }
+}
+
+```
+
 ## Android
 
-For Xamarin.Android apps, in version 4 we use Xamarin.Essentials so you must ensure you initialize it in your Android project. It is setup by default in new projects:
+For **Xamarin.Android** apps, in version 4 we use Xamarin.Essentials so you must ensure you initialize it in your Android project. It is setup by default in new projects:
 
 ```csharp
 protected override void OnCreate(Bundle savedInstanceState) {
