@@ -68,6 +68,8 @@ public async Task<bool> WasItemPurchased(string productId)
 }
 ```
 
+> Note: On iOS there is no API to determine if a purchase was a subscription or in app purchase, so all purchases regardless of type will be return. It is required on Android. It is best to query and then check for Id.
+
 ## Subscriptions
 
 On `Android` only valid on-going subscriptions will be returned (with the original purchase date). `iOS` returns all receipts for all instances of the subscripitions. Read the iOS documentation to learn more on strategies.
