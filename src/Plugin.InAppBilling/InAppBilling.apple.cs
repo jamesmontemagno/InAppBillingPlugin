@@ -360,9 +360,6 @@ namespace Plugin.InAppBilling
 				if (productId != tran.Payment.ProductIdentifier)
 					return;
 
-				// Unsubscribe from future events
-				paymentObserver.TransactionCompleted -= handler;
-
 				if (success)
 				{
 					tcsTransaction.TrySetResult(tran);
@@ -403,29 +400,36 @@ namespace Plugin.InAppBilling
 				}
 
 				tcsTransaction.TrySetException(new InAppBillingPurchaseException(error, description));
-
 			});
             
             paymentObserver.TransactionCompleted += handler;
 
-			var products = await GetProductAsync(new[] { productId });
-			var product = products?.FirstOrDefault();
-			if (product == null)
-				throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
-
-            if (string.IsNullOrWhiteSpace(applicationUserName))
+            try
             {
-                var payment = SKPayment.CreateFrom(product);
-                //var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
-                
-                SKPaymentQueue.DefaultQueue.AddPayment(payment);
+                var products = await GetProductAsync(new[] { productId });
+                var product = products?.FirstOrDefault();
+                if (product == null)
+                    throw new InAppBillingPurchaseException(PurchaseError.InvalidProduct);
+
+                if (string.IsNullOrWhiteSpace(applicationUserName))
+                {
+                    var payment = SKPayment.CreateFrom(product);
+                    //var payment = SKPayment.CreateFrom((SKProduct)SKProduct.FromObject(new NSString(productId)));
+
+                    SKPaymentQueue.DefaultQueue.AddPayment(payment);
+                }
+                else
+                {
+                    var payment = SKMutablePayment.PaymentWithProduct(product);
+                    payment.ApplicationUsername = applicationUserName;
+
+                    SKPaymentQueue.DefaultQueue.AddPayment(payment);
+                }
             }
-            else
+            finally
             {
-                var payment = SKMutablePayment.PaymentWithProduct(product);
-                payment.ApplicationUsername = applicationUserName;
-
-                SKPaymentQueue.DefaultQueue.AddPayment(payment);
+                // Unsubscribe from future events
+                paymentObserver.TransactionCompleted -= handler;
             }
 
             return await tcsTransaction.Task;
