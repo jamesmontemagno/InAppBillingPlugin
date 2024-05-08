@@ -242,7 +242,7 @@ namespace Plugin.InAppBilling
 
 
 
-		Task<SKPaymentTransaction[]> RestoreAsync()
+		async Task<SKPaymentTransaction[]> RestoreAsync()
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
@@ -251,9 +251,6 @@ namespace Plugin.InAppBilling
 			Action<SKPaymentTransaction[]> handler = null;
 			handler = new Action<SKPaymentTransaction[]>(transactions =>
 			{
-                // Unsubscribe from future events
-                paymentObserver.TransactionsRestored -= handler;
-
 				if (transactions == null)
 				{
 					if (allTransactions.Count == 0)
@@ -268,22 +265,29 @@ namespace Plugin.InAppBilling
 				}
 			});
 
+			paymentObserver.TransactionsRestored += handler;
 
-            paymentObserver.TransactionsRestored += handler;
-
-			foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
+			try
 			{
-				var original = FindOriginalTransaction(trans);
-				if (original == null)
-					continue;
+				foreach (var trans in SKPaymentQueue.DefaultQueue.Transactions)
+				{
+					var original = FindOriginalTransaction(trans);
+					if (original == null)
+						continue;
 
-				allTransactions.Add(original);
+					allTransactions.Add(original);
+				}
+
+				// Start receiving restored transactions
+				SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
+
+				return await tcsTransaction.Task;
 			}
-
-			// Start receiving restored transactions
-			SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
-
-			return tcsTransaction.Task;
+			finally
+			{
+				// Unsubscribe from future events
+				paymentObserver.TransactionsRestored -= handler;
+			}
 		}
 
 
