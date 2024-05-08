@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.BillingClient.Api;
 using Android.Content;
 using static Android.BillingClient.Api.BillingClient;
 using BillingResponseCode = Android.BillingClient.Api.BillingResponseCode;
+
 #if NET
 using Microsoft.Maui.ApplicationModel;
 #else
@@ -45,6 +47,18 @@ namespace Plugin.InAppBilling
         }
 
 
+        void AssertPurchaseTransactionReady()
+        {
+            if (BillingClient == null || !IsConnected)
+            {
+                throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
+            }
+            if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
+            {
+                throw new InvalidOperationException("Purchase task is already running.  Please wait or cancel previous request");
+            }
+        }
+
         BillingClient BillingClient { get; set; }
         BillingClient.Builder BillingClientBuilder { get; set; }
         /// <summary>
@@ -57,7 +71,7 @@ namespace Plugin.InAppBilling
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public override Task<bool> ConnectAsync(bool enablePendingPurchases = true)
+        public override Task<bool> ConnectAsync(bool enablePendingPurchases = true, CancellationToken cancellationToken)
         {
             tcsPurchase?.TrySetCanceled();
             tcsPurchase = null;
@@ -65,6 +79,7 @@ namespace Plugin.InAppBilling
             tcsConnect?.TrySetCanceled();
             tcsConnect = new TaskCompletionSource<bool>();
 
+            using var _ = cancellationToken.Register(() => tcsConnect.TrySetCanceled());
             BillingClientBuilder = NewBuilder(Context);
             BillingClientBuilder.SetListener(OnPurchasesUpdated);
             if (enablePendingPurchases)
@@ -73,6 +88,7 @@ namespace Plugin.InAppBilling
                 BillingClient = BillingClientBuilder.Build();
 
             BillingClient.StartConnection(OnSetupFinished, OnDisconnected);
+            // TODO: stop trying
 
             return tcsConnect.Task;
 
@@ -103,7 +119,7 @@ namespace Plugin.InAppBilling
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        public override Task DisconnectAsync()
+        public override Task DisconnectAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -134,7 +150,7 @@ namespace Plugin.InAppBilling
         /// <param name="productIds">Sku or Id of the product</param>
         /// <param name="itemType">Type of product offering</param>
         /// <returns></returns>
-        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds)
+        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, string[] productIds, CancellationToken cancellationToken)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -166,12 +182,11 @@ namespace Plugin.InAppBilling
             var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams.Build());
             ParseBillingResult(skuDetailsResult?.Result, IgnoreInvalidProducts);
 
-
             return skuDetailsResult.ProductDetails.Select(product => product.ToIAPProduct());
         }
 
 
-        public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType)
+        public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, CancellationToken cancellationToken)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -196,7 +211,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType)
+        public override async Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType, CancellationToken cancellationToken)
         {
             if (BillingClient == null)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -222,33 +237,21 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration)
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken)
         {
-            if (BillingClient == null || !IsConnected)
-            {
-                throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
-            }
 
             // If we have a current task and it is not completed then return null.
             // you can't try to purchase twice.
-            if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
-            {
-                return null;
-            }
+            AssertPurchaseTransactionReady();
 
-            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode);
+            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode, cancellationToken);
 
             return purchase;
         }
 
-        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode)
+        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode, CancellationToken cancellationToken)
         {
             var itemType = ProductType.Subs;
-
-            if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
-            {
-                return null;
-            }
 
             var productList = QueryProductDetailsParams.Product.NewBuilder()
                .SetProductType(itemType)
@@ -285,6 +288,7 @@ namespace Plugin.InAppBilling
                 .Build();
 
             tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Purchase> purchases)>();
+            using var _ = cancellationToken.Register(() => tcsPurchase.TrySetCanceled());
             var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
 
             ParseBillingResult(responseCode);
@@ -298,7 +302,7 @@ namespace Plugin.InAppBilling
             //for some reason the data didn't come back
             if (androidPurchase == null)
             {
-                var purchases = await GetPurchasesAsync(itemType == ProductType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription);
+                var purchases = await GetPurchasesAsync(itemType == ProductType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription, cancellationToken);
                 return purchases.FirstOrDefault(p => p.ProductId == newProductId);
             }
 
@@ -313,7 +317,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null, CancellationToken cancellationToken = default)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -322,30 +326,27 @@ namespace Plugin.InAppBilling
 
             // If we have a current task and it is not completed then return null.
             // you can't try to purchase twice.
-            if (tcsPurchase?.Task != null && !tcsPurchase.Task.IsCompleted)
-            {
-                return null;
-            }
-            
-            if(!string.IsNullOrWhiteSpace(obfuscatedProfileId) && string.IsNullOrWhiteSpace(obfuscatedAccountId))
+            AssertPurchaseTransactionReady();
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedProfileId) && string.IsNullOrWhiteSpace(obfuscatedAccountId))
                 throw new ArgumentNullException("You must set an account id if you are setting a profile id");
 
             switch (itemType)
             {
                 case ItemType.InAppPurchase:
                 case ItemType.InAppPurchaseConsumable:
-                    return await PurchaseAsync(productId, ProductType.Inapp, obfuscatedAccountId, obfuscatedProfileId);
+                    return await PurchaseAsync(productId, ProductType.Inapp, obfuscatedAccountId, obfuscatedProfileId, null, cancellationToken);
                 case ItemType.Subscription:
 
                     var result = BillingClient.IsFeatureSupported(FeatureType.Subscriptions);
                     ParseBillingResult(result);
-                    return await PurchaseAsync(productId, ProductType.Subs, obfuscatedAccountId, obfuscatedProfileId, subOfferToken);
+                    return await PurchaseAsync(productId, ProductType.Subs, obfuscatedAccountId, obfuscatedProfileId, subOfferToken, cancellationToken);
             }
 
             return null;
         }
 
-        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null)
+        async Task<InAppBillingPurchase> PurchaseAsync(string productSku, string itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null, CancellationToken cancellationToken = default)
         {
 
             var productList = QueryProductDetailsParams.Product.NewBuilder()
@@ -383,9 +384,8 @@ namespace Plugin.InAppBilling
             var flowParams = billingFlowParams.Build();
 
 
-
             tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)>();
-
+            var _ = cancellationToken.Register(() => tcsPurchase.TrySetCanceled());
 
             var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);
 
@@ -400,7 +400,7 @@ namespace Plugin.InAppBilling
             //for some reason the data didn't come back
             if (androidPurchase == null)
             {
-                var purchases = await GetPurchasesAsync(itemType == ProductType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription);
+                var purchases = await GetPurchasesAsync(itemType == ProductType.Inapp ? ItemType.InAppPurchase : ItemType.Subscription, cancellationToken);
                 return purchases.FirstOrDefault(p => p.ProductId == productSku);
             }
 
@@ -408,7 +408,7 @@ namespace Plugin.InAppBilling
         }
 
 
-        public async override Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier)
+        public async override Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(string[] transactionIdentifier, CancellationToken cancellationToken)
         {
             if (BillingClient == null || !IsConnected)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable, "You are not connected to the Google Play App store.");
@@ -438,7 +438,7 @@ namespace Plugin.InAppBilling
         /// <param name="productId">Id or Sku of product</param>
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
-        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier)
+        public override async Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, CancellationToken cancellationToken)
         {
             if (BillingClient == null || !IsConnected)
             {
