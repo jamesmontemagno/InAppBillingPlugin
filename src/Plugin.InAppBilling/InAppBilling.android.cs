@@ -274,10 +274,13 @@ namespace Plugin.InAppBilling
                 .SetReplaceProrationMode((int)prorationMode)
                 .Build();
 
-            var prodDetailsParams = BillingFlowParams.ProductDetailsParams.NewBuilder()
-                .SetProductDetails(skuDetails)
-                .SetOfferToken(skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken)
-                .Build();
+            var t = skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken;
+
+
+            var prodDetails = BillingFlowParams.ProductDetailsParams.NewBuilder()
+                .SetProductDetails(skuDetails);
+
+            var prodDetailsParams = string.IsNullOrWhiteSpace(t) ? prodDetails.Build() : prodDetails.SetOfferToken(t).Build();
 
             var flowParams = BillingFlowParams.NewBuilder()
                 .SetProductDetailsParamsList(new[] { prodDetailsParams })
@@ -326,8 +329,8 @@ namespace Plugin.InAppBilling
             {
                 return null;
             }
-            
-            if(!string.IsNullOrWhiteSpace(obfuscatedProfileId) && string.IsNullOrWhiteSpace(obfuscatedAccountId))
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedProfileId) && string.IsNullOrWhiteSpace(obfuscatedAccountId))
                 throw new ArgumentNullException("You must set an account id if you are setting a profile id");
 
             switch (itemType)
@@ -359,15 +362,27 @@ namespace Plugin.InAppBilling
 
             ParseBillingResult(skuDetailsResult.Result);
 
+
             var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault() ?? throw new ArgumentException($"{productSku} does not exist");
-            var productDetailsParamsList = itemType == ProductType.Subs ?
-                BillingFlowParams.ProductDetailsParams.NewBuilder()
-                .SetProductDetails(skuDetails)
-                .SetOfferToken(subOfferToken ?? skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken ?? string.Empty)
-                .Build()
-                : BillingFlowParams.ProductDetailsParams.NewBuilder()
+            BillingFlowParams.ProductDetailsParams productDetailsParamsList;
+
+            if (itemType == ProductType.Subs)
+            {
+                var t = subOfferToken ?? skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken ?? string.Empty;
+
+                var productDetails = BillingFlowParams.ProductDetailsParams.NewBuilder()
+              .SetProductDetails(skuDetails);
+
+                productDetailsParamsList = string.IsNullOrWhiteSpace(t) ? productDetails.Build() : productDetails.SetOfferToken(t).Build();
+            }
+            else
+            {
+                productDetailsParamsList = BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails)
                 .Build();
+            }
+
+
 
             var billingFlowParams = BillingFlowParams.NewBuilder()
                 .SetProductDetailsParamsList(new[] { productDetailsParamsList });
@@ -461,7 +476,7 @@ namespace Plugin.InAppBilling
             if (result == null)
                 throw new InAppBillingPurchaseException(PurchaseError.GeneralError);
 
-            if ((int)result.ResponseCode == Android.BillingClient.Api.BillingClient.BillingResponseCode.NetworkError)
+            if (result.ResponseCode == BillingResponseCode.NetworkError)
                 throw new InAppBillingPurchaseException(PurchaseError.ServiceTimeout);//Network connection is down
 
             return result.ResponseCode switch
