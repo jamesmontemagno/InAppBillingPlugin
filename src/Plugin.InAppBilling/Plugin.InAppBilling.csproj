@@ -67,15 +67,12 @@
   <ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
     <Compile Include="**\*.windows.cs"/>
   </ItemGroup>
-  
-  <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
-    <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
-  </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <Compile Include="**\*.android.cs"/>
-    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.0.1"/>
-    <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.15"/>
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
+    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.1.0.1"/>
+    <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.17"/>
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-ios')) ">
