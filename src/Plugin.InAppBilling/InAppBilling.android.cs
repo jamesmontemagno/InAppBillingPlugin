@@ -71,7 +71,7 @@ namespace Plugin.InAppBilling
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public override Task<bool> ConnectAsync(bool enablePendingPurchases = true, CancellationToken cancellationToken)
+        public override Task<bool> ConnectAsync(bool enablePendingPurchases = true, CancellationToken cancellationToken = default)
         {
             tcsPurchase?.TrySetCanceled();
             tcsPurchase = null;
@@ -237,7 +237,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken)
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken = default)
         {
 
             // If we have a current task and it is not completed then return null.
