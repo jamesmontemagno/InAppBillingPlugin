@@ -6,8 +6,9 @@ When users get a new device or re-install your application it is best practice t
 /// Get all current purchases for a specified product type.
 /// </summary>
 /// <param name="itemType">Type of product</param>
+/// <param name="cancellationToken">Cancel the request</param>
 /// <returns>The current purchases</returns>
-Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, CancellationToken cancellationToken = default);
 ```
 
 When you make a call to restore a purchase it will prompt for the user to sign in if they haven't yet, so take that into consideration.

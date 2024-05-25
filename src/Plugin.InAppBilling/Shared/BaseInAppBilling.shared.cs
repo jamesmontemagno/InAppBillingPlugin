@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling
@@ -46,13 +47,13 @@ namespace Plugin.InAppBilling
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        public virtual Task<bool> ConnectAsync(bool enablePendingPurchases = true) => Task.FromResult(true);
+        public virtual Task<bool> ConnectAsync(bool enablePendingPurchases = true, CancellationToken cancellationToken = default) => Task.FromResult(true);
 
         /// <summary>
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        public virtual Task DisconnectAsync() => Task.CompletedTask;
+        public virtual Task DisconnectAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         /// <summary>
         /// Get product information of a specific product
@@ -60,7 +61,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product offering</param>
         /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <returns>List of products</returns>
-        public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
+        public abstract Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, string[] productIds, CancellationToken cancellationToken = default);
 
 
 
@@ -69,7 +70,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+        public abstract Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, CancellationToken cancellationToken = default);
 
 
 
@@ -78,7 +79,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType) =>
+        public virtual Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType, CancellationToken cancellationToken = default) =>
             Task.FromResult<IEnumerable<InAppBillingPurchase>>(new List<InAppBillingPurchase>());
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null);
+        public abstract Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// (Android specific) Upgrade/Downgrade a previously purchased subscription
@@ -99,7 +100,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
         /// <param name="prorationMode">Proration mode</param>
         /// <returns>Purchase details</returns>
-        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
+        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Consume a purchase with a purchase token.
@@ -108,7 +109,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public abstract Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier);
+        public abstract Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Dispose of class and parent classes
@@ -149,14 +150,14 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="transactionIdentifier"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier) => Task.FromResult(new List<(string Id, bool Success)>().AsEnumerable());
+        public virtual Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(string[] transactionIdentifier, CancellationToken cancellationToken = default) => Task.FromResult(new List<(string Id, bool Success)>().AsEnumerable());
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="productIds"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(params string[] productIds) => Task.FromResult(new List<(string Id, bool Success)>().AsEnumerable());
+        public virtual Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(string[] productIds, CancellationToken cancellationToken = default) => Task.FromResult(new List<(string Id, bool Success)>().AsEnumerable());
 
         /// <summary>
         /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.

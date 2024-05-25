@@ -3,7 +3,7 @@
 Each platform handles security of In-App Purchases a bit different. To handle this whenever you make a purchase you should use the date from the purchase to validate on your backend.
 
 ## Recommended Reading:
-* [Xamarin.iOS Securing Purchases Documentation](https://developer.xamarin.com/guides/ios/platform_features/in-app_purchasing/transactions_and_verification/#Securing_Purchases)
+* [iOS Securing Purchases Documentation](https://developer.xamarin.com/guides/ios/platform_features/in-app_purchasing/transactions_and_verification/#Securing_Purchases)
 * [Google Play service Security and Design](https://developer.android.com/google/play/billing/billing_best_practices.html)
 
 

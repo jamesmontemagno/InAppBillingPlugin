@@ -17,9 +17,10 @@ All purchases go through the `PurchaseAsync` method and you must always `Connect
 /// <param name="itemType">Type of product being requested</param>
 /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
 /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
+/// <param name="cancellationToken">Cancel the request.</param>
 /// <returns>Purchase details</returns>
 /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
+Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, CancellationToken cancellationToken = default);
 ```
 
 On Android you must call `FinalizePurchaseAsync` within 3 days when a purchase is validated. Please read the [Android documentation on Pending Transactions](https://developer.android.com/google/play/billing/integrate#pending) for more information.
@@ -52,7 +53,7 @@ public async Task<bool> PurchaseItem(string productId, string payload)
         else if(purchase.State == PurchaseState.Purchased)
         {
             //only needed on android unless you turn off auto finalize
-            var ack = await CrossInAppBilling.Current.FinalizePurchaseAsync(purchase.TransactionIdentifier);
+            var ack = await CrossInAppBilling.Current.FinalizePurchaseAsync([purchase.TransactionIdentifier]);
 
             // Handle if acknowledge was successful or not
         }

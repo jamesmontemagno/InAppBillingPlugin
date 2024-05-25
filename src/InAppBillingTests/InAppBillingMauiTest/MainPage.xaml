@@ -1,45 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="InAppBillingMauiTest.MainPage">
+             xmlns:iap="clr-namespace:Plugin.InAppBilling;assembly=Plugin.InAppBilling"
+             x:Class="InAppBillingTests.MainPage">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="25" Padding="30">
-
-            <Label 
-                Text="Hello, World!"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
-
-            <Label 
-                Text="Welcome to .NET Multi-platform App UI"
-                SemanticProperties.HeadingLevel="Level1"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                FontSize="18"
-                HorizontalOptions="Center" />
-
-            <Label 
-                Text="Current count: 0"
-                FontSize="18"
-                FontAttributes="Bold"
-                x:Name="CounterLabel"
-                HorizontalOptions="Center" />
-
-            <Button 
-                Text="Click me"
-                FontAttributes="Bold"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Center" />
-
-            <Image
-                Source="dotnet_bot.png"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                WidthRequest="250"
-                HeightRequest="310"
-                HorizontalOptions="Center" />
-
-        </VerticalStackLayout>
-    </ScrollView>
+    <VerticalStackLayout>
+		<Button Text="Buy Consumable" x:Name="ButtonConsumable" Clicked="ButtonConsumable_Clicked"/>
+		<Button Text="Buy Non-Consumable" x:Name="ButtonNonConsumable" Clicked="ButtonNonConsumable_Clicked"/>
+		<Button Text="Buy Sub" x:Name="ButtonSub" Clicked="ButtonSub_Clicked"/>
+        <Button Text="Buy Renewing Sub" x:Name="ButtonRenewingSub" Clicked="ButtonRenewingSub_Clicked"/>
+        <Button Text="Get Subscrition Purchases" x:Name="ButtonRestore" Clicked="ButtonRestore_Clicked"/>
+        <Button Text="Get Product Info" x:Name="ButtonProductInfo" Clicked="ButtonProductInfo_Clicked"/>
+        <ListView ItemsSource="{Binding Items}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="iap:InAppBillingProduct">
+                    <TextCell Text="{Binding ProductId}"
+                              Detail="{Binding Name}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </VerticalStackLayout>
 </ContentPage>
