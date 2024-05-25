@@ -1,10 +1,11 @@
-## In-App Billing Plugin for .NET MAUI, Xamarin, and Windows
+## In-App Billing Plugin for .NET MAUI  and Windows
 
-A simple In-App Purchase plugin for .NET MAUI, Xamarin, and Windows to query item information, purchase items, restore items, and more.
+A simple In-App Purchase plugin for .NET MAUI and Windows to query item information, purchase items, restore items, and more.
 
 Subscriptions are supported on iOS, Android, and Mac. Windows/UWP/WinUI 3 - does not support subscriptions at this time.
 
 ## Important Version Information
+* v8 now supports .NET 8+ .NET MAUI and Windows Apps.
 * v7 now supports .NET 6+, .NET MAUI, UWP, and Xamarin/Xamarin.Forms projects
 * v7 is built against Android Billing Library 6.0
 * See migration guides below
