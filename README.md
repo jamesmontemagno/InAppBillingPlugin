@@ -20,13 +20,11 @@ Get started by reading through the [In-App Billing Plugin documentation](https:/
 
 |Platform|Version|
 | ------------------- | :------------------: |
-|Xamarin.iOS & iOS for .NET|10+|
-|Xamarin.Mac, macOS for .NET, macCatlyst for .NET |All|
-|Xamarin.TVOS, tvOS for .NET|10.13.2|
-|Xamarin.Android, Android for .NET|21+|
-|Windows 10 UWP|10+|
+|iOS for .NET|10+|
+|macCatlyst for .NET |All|
+|tvOS for .NET|10.13.2|
+|Android for .NET|21+|
 |Windows App SDK (WinUI 3) |10+|
-|Xamarin.Forms|All|
 |.NET MAUI|All|
 
 ### Created By: [@JamesMontemagno](http://github.com/jamesmontemagno)
