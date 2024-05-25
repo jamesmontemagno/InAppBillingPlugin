@@ -33,7 +33,7 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of item</param>
         /// <param name="productIds">Product Ids</param>
         /// <returns></returns>
-        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, string[] productIds, CancellationToken cancellationToken)
+        public async override Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, string[] productIds, CancellationToken cancellationToken = default)
         {
             // Get list of products from store or simulator
             var listingInformation = await CurrentAppMock.LoadListingInformationAsync(InTestingMode);
@@ -77,7 +77,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>
-        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, CancellationToken cancellationToken)
+        public async override Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, CancellationToken cancellationToken = default)
         {
             // Get list of product receipts from store or simulator
             var xmlReceipt = await CurrentAppMock.GetAppReceiptAsync(InTestingMode);
@@ -95,7 +95,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns></returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null, CancellationToken cancellationToken)
+        public async override Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null, CancellationToken cancellationToken = default)
         {
             // Get purchase result from store or simulator
             var purchaseResult = await CurrentAppMock.RequestProductPurchaseAsync(InTestingMode, productId);
@@ -116,7 +116,7 @@ namespace Plugin.InAppBilling
         /// (UWP not supported) Upgrade/Downgrade/Change a previously purchased subscription
         /// </summary>
         /// <exception cref="NotImplementedException">UWP not supported</exception>
-        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken) =>
+        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken = default) =>
             throw new NotImplementedException("UWP not supported.");
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
         /// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occures during processing</exception>
-        public async override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, CancellationToken cancellationToken)
+        public async override Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, CancellationToken cancellationToken = default)
         {
             var result = await CurrentAppMock.ReportConsumableFulfillmentAsync(InTestingMode, productId, new Guid(transactionIdentifier));
             return result switch
