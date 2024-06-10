@@ -99,7 +99,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
         /// <param name="prorationMode">Proration mode</param>
         /// <returns>Purchase details</returns>
-        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
+        public abstract Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 
         /// <summary>
         /// Consume a purchase with a purchase token.
