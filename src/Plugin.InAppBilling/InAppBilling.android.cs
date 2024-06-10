@@ -222,7 +222,7 @@ namespace Plugin.InAppBilling
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration)
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, string obfuscatedAccountId = null, string obfuscatedProfileId = null)
         {
             if (BillingClient == null || !IsConnected)
             {
@@ -236,12 +236,12 @@ namespace Plugin.InAppBilling
                 return null;
             }
 
-            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode);
+            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode, obfuscatedAccountId, obfuscatedProfileId);
 
             return purchase;
         }
 
-        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode)
+        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode, string obfuscatedAccountId, string obfuscatedProfileId)
         {
             var itemType = ProductType.Subs;
 
@@ -282,10 +282,17 @@ namespace Plugin.InAppBilling
 
             var prodDetailsParams = string.IsNullOrWhiteSpace(t) ? prodDetails.Build() : prodDetails.SetOfferToken(t).Build();
 
-            var flowParams = BillingFlowParams.NewBuilder()
+            var billingFlowParams = BillingFlowParams.NewBuilder()
                 .SetProductDetailsParamsList(new[] { prodDetailsParams })
-                .SetSubscriptionUpdateParams(updateParams)
-                .Build();
+                .SetSubscriptionUpdateParams(updateParams);
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedAccountId))
+                billingFlowParams.SetObfuscatedAccountId(obfuscatedAccountId);
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedProfileId))
+                billingFlowParams.SetObfuscatedProfileId(obfuscatedProfileId);
+
+            var flowParams = billingFlowParams.Build();
 
             tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Purchase> purchases)>();
             var responseCode = BillingClient.LaunchBillingFlow(Activity, flowParams);

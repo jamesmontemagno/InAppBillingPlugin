@@ -101,7 +101,7 @@ namespace Plugin.InAppBilling
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration);
+        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
 
         /// <summary>
         /// Consume a purchase with a purchase token.
