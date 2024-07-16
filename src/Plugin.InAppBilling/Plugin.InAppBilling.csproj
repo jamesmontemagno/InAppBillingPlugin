@@ -68,9 +68,12 @@
     <Compile Include="**\*.uwp.cs"/>
   </ItemGroup>
 
+  <PropertyGroup Condition=" $(TargetFramework.Contains('-android')) ">
+    <UseMauiEssentials>true</UseMauiEssentials>
+  </PropertyGroup>
+  
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <Compile Include="**\*.android.cs"/>
-    <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
     <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.2.1"/>
     <!--<PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.19"/>-->
   </ItemGroup>
