@@ -164,5 +164,13 @@ protected override void OnCreate(Bundle savedInstanceState) {
 
 This is not needed in .NET 6 or .NET MAUI apps as we use built in .NET MAUI APIs to handle this for us.
 
+You may also need to add the following metadata into your AndroidManifext.xml
+```xml
+<meta-data
+            android:name="com.google.android.play.billingclient.version"
+            android:value="6.1.0" />
+```
+Ensure the 6.1.0 matches the version of billing library you are using.
+
 
 <= Back to [Table of Contents](README.md)
