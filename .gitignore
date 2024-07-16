@@ -11,6 +11,8 @@
 *.userprefs
 
 # Build results
+.idea/
+src/.idea/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
