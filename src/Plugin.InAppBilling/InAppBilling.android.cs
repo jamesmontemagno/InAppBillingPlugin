@@ -29,7 +29,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <value>The context.</value>
         static Activity Activity =>
-            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring Xamarin.Essentials/.NET MAUI in your source code so the In App Billing can use it.");
+            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring .NET MAUI in your source code so the In App Billing can use it.");
 
         static Context Context => Application.Context;
 
