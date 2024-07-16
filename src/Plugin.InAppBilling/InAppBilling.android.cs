@@ -218,8 +218,9 @@ namespace Plugin.InAppBilling
                 _ => ProductType.Subs
             };
 
+            var historyParams = QueryPurchaseHistoryParams.NewBuilder().SetProductType(skuType).Build();
             //TODO: Binding needs updated
-            var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(skuType);
+            var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(historyParams);
 
 
             return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? new List<InAppBillingPurchase>();
@@ -269,7 +270,7 @@ namespace Plugin.InAppBilling
 
             var updateParams = BillingFlowParams.SubscriptionUpdateParams.NewBuilder()
                 .SetOldPurchaseToken(purchaseTokenOfOriginalSubscription)
-                .SetReplaceProrationMode((int)prorationMode)
+                .SetSubscriptionReplacementMode((int)prorationMode)
                 .Build();
 
             var t = skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken;
