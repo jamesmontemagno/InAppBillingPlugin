@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst;net8.0-tvos;net8.0-macos</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);net8.0-windows10.0.19041;</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <AssemblyName>Plugin.InAppBilling</AssemblyName>
     <RootNamespace>Plugin.InAppBilling</RootNamespace>
@@ -10,11 +10,14 @@
     <AssemblyFileVersion>7.0.0.0</AssemblyFileVersion>
     <Version>7.0.0.0</Version>
     <Authors>James Montemagno</Authors>
+    <IsPackable>True</IsPackable>
     <PackageId>Plugin.InAppBilling</PackageId>
     <PackOnBuild>true</PackOnBuild>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageIconUrl>https://raw.githubusercontent.com/jamesmontemagno/InAppBillingPlugin/master/art/icon_128.png</PackageIconUrl>
-    <PackageLicenseUrl>https://github.com/jamesmontemagno/InAppBillingPlugin/blob/master/LICENSE</PackageLicenseUrl>
+    <IncludeSymbols>True</IncludeSymbols>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Owners>JamesMontemagno</Owners>
     <PackageProjectUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</PackageProjectUrl>
     <Summary>.NET MAUI, and Windows plugin to In-App Billing.</Summary>
@@ -27,17 +30,22 @@
     <Copyright>Copyright 2024</Copyright>
     <RepositoryUrl>https://github.com/jamesmontemagno/InAppBillingPlugin</RepositoryUrl>
     <PackageReleaseNotes>See: https://github.com/jamesmontemagno/InAppBillingPlugin</PackageReleaseNotes>
-
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <NeutralLanguage>en</NeutralLanguage>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <!-- platform version number information -->
   <PropertyGroup>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-ios'))">10.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-android'))">21.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows10'))">10.0.17763.0</SupportedOSPlatformVersion>
-    <TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows10'))">10.0.17763.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('ios'))">14.2</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('maccatalyst'))">14.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('macos'))">13.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('android'))">21.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('windows'))">10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$(TargetFramework.Contains('windows'))">10.0.17763.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
@@ -49,42 +57,48 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DebugType>portable</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)'=='Release' And '$(OS)' == 'Windows_NT' ">
+  <PropertyGroup Condition=" '$(Configuration)'=='Release' AND $([MSBuild]::IsOSPlatform('windows')) ">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\nuget\readme.txt" PackagePath="readme.txt" Pack="true"/>
-    <Compile Include="**\*.shared.cs"/>
+    <None Include="..\..\nuget\readme.txt" PackagePath="readme.txt" Pack="true" />
+    <Compile Include="**\*.shared.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
-    <Compile Include="**\*.uwp.cs"/>
+    <Compile Include="**\*.uwp.cs" />
   </ItemGroup>
   
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
-    <Compile Include="**\*.android.cs"/>
+    <Compile Include="**\*.android.cs" />
     <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.70" />
-    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.2.1"/>
+    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.2.1" />
     <!--<PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.19"/>-->
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-ios')) ">
-    <Compile Include="**\*.apple.cs"/>
+    <Compile Include="**\*.apple.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-mac')) ">
-    <Compile Include="**\*.apple.cs"/>
+    <Compile Include="**\*.apple.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-tvos')) ">
-    <Compile Include="**\*.apple.cs"/>
+    <Compile Include="**\*.apple.cs" />
+  </ItemGroup>
+
+  <!-- Package additions -->
+  <ItemGroup>
+    <None Include="..\..\art\icon.png" PackagePath="icon.png" Pack="true" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

@@ -46,6 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Plugin.InAppBilling\Plugin.InAppBilling.csproj"/>
-    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.70" />
   </ItemGroup>
 </Project>
