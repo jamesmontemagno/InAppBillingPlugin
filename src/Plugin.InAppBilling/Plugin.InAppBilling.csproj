@@ -96,6 +96,33 @@
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
     <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Activity">
+      <Version>1.9.0.4</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Activity.Ktx">
+      <Version>1.9.0.4</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Collection">
+      <Version>1.4.0.6</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Collection.Ktx">
+      <Version>1.4.0.5</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData">
+      <Version>2.8.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core">
+      <Version>2.8.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime">
+      <Version>2.8.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel">
+      <Version>2.8.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModelSavedState">
+      <Version>2.8.3.1</Version>
+    </PackageReference>
   </ItemGroup>
   
   <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != true">
