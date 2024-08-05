@@ -283,7 +283,8 @@ namespace Plugin.InAppBilling
 			    // Start receiving restored transactions
 			    SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
 
-			    return tcsTransaction.Task;
+                var result = await tcsTransaction.Task;
+                return result;
             }
             finally
             {
