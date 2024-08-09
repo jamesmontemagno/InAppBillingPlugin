@@ -244,7 +244,7 @@ namespace Plugin.InAppBilling
 
 
 
-		Task<SKPaymentTransaction[]> RestoreAsync(CancellationToken cancellationToken)
+		async Task<SKPaymentTransaction[]> RestoreAsync(CancellationToken cancellationToken)
 		{
 			var tcsTransaction = new TaskCompletionSource<SKPaymentTransaction[]>();
 
@@ -283,7 +283,8 @@ namespace Plugin.InAppBilling
 			    // Start receiving restored transactions
 			    SKPaymentQueue.DefaultQueue.RestoreCompletedTransactions();
 
-			    return tcsTransaction.Task;
+                var result = await tcsTransaction.Task;
+			    return result;
             }
             finally
             {
