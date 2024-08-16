@@ -34,6 +34,10 @@ Get started by reading through the [In-App Billing Plugin documentation](https:/
 * Podcast: [Merge Conflict](http://mergeconflict.fm)
 * Videos: [James's YouTube Channel](https://www.youtube.com/jamesmontemagno) 
 
+## Version 8 Major Updates
+* Nice new re-write and re-implementation of APIs!
+* Built against .NET 8
+* Now using latest Android Billing v6.2.1
 
 ## Version 7 Major Updates
 * Android: You must compile and target against Android 12 or higher  (or Android 13 if v7.1)
@@ -49,7 +53,19 @@ If you receive an error in Google Play you may need to add this to your AndroidM
 ```xml
 <meta-data
   android:name="com.google.android.play.billingclient.version"
-  android:value="6.0.1" />
+  android:value="6.1.0" />
+```
+
+If you are building against .NET 8 for Android you will need to add the following packages when using v7:
+
+```xml
+<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">  
+        <PackageReference Include="Xamarin.AndroidX.Activity" Version="1.9.0.3" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/764 -->  
+        <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.9.0.3" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/764 -->  
+        <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.0.5" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/800 -->  
+        <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.0.4" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/800 -->  
+        <PackageReference Include="Xamarin.GooglePlayServices.Base" Version="118.4.0" />  
+</ItemGroup>
 ```
 
 ### Pending Transactions:
