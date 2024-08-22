@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling
@@ -37,27 +38,27 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="transactionIdentifier"></param>
         /// <returns>if all were acknowledged/finalized</returns>
-        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(params string[] transactionIdentifier);
+        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseAsync(string[] transactionIdentifier, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Manually acknowledge/finalize a product id
         /// </summary>
         /// <param name="productIds"></param>
         /// <returns>if all were acknowledged/finalized</returns>
-        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(params string[] productIds);
+        Task<IEnumerable<(string Id, bool Success)>> FinalizePurchaseOfProductAsync(string[] productIds, CancellationToken cancellationToken = default);
 
 
         /// <summary>
         /// Connect to billing service
         /// </summary>
         /// <returns>If Success</returns>
-        Task<bool> ConnectAsync(bool enablePendingPurchases = true);
+        Task<bool> ConnectAsync(bool enablePendingPurchases = true, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Disconnect from the billing service
         /// </summary>
         /// <returns>Task to disconnect</returns>
-        Task DisconnectAsync();
+        Task DisconnectAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get product information of a specific product
@@ -65,14 +66,14 @@ namespace Plugin.InAppBilling
         /// <param name="itemType">Type of product offering</param>
         /// <param name="productIds">Sku or Id of the product(s)</param>
         /// <returns>List of products</returns>
-        Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, params string[] productIds);
+        Task<IEnumerable<InAppBillingProduct>> GetProductInfoAsync(ItemType itemType, string[] productIds, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Get all current purchases for a specific product type. If you use verification and it fails for some purchase, it's not contained in the result.
 		/// </summary>
 		/// <param name="itemType">Type of product</param>
 		/// <returns>The current purchases</returns>
-		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType);
+		Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, CancellationToken cancellationToken = default);
 
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="itemType">Type of product</param>
         /// <returns>The current purchases</returns>
-        Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType);
+        Task<IEnumerable<InAppBillingPurchase>> GetPurchasesHistoryAsync(ItemType itemType, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Purchase a specific product or subscription
@@ -91,7 +92,7 @@ namespace Plugin.InAppBilling
         /// <param name="obfuscatedProfileId">Android: Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null);
+        Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// (Android specific) Upgrade/Downgrade a previously purchased subscription
@@ -101,7 +102,7 @@ namespace Plugin.InAppBilling
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, string obfuscatedAccountId = null, string obfuscatedProfileId = null);
+        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, string obfuscatedAccountId = null, string obfuscatedProfileId = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Consume a purchase with a purchase token.
@@ -110,7 +111,7 @@ namespace Plugin.InAppBilling
         /// <param name="transactionIdentifier">Original Purchase Token</param>
 		/// <returns>If consumed successful</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier);
+        Task<bool> ConsumePurchaseAsync(string productId, string transactionIdentifier, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get receipt data on iOS

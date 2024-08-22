@@ -1,4 +1,7 @@
-In-App Billing Plugin for .NET MAUI, Xamarin, & Windows
+In-App Billing Plugin for .NET MAUI
+
+Version 8.0+ - .NET 8+
+1. Updated APIs and you must target .NET 8
 
 Version 7.0+  - Major Android updates
 1.) You must compile and target against Android 12 or higher
