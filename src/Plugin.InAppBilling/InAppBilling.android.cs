@@ -232,20 +232,23 @@ namespace Plugin.InAppBilling
         /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
         /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
+        /// <param name="obfuscatedAccountId">Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.</param>
+        /// <param name="obfuscatedProfileId">Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken = default)
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, string obfuscatedAccountId = null, string obfuscatedProfileId = null, CancellationToken cancellationToken = default)
         {
 
             // If we have a current task and it is not completed then return null.
             // you can't try to purchase twice.
             AssertPurchaseTransactionReady();
 
-            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode, cancellationToken);
+            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode, obfuscatedAccountId, obfuscatedProfileId, cancellationToken);
 
             return purchase;
         }
 
-        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode, CancellationToken cancellationToken)
+        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode, string obfuscatedAccountId, string obfuscatedProfileId, CancellationToken cancellationToken)
         {
             var itemType = ProductType.Subs;
 
@@ -281,10 +284,17 @@ namespace Plugin.InAppBilling
 
             var prodDetailsParams = string.IsNullOrWhiteSpace(t) ? prodDetails.Build() : prodDetails.SetOfferToken(t).Build();
 
-            var flowParams = BillingFlowParams.NewBuilder()
+            var billingFlowParams = BillingFlowParams.NewBuilder()
                 .SetProductDetailsParamsList(new[] { prodDetailsParams })
-                .SetSubscriptionUpdateParams(updateParams)
-                .Build();
+                .SetSubscriptionUpdateParams(updateParams);
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedAccountId))
+                billingFlowParams.SetObfuscatedAccountId(obfuscatedAccountId);
+
+            if (!string.IsNullOrWhiteSpace(obfuscatedProfileId))
+                billingFlowParams.SetObfuscatedProfileId(obfuscatedProfileId);
+
+            var flowParams = billingFlowParams.Build();
 
             tcsPurchase = new TaskCompletionSource<(BillingResult billingResult, IList<Purchase> purchases)>();
             using var _ = cancellationToken.Register(() => tcsPurchase.TrySetCanceled());

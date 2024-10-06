@@ -116,7 +116,7 @@ namespace Plugin.InAppBilling
         /// (UWP not supported) Upgrade/Downgrade/Change a previously purchased subscription
         /// </summary>
         /// <exception cref="NotImplementedException">UWP not supported</exception>
-        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken = default) =>
+        public override Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, string obfuscatedAccountId = null, string obfuscatedProfileId = null, CancellationToken cancellationToken = default) =>
             throw new NotImplementedException("UWP not supported.");
 
         /// <summary>
