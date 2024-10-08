@@ -133,7 +133,6 @@ namespace Plugin.InAppBilling
             return Task.CompletedTask;
         }
 
-
         /// <summary>
         /// Gets or sets if in testing mode. Only for UWP
         /// </summary>
@@ -483,6 +482,7 @@ namespace Plugin.InAppBilling
             return result.ResponseCode switch
             {
                 BillingResponseCode.Ok => true,
+                BillingResponseCode.NetworkError => throw new InAppBillingPurchaseException(PurchaseError.NetworkError),
                 BillingResponseCode.UserCancelled => throw new InAppBillingPurchaseException(PurchaseError.UserCancelled),//User Cancelled, should try again
                 BillingResponseCode.ServiceUnavailable => throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable),//Network connection is down
                 BillingResponseCode.ServiceDisconnected => throw new InAppBillingPurchaseException(PurchaseError.ServiceDisconnected),//Network connection is down
