@@ -117,7 +117,7 @@
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core">
       <Version>2.8.3.1</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core".Ktx>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx">
       <Version>2.8.3.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime">
@@ -129,7 +129,7 @@
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel">
       <Version>2.8.3.1</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.ktx">
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx">
       <Version>2.8.3.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModelSavedState">
