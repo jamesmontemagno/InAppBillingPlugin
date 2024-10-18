@@ -78,7 +78,10 @@ namespace Plugin.InAppBilling
             BillingClientBuilder = NewBuilder(Context);
             BillingClientBuilder.SetListener(OnPurchasesUpdated);
             if (enablePendingPurchases)
-                BillingClient = BillingClientBuilder.EnablePendingPurchases().Build();
+            {
+                var pendingParams = PendingPurchasesParams.NewBuilder().EnablePrepaidPlans().Build();
+                BillingClient = BillingClientBuilder.EnablePendingPurchases(pendingParams).Build();
+            }
             else
                 BillingClient = BillingClientBuilder.Build();
 
