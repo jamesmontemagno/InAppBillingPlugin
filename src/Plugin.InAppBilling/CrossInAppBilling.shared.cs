@@ -30,6 +30,7 @@ namespace Plugin.InAppBilling
                 return ret;
             }
         }
+
 #if ANDROID || IOS || MACCATALYST || MACOS || WINDOWS
         static IInAppBilling CreateInAppBilling() => new InAppBillingImplementation();
 #else
