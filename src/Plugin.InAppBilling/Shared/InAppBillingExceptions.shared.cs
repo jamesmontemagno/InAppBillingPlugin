@@ -70,8 +70,9 @@ namespace Plugin.InAppBilling
         FeatureNotSupported,
         ServiceDisconnected,
         ServiceTimeout,
-        AppleTermsConditionsChanged
-	}
+        AppleTermsConditionsChanged,
+        NetworkError
+    }
 
     /// <summary>
     /// Purchase exception
