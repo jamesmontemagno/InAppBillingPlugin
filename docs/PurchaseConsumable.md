@@ -30,8 +30,8 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, st
 ```
 
 #### obfuscatedAccountId & obfuscatedProfileId
-* iOS: Optional, only obfuscatedAccountId is used at this time. See [https://developer.apple.com/documentation/storekit/skmutablepayment/1506088-applicationusername](ApplicationUsername) on the payment.
-* Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder](Android documentation) for more info
+See [Purchase Args note](PurchaseArgs.md)
+
 
 ### Consume Purchase
 * Android & Windows: You must consume your purchase when your user uses it before buying another one.

@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6A41C44D-4
 		..\docs\GetProductDetails.md = ..\docs\GetProductDetails.md
 		..\docs\GettingStarted.md = ..\docs\GettingStarted.md
 		..\docs\HandlingExceptions.md = ..\docs\HandlingExceptions.md
+		..\docs\PurchaseArgs.md = ..\docs\PurchaseArgs.md
 		..\docs\PurchaseConsumable.md = ..\docs\PurchaseConsumable.md
 		..\docs\PurchaseNonConsumable.md = ..\docs\PurchaseNonConsumable.md
 		..\docs\PurchaseSubscription.md = ..\docs\PurchaseSubscription.md
