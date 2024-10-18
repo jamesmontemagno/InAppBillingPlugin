@@ -31,7 +31,11 @@ namespace Plugin.InAppBilling
             }
         }
 
+#if ANDROID || IOS || MACCATALYST || MACOS || WINDOWS
         static IInAppBilling CreateInAppBilling() => new InAppBillingImplementation();
+#else
+        static IInAppBilling CreateInAppBilling() => null;
+#endif
 
         internal static Exception NotImplementedInReferenceAssembly() =>
 			new NotImplementedException("This functionality is not implemented in the portable version of this assembly.  You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
