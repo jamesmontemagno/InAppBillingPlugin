@@ -78,7 +78,10 @@ namespace Plugin.InAppBilling
             BillingClientBuilder = NewBuilder(Context);
             BillingClientBuilder.SetListener(OnPurchasesUpdated);
             if (enablePendingPurchases)
-                BillingClient = BillingClientBuilder.EnablePendingPurchases().Build();
+            {
+                var pendingParams = PendingPurchasesParams.NewBuilder().EnableOneTimeProducts().EnablePrepaidPlans().Build();
+                BillingClient = BillingClientBuilder.EnablePendingPurchases(pendingParams).Build();
+            }
             else
                 BillingClient = BillingClientBuilder.Build();
 
@@ -493,6 +496,7 @@ namespace Plugin.InAppBilling
             return result.ResponseCode switch
             {
                 BillingResponseCode.Ok => true,
+                BillingResponseCode.NetworkError => throw new InAppBillingPurchaseException(PurchaseError.NetworkError),
                 BillingResponseCode.UserCancelled => throw new InAppBillingPurchaseException(PurchaseError.UserCancelled),//User Cancelled, should try again
                 BillingResponseCode.ServiceUnavailable => throw new InAppBillingPurchaseException(PurchaseError.ServiceUnavailable),//Network connection is down
                 BillingResponseCode.ServiceDisconnected => throw new InAppBillingPurchaseException(PurchaseError.ServiceDisconnected),//Network connection is down
