@@ -1,17 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net8.0-android;net8.0-ios;net8.0-maccatalyst;net8.0-macos</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net8.0-android;net8.0-ios;net8.0-maccatalyst;net8.0-macos;net9.0;net9.0-android;net9.0-ios;net9.0-maccatalyst;net9.0-macos</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0;net9.0-windows10.0.19041.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <UseMaui Condition="'$(TargetFramework)' != 'net8.0'">true</UseMaui>
-    <UseMauiEssentials Condition="'$(TargetFramework)' != 'net8.0'">true</UseMauiEssentials>
     <SingleProject>true</SingleProject>
     <AssemblyName>Plugin.InAppBilling</AssemblyName>
     <RootNamespace>Plugin.InAppBilling</RootNamespace>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
-    <AssemblyVersion>7.0.0.0</AssemblyVersion>
-    <AssemblyFileVersion>7.0.0.0</AssemblyFileVersion>
-    <Version>7.0.0.0</Version>
+    <AssemblyVersion>9.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion>9.0.0.0</AssemblyFileVersion>
+    <Version>9.0.0.0</Version>
     <Authors>James Montemagno</Authors>
     <IsPackable>True</IsPackable>
     <PackageId>Plugin.InAppBilling</PackageId>
@@ -44,12 +42,12 @@
 
   <!-- platform version number information -->
   <PropertyGroup>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('ios'))">14.2</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('maccatalyst'))">14.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('macos'))">13.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('android'))">21.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('windows'))">10.0.17763.0</SupportedOSPlatformVersion>
-    <TargetPlatformMinVersion Condition="$(TargetFramework.Contains('windows'))">10.0.17763.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
@@ -95,46 +93,7 @@
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
-    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="6.2.1" />
-    <PackageReference Include="Xamarin.AndroidX.Activity">
-      <Version>1.9.0.4</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Activity.Ktx">
-      <Version>1.9.0.4</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Collection">
-      <Version>1.4.0.6</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Collection.Ktx">
-      <Version>1.4.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Ktx">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime.Ktx">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModelSavedState">
-      <Version>2.8.3.1</Version>
-    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="7.1.1.1" />
   </ItemGroup>
   
   <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != true">
