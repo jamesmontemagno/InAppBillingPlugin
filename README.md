@@ -52,20 +52,10 @@ If you receive an error in Google Play you may need to add this to your AndroidM
 ```xml
 <meta-data
   android:name="com.google.android.play.billingclient.version"
-  android:value="6.1.0" />
+  android:value="X.X.X" />
 ```
 
-If you are building against .NET 8 for Android you will need to add the following packages when using v7:
-
-```xml
-<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">  
-        <PackageReference Include="Xamarin.AndroidX.Activity" Version="1.9.0.3" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/764 -->  
-        <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.9.0.3" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/764 -->  
-        <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.0.5" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/800 -->  
-        <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.0.4" /> <!-- Temporary workaround, see: https://github.com/xamarin/AndroidX/issues/800 -->  
-        <PackageReference Include="Xamarin.GooglePlayServices.Base" Version="118.4.0" />  
-</ItemGroup>
-```
+Update X.X.X with the version of the Billing Library that is a dependency on the NuGet package.
 
 ### Pending Transactions:
 * If the result of PurchaseAsync is PurchaseState.PaymentPending, store the order details locally and inform the user that they will have access to the product when the payment completes
