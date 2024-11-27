@@ -91,12 +91,12 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="error"></param>
         /// <param name="ex"></param>
-        public InAppBillingPurchaseException(PurchaseError error, Exception ex) : base("Unable to process purchase.", ex) => PurchaseError = error;
+        public InAppBillingPurchaseException(PurchaseError error, Exception ex) : base($"Unable to process purchase : {error:G}.", ex) => PurchaseError = error;
         /// <summary>
         /// 
         /// </summary>
         /// <param name="error"></param>
-        public InAppBillingPurchaseException(PurchaseError error) : base("Unable to process purchase.") => PurchaseError = error;
+        public InAppBillingPurchaseException(PurchaseError error) : base($"Unable to process purchase : {error:G}.") => PurchaseError = error;
 
         /// <summary>
         /// 
