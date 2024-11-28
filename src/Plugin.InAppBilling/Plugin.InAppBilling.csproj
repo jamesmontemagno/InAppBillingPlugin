@@ -92,9 +92,17 @@
   <!-- Android -->
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
-    <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
     <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="7.1.1.1" />
   </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.Contains('net8.0-android')) ">
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.100" />
+  </ItemGroup>
+
+<ItemGroup Condition=" $(TargetFramework.Contains('net9.0-android')) ">
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.10" />
+  </ItemGroup>
+
   
   <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != true">
     <Compile Remove="**\**\*.android.cs" />
