@@ -1,9 +1,15 @@
-﻿namespace InAppBillingMauiTest
+﻿using Plugin.InAppBilling;
+
+namespace InAppBillingMauiTest
 {
     public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()
         {
+
+#if IOS
+            var test = new InAppBillingImplementation();
+#endif
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
