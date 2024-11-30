@@ -93,6 +93,9 @@
 
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
     <PackageReference Include="Xamarin.Android.Google.BillingClient" Version="7.1.1.1" />
+  <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core">
+    <Version>2.8.7.1</Version>
+  </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.Contains('net8.0-android')) ">
