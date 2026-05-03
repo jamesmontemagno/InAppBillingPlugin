@@ -245,24 +245,29 @@ namespace Plugin.InAppBilling
 
             var skuDetails = skuDetailsResult.ProductDetailsList.FirstOrDefault() ?? throw new ArgumentException($"{newProductId} does not exist");
 
-            //1 - BillingFlowParams.ProrationMode.ImmediateWithTimeProration
-            //2 - BillingFlowParams.ProrationMode.ImmediateAndChargeProratedPrice
-            //3 - BillingFlowParams.ProrationMode.ImmediateWithoutProration
-            //4 - BillingFlowParams.ProrationMode.Deferred
-            //5 - BillingFlowParams.ProrationMode.ImmediateAndChargeFullPrice
+            //1 - ReplacementMode.ImmediateWithTimeProration
+            //2 - ReplacementMode.ImmediateAndChargeProratedPrice
+            //3 - ReplacementMode.ImmediateWithoutProration
+            //4 - ReplacementMode.Deferred (ChargeOnNextBillingDate)
+            //5 - ReplacementMode.ImmediateAndChargeFullPrice
+            //6 - ReplacementMode.KeepExisting (added in PBL 8.1)
 
             var updateParams = BillingFlowParams.SubscriptionUpdateParams.NewBuilder()
                 .SetOldPurchaseToken(purchaseTokenOfOriginalSubscription)
-                .SetSubscriptionReplacementMode((int)prorationMode)
                 .Build();
 
             var t = skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken;
 
+            var replacementParams = SubscriptionProductReplacementParams.NewBuilder()
+                .SetReplacementMode((int)prorationMode)
+                .Build();
 
             var prodDetails = BillingFlowParams.ProductDetailsParams.NewBuilder()
                 .SetProductDetails(skuDetails);
 
-            var prodDetailsParams = string.IsNullOrWhiteSpace(t) ? prodDetails.Build() : prodDetails.SetOfferToken(t).Build();
+            prodDetails = string.IsNullOrWhiteSpace(t) ? prodDetails : prodDetails.SetOfferToken(t);
+
+            var prodDetailsParams = prodDetails.SetSubscriptionProductReplacementParams(replacementParams).Build();
 
             var flowParams = BillingFlowParams.NewBuilder()
                 .SetProductDetailsParamsList(new[] { prodDetailsParams })

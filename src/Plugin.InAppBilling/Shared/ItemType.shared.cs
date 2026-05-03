@@ -34,6 +34,10 @@ namespace Plugin.InAppBilling
         ImmediateAndChargeProratedPrice = 2,
         ImmediateWithoutProration = 3,
         Deferred = 4,
-        ImmediateAndChargeFullPrice = 5
+        ImmediateAndChargeFullPrice = 5,
+        /// <summary>
+        /// Keep the original payment schedule. Added in Google Play Billing Library 8.1.
+        /// </summary>
+        KeepExisting = 6
     }
 }
