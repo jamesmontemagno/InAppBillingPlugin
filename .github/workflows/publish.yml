@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [master]
   push:
-    branches: [master, storekit2-ios]
+    branches: [master]
     tags: ['v*']
 
 permissions:

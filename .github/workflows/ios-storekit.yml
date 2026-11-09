@@ -3,8 +3,6 @@ name: iOS StoreKit 2 verification
 # Simulator runs are slow, so they only run when the iOS purchase code changes or on demand.
 on:
   workflow_dispatch:
-  push:
-    branches: [storekit2-ios]
   pull_request:
     branches: [master]
     paths:
