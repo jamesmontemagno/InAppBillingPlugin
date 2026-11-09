@@ -19,6 +19,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # An iOS SDK and Xcode pair that the runner image has. The workload's newest SDK can require a newer Xcode.
+  IOS_TFM: net10.0-ios26.5
+  XCODE_APP: /Applications/Xcode_26.5.app
+
 jobs:
   verify:
     runs-on: macos-26
@@ -33,9 +38,9 @@ jobs:
       - name: Install the iOS workload
         run: dotnet workload install ios
 
-      - name: Show the toolchain
+      - name: Select Xcode
         run: |
-          ls -d /Applications/Xcode*.app
+          sudo xcode-select -s "$XCODE_APP"
           xcodebuild -version
           dotnet workload list
 
@@ -60,7 +65,7 @@ jobs:
         run: >
           dotnet pack src/Plugin.InAppBilling/Plugin.InAppBilling.csproj
           -c Release -o artifacts
-          -p:TargetFrameworks=net10.0-ios
+          -p:TargetFrameworks=$IOS_TFM
           -p:Version=0.0.0-smoke
           -p:GeneratePackageOnBuild=false
           -p:ContinuousIntegrationBuild=true
@@ -77,6 +82,7 @@ jobs:
         run: >
           dotnet build src/InAppBillingTests/StoreKit2Smoke/StoreKit2Smoke.csproj
           -c Release -r ios-arm64 -p:EnableCodeSigning=false
+          -p:TargetFramework=$IOS_TFM
           -p:RestoreAdditionalProjectSources=$PWD/artifacts
           -p:RestorePackagesPath=$PWD/.nuget-smoke
 
@@ -87,7 +93,7 @@ jobs:
           project=src/InAppBillingTests/StoreKit2Smoke
           rm -rf "$project/bin" "$project/obj"
           arch=$(uname -m); [ "$arch" = "x86_64" ] && rid=iossimulator-x64 || rid=iossimulator-arm64
-          dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" \
+          dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" -p:TargetFramework=$IOS_TFM \
             -p:RestoreAdditionalProjectSources=$PWD/artifacts -p:RestorePackagesPath=$PWD/.nuget-smoke
           app=$(find "$project/bin" -name '*.app' -type d | head -1)
           xcrun simctl boot "$UDID" || true
