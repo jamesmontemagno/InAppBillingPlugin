@@ -1,12 +1,13 @@
 ## In-App Billing Plugin for .NET MAUI  and Windows
 
-> Important Note: I do not plan on continuing support for this library. As noted in April of 2025: In App Purchase APIs have always been extremely complex, hard to manage, hard to update, and hard to streamline into a single API. I have enjoyed working and evolving this project over the years, but with StoreKit being deprecated for StoreKit2 and the ever-evolving Android Billing Library that always has massive changes, I simply do not have the time and energy to keep the library up to date. I appreciate everyone that has contributed over and used the library over the years. I encourage forking and evolving the library and of course you can just pull the source code into your project directly. 
+> **Project status:** Android is actively maintained and tracks the current Google Play Billing Library. iOS, Mac, and Windows keep working as they are today and are not getting new features; iOS and Mac still use the original StoreKit APIs. Contributions are welcome, and you can always fork the library or pull the source into your project.
 
 A simple In-App Purchase plugin for .NET MAUI and Windows to query item information, purchase items, restore items, and more.
 
 Subscriptions are supported on iOS, Android, and Mac. Windows/UWP/WinUI 3 - does not support subscriptions at this time.
 
 ## Important Version Information
+* v10.1 uses Android Billing v9 and requires Android API 23+ (see [AndroidX versions](#androidx-versions-for-android-billing-v9))
 * v10 now supports .NET 10+ and Android Billing v8
 * v9 now supports .NET 9+ and Android Billing v7
 * v8 now supports .NET 8+ .NET MAUI and Windows Apps.
@@ -26,9 +27,27 @@ Get started by reading through the [In-App Billing Plugin documentation](https:/
 | ------------------- | :------------------: |
 |iOS for .NET|10+|
 |macCatlyst for .NET |All|
-|Android for .NET|21+|
+|Android for .NET|23+|
 |Windows App SDK (WinUI 3) |10+|
 |.NET MAUI|All|
+
+### AndroidX versions for Android Billing v9
+Android Billing v9 needs newer AndroidX libraries than .NET MAUI 10 brings in, so restoring can fail with `NU1107` on `Xamarin.AndroidX.Lifecycle.*`. If it does, reference these from your app:
+
+```xml
+<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+  <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.13.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.6.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.1" />
+  <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData" Version="2.11.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx" Version="2.11.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.11.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime.Ktx" Version="2.11.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime.Ktx.Android" Version="2.11.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx" Version="2.11.0.1" />
+  <PackageReference Include="Xamarin.AndroidX.SavedState.SavedState.Ktx" Version="1.5.0.1" />
+</ItemGroup>
+```
 
 ### Created By: [@JamesMontemagno](http://github.com/jamesmontemagno)
 * Twitter: [@JamesMontemagno](http://twitter.com/jamesmontemagno)
