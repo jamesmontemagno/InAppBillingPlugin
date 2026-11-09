@@ -129,7 +129,7 @@ jobs:
         run: |
           brew install xcodegen
           xcodegen generate
-          xcodebuild test -scheme HostedTests -destination 'platform=macOS,variant=Mac Catalyst'
+          xcodebuild test -scheme HostedTests -destination 'platform=macOS,variant=Mac Catalyst' CODE_SIGNING_ALLOWED=NO
 
       - name: Build the universal shim
         run: src/StoreKit2Shim/build-xcframework.sh
