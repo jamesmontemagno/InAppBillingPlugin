@@ -63,8 +63,16 @@ final class BridgeTests: XCTestCase {
         let purchase = await Bridge.purchase(productId: "test.consumable", appAccountToken: nil)
         let id = try XCTUnwrap(purchase.transaction?.id)
 
-        let before = await Bridge.currentPurchases()
-        XCTAssertTrue(before.transactions?.contains { $0.id == id } == true)
+        // StoreKit's unfinished list can lag the successful purchase on Mac Catalyst.
+        var before = await Bridge.currentPurchases()
+        for _ in 0..<50 {
+            if before.transactions?.contains(where: { $0.id == id }) == true {
+                break
+            }
+            try await Task.sleep(nanoseconds: 100_000_000)
+            before = await Bridge.currentPurchases()
+        }
+        XCTAssertTrue(before.transactions?.contains { $0.id == id } == true, "Missing unfinished \(id): \(before.json)")
 
         let finished = await Bridge.finish(transactionIds: [id])
         XCTAssertEqual(finished.results?.first?.success, true)
