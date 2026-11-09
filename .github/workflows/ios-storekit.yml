@@ -53,7 +53,10 @@ jobs:
 
       - name: Test the Swift shim against a local StoreKit catalog
         working-directory: src/StoreKit2Shim
-        run: xcodebuild test -scheme InAppBillingStoreKit -destination "platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}"
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild test -scheme HostedTests -destination "platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}"
 
       - name: Build the shim
         run: src/StoreKit2Shim/build-xcframework.sh

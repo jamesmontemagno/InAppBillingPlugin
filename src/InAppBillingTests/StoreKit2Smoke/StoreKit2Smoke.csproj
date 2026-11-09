@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <PackageReference Include="Plugin.InAppBilling" Version="$(PluginVersion)" />
-    <BundleResource Include="..\..\StoreKit2Shim\Tests\InAppBillingStoreKitTests\Products.storekit" Link="Products.storekit" />
   </ItemGroup>
 
 </Project>
