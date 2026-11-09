@@ -152,7 +152,7 @@
   <ItemGroup>
     <None Include="buildTransitive\Plugin.InAppBilling.targets" Pack="true" PackagePath="buildTransitive\net10.0-ios15.0\Plugin.InAppBilling.targets" />
     <!-- PackagePath must be the root folder, NuGet appends each file's relative path. Naming the files in it would misplace the framework binary, which has no extension. -->
-    <None Include="..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework\**\*" Pack="true" PackagePath="native\ios\InAppBillingStoreKit.xcframework\" />
+    <None Include="..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework\**\*" Pack="true" PackagePath="native/ios/InAppBillingStoreKit.xcframework/" />
   </ItemGroup>
 
   <Target Name="ValidateStoreKitShimForPack" BeforeTargets="GenerateNuspec" Condition="!Exists('..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework\Info.plist')">
