@@ -1,0 +1,95 @@
+name: iOS StoreKit 2 verification
+
+# Simulator runs are slow, so they only run when the iOS purchase code changes or on demand.
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master]
+    paths:
+      - src/StoreKit2Shim/**
+      - src/InAppBillingTests/StoreKit2Smoke/**
+      - src/Plugin.InAppBilling/StoreKit2/**
+      - src/Plugin.InAppBilling/buildTransitive/**
+      - src/Plugin.InAppBilling/InAppBilling.ios.cs
+      - src/Plugin.InAppBilling/Plugin.InAppBilling.csproj
+      - .github/workflows/ios-storekit.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install the iOS workload
+        run: dotnet workload install ios
+
+      - name: Show the toolchain
+        run: |
+          ls -d /Applications/Xcode*.app
+          xcodebuild -version
+          dotnet workload list
+
+      - name: Pick a simulator
+        id: simulator
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          devices = json.load(sys.stdin)['devices']
+          ios = [d for runtime, items in devices.items() if 'iOS' in runtime for d in items if d['name'].startswith('iPhone')]
+          print(ios[-1]['udid'])")
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Test the Swift shim against a local StoreKit catalog
+        working-directory: src/StoreKit2Shim
+        run: xcodebuild test -scheme InAppBillingStoreKit -destination "platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}"
+
+      - name: Build the shim
+        run: src/StoreKit2Shim/build-xcframework.sh
+
+      - name: Pack the plugin
+        run: >
+          dotnet pack src/Plugin.InAppBilling/Plugin.InAppBilling.csproj
+          -c Release -o artifacts
+          -p:TargetFrameworks=net10.0-ios
+          -p:Version=0.0.0-smoke
+          -p:GeneratePackageOnBuild=false
+          -p:ContinuousIntegrationBuild=true
+
+      - name: Check the package contents
+        run: |
+          unzip -l artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg | tee contents.txt
+          grep -q 'buildTransitive/net10.0-ios/Plugin.InAppBilling.targets' contents.txt
+          grep -q 'native/ios/InAppBillingStoreKit.xcframework/Info.plist' contents.txt
+          grep -q 'ios-arm64/InAppBillingStoreKit.framework/InAppBillingStoreKit' contents.txt
+          grep -q 'ios-arm64_x86_64-simulator/InAppBillingStoreKit.framework/InAppBillingStoreKit' contents.txt
+
+      - name: Build the smoke app from the package for a device
+        run: >
+          dotnet build src/InAppBillingTests/StoreKit2Smoke/StoreKit2Smoke.csproj
+          -c Release -r ios-arm64 -p:EnableCodeSigning=false
+          -p:RestoreAdditionalProjectSources=$PWD/artifacts
+          -p:RestorePackagesPath=$PWD/.nuget-smoke
+
+      - name: Run the smoke app from the package on a simulator
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          project=src/InAppBillingTests/StoreKit2Smoke
+          rm -rf "$project/bin" "$project/obj"
+          arch=$(uname -m); [ "$arch" = "x86_64" ] && rid=iossimulator-x64 || rid=iossimulator-arm64
+          dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" \
+            -p:RestoreAdditionalProjectSources=$PWD/artifacts -p:RestorePackagesPath=$PWD/.nuget-smoke
+          app=$(find "$project/bin" -name '*.app' -type d | head -1)
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$app"
+          perl -e 'alarm 180; exec @ARGV' xcrun simctl launch --console-pty "$UDID" com.refractored.iabstorekit2smoke | tee smoke.log || true
+          grep -q SMOKE_OK smoke.log

@@ -1,0 +1,31 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [ ],
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "1000000001",
+      "localizations" : [
+        { "description" : "A consumable", "displayName" : "Coins", "locale" : "en_US" }
+      ],
+      "productID" : "test.consumable",
+      "referenceName" : "Coins",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : true,
+      "internalID" : "1000000002",
+      "localizations" : [
+        { "description" : "A non consumable", "displayName" : "Pro", "locale" : "en_US" }
+      ],
+      "productID" : "test.nonconsumable",
+      "referenceName" : "Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : { },
+  "subscriptionGroups" : [ ],
+  "version" : { "major" : 3, "minor" : 0 }
+}

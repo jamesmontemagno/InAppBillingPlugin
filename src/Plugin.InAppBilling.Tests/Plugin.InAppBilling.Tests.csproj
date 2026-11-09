@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+  <!-- The StoreKit 2 mapping is plain C#, so it is compiled here to be tested without an Apple SDK. -->
+  <ItemGroup>
+    <Compile Include="..\Plugin.InAppBilling\Shared\*.cs" LinkBase="Shared" />
+    <Compile Include="..\Plugin.InAppBilling\StoreKit2\StoreKit2Models.ios.cs" Link="StoreKit2Models.ios.cs" />
+  </ItemGroup>
+
+</Project>
