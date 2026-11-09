@@ -151,8 +151,8 @@
   <!-- StoreKit 2 shim for iOS, built on macOS by ..\StoreKit2Shim\build-xcframework.sh -->
   <ItemGroup>
     <None Include="buildTransitive\Plugin.InAppBilling.targets" Pack="true" PackagePath="buildTransitive\net10.0-ios15.0\Plugin.InAppBilling.targets" />
-    <!-- PackagePath must be the folder. NuGet treats a path without an extension as a folder, which would misplace the framework binary. -->
-    <None Include="..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework\**\*" Pack="true" PackagePath="native\ios\InAppBillingStoreKit.xcframework\%(RecursiveDir)" />
+    <!-- PackagePath must be the root folder, NuGet appends each file's relative path. Naming the files in it would misplace the framework binary, which has no extension. -->
+    <None Include="..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework\**\*" Pack="true" PackagePath="native\ios\InAppBillingStoreKit.xcframework\" />
   </ItemGroup>
 
   <Target Name="ValidateStoreKitShimForPack" BeforeTargets="GenerateNuspec" Condition="!Exists('..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework\Info.plist')">
