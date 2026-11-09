@@ -6,36 +6,24 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#if IOS
 using StoreKit1Implementation = Plugin.InAppBilling.LegacyInAppBillingImplementation;
-#else
-using StoreKit1Implementation = Plugin.InAppBilling.InAppBillingImplementation;
-#endif
 
 namespace Plugin.InAppBilling
 {
 	/// <summary>
-	/// Original StoreKit implementation. On iOS, register LegacyInAppBillingImplementation before using CrossInAppBilling.
+	/// Original StoreKit implementation. On iOS and Mac Catalyst, register this before using CrossInAppBilling.
 	/// </summary>
 	[Preserve(AllMembers = true)]
-#if IOS
 	public class LegacyInAppBillingImplementation : BaseInAppBilling
-#else
-	public class InAppBillingImplementation : BaseInAppBilling
-#endif
 	{
         /// <summary>
         /// Backwards compat flag that may be removed in the future to auto finish all transactions like in v4
         /// </summary>
-#if IOS
         public static bool FinishAllTransactions
         {
             get => InAppBillingImplementation.FinishAllTransactions;
             set => InAppBillingImplementation.FinishAllTransactions = value;
         }
-#else
-        public static bool FinishAllTransactions { get; set; } = true;
-#endif
 
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
@@ -161,13 +149,8 @@ namespace Plugin.InAppBilling
         /// </summary>
         public static Action<InAppBillingPurchase> OnPurchaseComplete
         {
-#if IOS
             get => InAppBillingImplementation.OnPurchaseComplete;
             set => InAppBillingImplementation.OnPurchaseComplete = value;
-#else
-            get;
-            set;
-#endif
         }
 
 
@@ -176,13 +159,8 @@ namespace Plugin.InAppBilling
         /// </summary>
         public static Action<InAppBillingPurchase> OnPurchaseFailure
         {
-#if IOS
             get => InAppBillingImplementation.OnPurchaseFailure;
             set => InAppBillingImplementation.OnPurchaseFailure = value;
-#else
-            get;
-            set;
-#endif
         }
 
         /// <summary>
@@ -190,23 +168,14 @@ namespace Plugin.InAppBilling
         /// </summary>
 		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment
         {
-#if IOS
             get => InAppBillingImplementation.OnShouldAddStorePayment;
             set => InAppBillingImplementation.OnShouldAddStorePayment = value;
-#else
-            get;
-            set;
-#endif
         }
 
 		/// <summary>
 		/// Default constructor for In App Billing on iOS
 		/// </summary>
-#if IOS
 		public LegacyInAppBillingImplementation()
-#else
-		public InAppBillingImplementation()
-#endif
 		{
 			Init();
 		}

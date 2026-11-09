@@ -25,7 +25,7 @@ final class BridgeTests: XCTestCase {
         XCTAssertEqual(product.price, "4.99")
         XCTAssertTrue(product.isFamilyShareable)
 
-        // The keys below are read by StoreKit2Models.ios.cs.
+        // The keys below are read by StoreKit2Models.apple.cs.
         let json = response.json
         for key in ["products", "missing", "displayName", "displayPrice", "currencyCode", "isFamilyShareable"] {
             XCTAssertTrue(json.contains("\"\(key)\""), "Missing \(key) in \(json)")
@@ -46,7 +46,7 @@ final class BridgeTests: XCTestCase {
         XCTAssertTrue(transaction.verified)
         XCTAssertFalse(transaction.revoked)
 
-        // The keys below are read by StoreKit2Models.ios.cs.
+        // The keys below are read by StoreKit2Models.apple.cs.
         let json = response.json
         for key in ["originalId", "productId", "purchaseDateMs", "quantity", "appAccountToken", "jws", "revoked", "verified"] {
             XCTAssertTrue(json.contains("\"\(key)\""), "Missing \(key) in \(json)")

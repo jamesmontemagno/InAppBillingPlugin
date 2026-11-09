@@ -77,9 +77,9 @@ Each app store has you create them in a different area.
 
 ## iOS
 
-The plugin uses StoreKit 2 on iOS and requires iOS 15+, see [iOS StoreKit 2](StoreKit2.md).
+The plugin uses StoreKit 2 on iOS and Mac Catalyst and requires iOS/Mac Catalyst 15+, see [StoreKit 2](StoreKit2.md).
 
-**ONLY if you are enabling "promoted items" through the app store (requires iOS 16.4+):**
+**ONLY if you are enabling "promoted items" through the app store (requires iOS/Mac Catalyst 16.4+):**
 
 iOS also has the ability to make In-App Purchases from the app store if you mark them as so. To support this you must open your `AppDelegate` and add the following to your `FinishedLaunching`. 
 
@@ -125,7 +125,7 @@ public static class MauiProgram
             })
              .ConfigureLifecycleEvents(AppLifecycle =>
              {
-#if IOS
+#if IOS || MACCATALYST
                  AppLifecycle.AddiOS(ios =>
                      ios.FinishedLaunching((del, b) =>
                     {
@@ -137,7 +137,7 @@ public static class MauiProgram
 #endif
              });
 
-#if IOS
+#if IOS || MACCATALYST
         bool OnPurchaseIntent(string productId)
         {
             //Check if the user can purchase this product now

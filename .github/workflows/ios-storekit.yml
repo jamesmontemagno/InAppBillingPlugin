@@ -1,6 +1,6 @@
-name: iOS StoreKit 2 verification
+name: Apple StoreKit 2 verification
 
-# Simulator runs are slow, so they only run when the iOS purchase code changes or on demand.
+# Native runs only execute when Apple purchase code changes or on demand.
 on:
   workflow_dispatch:
   pull_request:
@@ -10,8 +10,7 @@ on:
       - src/InAppBillingTests/StoreKit2Smoke/**
       - src/Plugin.InAppBilling/StoreKit2/**
       - src/Plugin.InAppBilling/buildTransitive/**
-      - src/Plugin.InAppBilling/InAppBilling.ios.cs
-      - src/Plugin.InAppBilling/InAppBilling.maccatalyst.cs
+      - src/Plugin.InAppBilling/*.apple.cs
       - src/Plugin.InAppBilling/CrossInAppBilling.shared.cs
       - src/Plugin.InAppBilling/Plugin.InAppBilling.csproj
       - .github/workflows/ios-storekit.yml
@@ -22,6 +21,7 @@ permissions:
 env:
   # An iOS SDK and Xcode pair the runner image has for the .NET build. The workload's newest SDK can require a newer Xcode.
   IOS_TFM: net10.0-ios26.0
+  CATALYST_TFM: net10.0-maccatalyst26.0
   XCODE_APP: /Applications/Xcode_26.0.1.app
 
 jobs:
@@ -77,7 +77,7 @@ jobs:
         run: |
           unzip -l artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg | tee contents.txt
           grep -q 'buildTransitive/net10.0-ios15.0/Plugin.InAppBilling.targets' contents.txt
-          grep -q 'native/ios/InAppBillingStoreKit.xcframework/Info.plist$' contents.txt
+          grep -q 'native/apple/InAppBillingStoreKit.xcframework/Info.plist$' contents.txt
           grep -q 'ios-arm64/InAppBillingStoreKit.framework/InAppBillingStoreKit$' contents.txt
           grep -q 'ios-arm64_x86_64-simulator/InAppBillingStoreKit.framework/InAppBillingStoreKit$' contents.txt
 
@@ -85,7 +85,7 @@ jobs:
         run: >
           dotnet build src/InAppBillingTests/StoreKit2Smoke/StoreKit2Smoke.csproj
           -c Release -r ios-arm64 -p:EnableCodeSigning=false
-          -p:IosTargetFramework=$IOS_TFM
+          -p:AppleTargetFramework=$IOS_TFM
           -p:RestoreAdditionalProjectSources=$PWD/artifacts
           -p:RestorePackagesPath=$PWD/.nuget-smoke
 
@@ -96,7 +96,7 @@ jobs:
           project=src/InAppBillingTests/StoreKit2Smoke
           rm -rf "$project/bin" "$project/obj"
           arch=$(uname -m); [ "$arch" = "x86_64" ] && rid=iossimulator-x64 || rid=iossimulator-arm64
-          dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" -p:IosTargetFramework=$IOS_TFM \
+          dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" -p:AppleTargetFramework=$IOS_TFM \
             -p:RestoreAdditionalProjectSources=$PWD/artifacts -p:RestorePackagesPath=$PWD/.nuget-smoke
           app=$(find "$project/bin" -name '*.app' -type d | head -1)
           # The build's Xcode has no simulator runtime, so go back to the default one to run.
@@ -108,4 +108,67 @@ jobs:
           grep -q SMOKE_OK smoke.log
           SIMCTL_CHILD_IAB_USE_LEGACY_STOREKIT=1 perl -e 'alarm 180; exec @ARGV' \
             xcrun simctl launch --console-pty "$UDID" com.refractored.iabstorekit2smoke | tee legacy-smoke.log || true
+          grep -q SMOKE_LEGACY_OK legacy-smoke.log
+
+  catalyst:
+    name: Mac Catalyst verification
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install the Mac Catalyst workload
+        run: dotnet workload install maccatalyst
+
+      - name: Test the Swift shim on Mac Catalyst
+        working-directory: src/StoreKit2Shim
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild test -scheme HostedTests -destination 'platform=macOS,variant=Mac Catalyst'
+
+      - name: Build the universal shim
+        run: src/StoreKit2Shim/build-xcframework.sh
+
+      - name: Select the Xcode for the .NET build
+        run: sudo xcode-select -s "$XCODE_APP"
+
+      - name: Pack the plugin for Mac Catalyst
+        run: >
+          dotnet pack src/Plugin.InAppBilling/Plugin.InAppBilling.csproj
+          -c Release -o artifacts
+          -p:TargetFrameworks=$CATALYST_TFM
+          -p:Version=0.0.0-smoke
+          -p:GeneratePackageOnBuild=false
+          -p:ContinuousIntegrationBuild=true
+
+      - name: Check the Mac Catalyst package
+        run: |
+          unzip -l artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg | tee contents.txt
+          grep -q 'buildTransitive/net10.0-maccatalyst15.0/Plugin.InAppBilling.targets' contents.txt
+          grep -q 'ios-arm64_x86_64-maccatalyst/InAppBillingStoreKit.framework/InAppBillingStoreKit$' contents.txt
+          binary=src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework/ios-arm64_x86_64-maccatalyst/InAppBillingStoreKit.framework/InAppBillingStoreKit
+          lipo -verify_arch arm64 x86_64 "$binary"
+
+      - name: Build the packaged smoke app for Apple Silicon and Intel
+        run: |
+          project=src/InAppBillingTests/StoreKit2Smoke
+          for rid in maccatalyst-arm64 maccatalyst-x64; do
+            dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" \
+              -p:AppleTargetFramework=$CATALYST_TFM -p:CodesignKey=- -p:UseHardenedRuntime=false \
+              -p:RestoreAdditionalProjectSources=$PWD/artifacts -p:RestorePackagesPath=$PWD/.nuget-smoke
+          done
+
+      - name: Run both backends from the packaged Mac Catalyst app
+        run: |
+          [ "$(uname -m)" = "arm64" ] && rid=maccatalyst-arm64 || rid=maccatalyst-x64
+          app=src/InAppBillingTests/StoreKit2Smoke/bin/Release/$CATALYST_TFM/$rid/StoreKit2Smoke.app
+          perl -e 'alarm 180; exec @ARGV' "$app/Contents/MacOS/StoreKit2Smoke" 2>&1 | tee smoke.log
+          grep -q SMOKE_OK smoke.log
+          IAB_USE_LEGACY_STOREKIT=1 perl -e 'alarm 180; exec @ARGV' \
+            "$app/Contents/MacOS/StoreKit2Smoke" 2>&1 | tee legacy-smoke.log
           grep -q SMOKE_LEGACY_OK legacy-smoke.log

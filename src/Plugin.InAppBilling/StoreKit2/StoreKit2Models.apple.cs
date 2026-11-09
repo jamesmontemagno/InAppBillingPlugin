@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace Plugin.InAppBilling
 {
-    // JSON contract with src/StoreKit2Shim/Sources/InAppBillingStoreKit/Models.swift.
+    // Shared iOS/Mac Catalyst JSON contract with src/StoreKit2Shim/Sources/InAppBillingStoreKit/Models.swift.
 
     internal sealed class StoreKitResponse
     {

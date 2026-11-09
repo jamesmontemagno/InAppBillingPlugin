@@ -1,7 +1,7 @@
 import Foundation
 import StoreKit
 
-// C ABI consumed by src/Plugin.InAppBilling/StoreKit2/StoreKit2Native.ios.cs.
+// C ABI consumed by src/Plugin.InAppBilling/StoreKit2/StoreKit2Native.apple.cs.
 // StoreKit 2 is Swift-only, so everything crosses this boundary as UTF-8 JSON.
 // Each async export invokes its callback exactly once.
 
@@ -64,10 +64,12 @@ public func iabCanMakePayments() -> Int32 {
     AppStore.canMakePayments ? 1 : 0
 }
 
+#if !targetEnvironment(macCatalyst)
 @_cdecl("iab_sk2_present_offer_code_sheet")
 public func iabPresentOfferCodeSheet() {
     Task { await Bridge.presentOfferCodeSheet() }
 }
+#endif
 
 private let listenerLock = NSLock()
 private var listeners: [Task<Void, Never>] = []
@@ -90,7 +92,7 @@ public func iabStartListeners(_ callback: IABCallback) {
         }
     ]
 
-    if #available(iOS 16.4, *) {
+    if #available(iOS 16.4, macCatalyst 16.4, *) {
         listeners.append(Task.detached {
             for await intent in PurchaseIntent.intents {
                 let json = Event(kind: "purchaseIntent", productId: intent.product.id).json

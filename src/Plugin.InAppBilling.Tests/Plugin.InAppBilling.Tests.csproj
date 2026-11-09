@@ -17,7 +17,7 @@
   <ItemGroup>
     <Compile Include="..\Plugin.InAppBilling\Shared\*.cs" LinkBase="Shared" />
     <Compile Include="..\Plugin.InAppBilling\CrossInAppBilling.shared.cs" Link="CrossInAppBilling.shared.cs" />
-    <Compile Include="..\Plugin.InAppBilling\StoreKit2\StoreKit2Models.ios.cs" Link="StoreKit2Models.ios.cs" />
+    <Compile Include="..\Plugin.InAppBilling\StoreKit2\StoreKit2Models.apple.cs" Link="StoreKit2Models.apple.cs" />
   </ItemGroup>
 
 </Project>

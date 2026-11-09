@@ -75,7 +75,7 @@ public async Task<bool> PurchaseItem(string productId)
 ```
 
 #### obfuscatedAccountId & obfuscatedProfileId
-* iOS: Optional, only obfuscatedAccountId is used at this time. It is sent as the appAccountToken, see [Account tokens](StoreKit2.md#account-tokens).
+* iOS/Mac Catalyst: Optional, only obfuscatedAccountId is used at this time. It is sent as the appAccountToken, see [Account tokens](StoreKit2.md#account-tokens).
 * Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder](Android documentation) for more info
 
 

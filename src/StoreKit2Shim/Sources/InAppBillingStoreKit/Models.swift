@@ -1,7 +1,7 @@
 import Foundation
 import StoreKit
 
-// JSON contract with src/Plugin.InAppBilling/StoreKit2/StoreKit2Models.ios.cs.
+// JSON contract with src/Plugin.InAppBilling/StoreKit2/StoreKit2Models.apple.cs.
 
 struct Response: Encodable {
     var error: ResponseError?

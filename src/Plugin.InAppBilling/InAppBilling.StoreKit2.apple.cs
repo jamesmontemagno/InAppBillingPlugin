@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Plugin.InAppBilling
 {
     /// <summary>
-    /// StoreKit 2 implementation for InAppBilling on iOS
+    /// StoreKit 2 implementation for InAppBilling on iOS and Mac Catalyst
     /// </summary>
     [Preserve(AllMembers = true)]
     public class InAppBillingImplementation : BaseInAppBilling
@@ -32,7 +32,7 @@ namespace Plugin.InAppBilling
         public static Action<InAppBillingPurchase> OnPurchaseFailure { get; set; } = null;
 
         /// <summary>
-        /// Gets or sets a callback for a purchase started from a promoted item on the App Store (iOS 16.4+). It receives the product id, return true to purchase it now.
+        /// Gets or sets a callback for a purchase started from a promoted item on the App Store (iOS/Mac Catalyst 16.4+). It receives the product id, return true to purchase it now.
         /// </summary>
         public static Func<string, bool> OnPurchaseIntent { get; set; } = null;
 
@@ -46,7 +46,7 @@ namespace Plugin.InAppBilling
         Storefront storefront;
 
         /// <summary>
-        /// Default constructor for In App Billing on iOS
+        /// Default constructor for In App Billing on iOS and Mac Catalyst
         /// </summary>
         public InAppBillingImplementation()
         {
@@ -79,7 +79,9 @@ namespace Plugin.InAppBilling
 
         /// <summary>
         /// iOS: Displays a sheet that enables users to redeem subscription offer codes that you configure in App Store Connect.
+        /// Apple does not support this sheet on Mac Catalyst.
         /// </summary>
+        /// <exception cref="PlatformNotSupportedException">Offer code redemption sheets are not supported on Mac Catalyst.</exception>
         public override void PresentCodeRedemption() => StoreKit2Native.PresentOfferCodeSheet();
 
         /// <summary>

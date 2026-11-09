@@ -13,7 +13,7 @@ permissions:
 jobs:
   storekit-shim:
     name: Build StoreKit 2 shim
-    # Swift for iOS can only be compiled with Xcode.
+    # Swift for iOS and Mac Catalyst can only be compiled with Xcode.
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v7

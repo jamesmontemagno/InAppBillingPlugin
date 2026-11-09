@@ -20,7 +20,9 @@ namespace Plugin.InAppBilling
         [DllImport(Library)] static extern void iab_sk2_sync(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
         [DllImport(Library)] static extern void iab_sk2_storefront(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
         [DllImport(Library)] static extern int iab_sk2_can_make_payments();
+#if !MACCATALYST
         [DllImport(Library)] static extern void iab_sk2_present_offer_code_sheet();
+#endif
         [DllImport(Library)] static extern void iab_sk2_start_listeners(delegate* unmanaged<nuint, byte*, void> callback);
         [DllImport(Library)] static extern void iab_sk2_stop_listeners();
 
@@ -28,7 +30,14 @@ namespace Plugin.InAppBilling
 
         public static bool CanMakePayments => iab_sk2_can_make_payments() != 0;
 
-        public static void PresentOfferCodeSheet() => iab_sk2_present_offer_code_sheet();
+        public static void PresentOfferCodeSheet()
+        {
+#if MACCATALYST
+            throw new PlatformNotSupportedException("Apple does not support offer code redemption sheets on Mac Catalyst. Redeem the code in the App Store instead.");
+#else
+            iab_sk2_present_offer_code_sheet();
+#endif
+        }
 
         public static Task<StoreKitResponse> ProductsAsync(string[] ids) =>
             Invoke((context, callback) => iab_sk2_products(StoreKitMapper.SerializeIds(ids), context, callback));

@@ -106,7 +106,7 @@ enum Bridge {
             }
 
             let result: Product.PurchaseResult
-            if #available(iOS 18.2, *), let scene = await activeScene() {
+            if #available(iOS 18.2, macCatalyst 18.2, *), let scene = await activeScene() {
                 result = try await product.purchase(confirmIn: scene, options: options)
             } else {
                 result = try await product.purchase(options: options)
@@ -206,6 +206,7 @@ enum Bridge {
         return scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
     }
 
+    #if !targetEnvironment(macCatalyst)
     @MainActor
     static func presentOfferCodeSheet() async {
         if #available(iOS 16.0, *), let scene = activeScene() {
@@ -214,4 +215,5 @@ enum Bridge {
             SKPaymentQueue.default().presentCodeRedemptionSheet()
         }
     }
+    #endif
 }

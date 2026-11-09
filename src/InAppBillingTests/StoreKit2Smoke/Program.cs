@@ -51,6 +51,21 @@ public class SmokeAppDelegate : UIApplicationDelegate
 
             Console.WriteLine($"SMOKE canMakePayments={billing.CanMakePayments}");
 
+#if MACCATALYST
+            if (!useLegacy)
+            {
+                try
+                {
+                    billing.PresentCodeRedemption();
+                    throw new InvalidOperationException("Mac Catalyst must report that the offer code sheet is unsupported.");
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    Console.WriteLine("SMOKE offer code sheet is unsupported on Mac Catalyst");
+                }
+            }
+#endif
+
             await ExpectStoreError("query", PurchaseError.InvalidProduct, () =>
                 billing.GetProductInfoAsync(ItemType.InAppPurchase, new[] { "smoke.missing" }, timeout.Token));
 

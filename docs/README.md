@@ -11,7 +11,7 @@ Here you will find detailed documentation on setting up and using the In-App Bil
 * [Purchase Subscription](PurchaseSubscription.md)
 * [Check & Restore Purchases](CheckAndRestorePurchases.md)
 * [Securing Purchases](SecuringPurchases.md)
-* [iOS StoreKit 2](StoreKit2.md)
+* [iOS and Mac Catalyst StoreKit 2](StoreKit2.md)
 * [Testing & Troubleshooting](TestingAndTroubleshooting.md)
 * [Windows and the Microsoft Store](Windows.md)
 * [Architecture](Architecture.md)
