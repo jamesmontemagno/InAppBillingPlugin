@@ -158,7 +158,7 @@ jobs:
           grep -q 'buildTransitive/net10.0-maccatalyst15.0/Plugin.InAppBilling.targets' contents.txt
           grep -q 'ios-arm64_x86_64-maccatalyst/InAppBillingStoreKit.framework/InAppBillingStoreKit$' contents.txt
           binary=src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework/ios-arm64_x86_64-maccatalyst/InAppBillingStoreKit.framework/InAppBillingStoreKit
-          lipo -verify_arch arm64 x86_64 "$binary"
+          lipo "$binary" -verify_arch arm64 x86_64
 
       - name: Build the packaged smoke app for Apple Silicon and Intel
         run: |

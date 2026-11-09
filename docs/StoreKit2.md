@@ -55,7 +55,7 @@ If `obfuscatedAccountId` is a UUID, it is passed as is. Any other value is conve
 
 ### Building from source
 
-The Swift framework needs macOS and Xcode. Run this before building or packing the plugin for iOS:
+The Swift framework needs macOS and Xcode. Run this before building or packing the plugin for iOS or Mac Catalyst:
 
 ```bash
 src/StoreKit2Shim/build-xcframework.sh
