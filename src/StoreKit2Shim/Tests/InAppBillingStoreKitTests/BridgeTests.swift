@@ -6,11 +6,12 @@ import XCTest
 final class BridgeTests: XCTestCase {
     private var session: SKTestSession!
 
-    override func setUpWithError() throws {
+    override func setUp() async throws {
         let url = try XCTUnwrap(Bundle(for: BridgeTests.self).url(forResource: "Products", withExtension: "storekit"))
         session = try SKTestSession(contentsOf: url)
         session.disableDialogs = true
         session.clearTransactions()
+        await Bridge.store.reset()
     }
 
     func testProductsReportFoundAndMissingIds() async throws {

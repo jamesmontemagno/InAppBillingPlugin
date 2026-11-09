@@ -18,6 +18,13 @@ actor TransactionStore {
         finishedIds.contains(transactionId)
     }
 
+    /// StoreKit test sessions reuse transaction ids after clearing them, so tests start from a clean store.
+    func reset() {
+        unfinished = [:]
+        finishedIds = []
+        finishedProductIds = []
+    }
+
     func finish(transactionId: UInt64) async -> Bool {
         if finishedIds.contains(transactionId) {
             return true
