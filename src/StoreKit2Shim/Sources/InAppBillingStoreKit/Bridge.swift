@@ -2,15 +2,15 @@ import Foundation
 import StoreKit
 import UIKit
 
-/// Tracks transactions from this process, because StoreKit's transaction lists can lag behind a purchase or a finish.
+/// Holds transactions StoreKit handed to us so they can be finished later by id.
 actor TransactionStore {
-    private var known: [UInt64: VerificationResult<Transaction>] = [:]
+    private var unfinished: [UInt64: Transaction] = [:]
     private var finishedIds: Set<UInt64> = []
     private var finishedProductIds: Set<String> = []
 
-    func remember(_ result: VerificationResult<Transaction>) {
-        if case .verified(let transaction) = result {
-            known[transaction.id] = result
+    func remember(_ transaction: Transaction) {
+        if !finishedIds.contains(transaction.id) {
+            unfinished[transaction.id] = transaction
         }
     }
 
@@ -18,20 +18,11 @@ actor TransactionStore {
         finishedIds.contains(transactionId)
     }
 
-    /// Unfinished purchases, and finished non-consumables that StoreKit may not list as entitlements yet.
-    func pendingOrOwned() -> [VerificationResult<Transaction>] {
-        known.values.filter { result in
-            let transaction = result.unsafePayloadValue
-            return transaction.revocationDate == nil
-                && (!finishedIds.contains(transaction.id) || transaction.productType == .nonConsumable)
-        }
-    }
-
     func finish(transactionId: UInt64) async -> Bool {
         if finishedIds.contains(transactionId) {
             return true
         }
-        if case .verified(let transaction)? = known[transactionId] {
+        if let transaction = unfinished[transactionId] {
             await complete(transaction)
             return true
         }
@@ -53,20 +44,18 @@ actor TransactionStore {
     }
 
     func finish(productId: String) async -> Bool {
-        var found = finishedProductIds.contains(productId)
-        for result in known.values {
-            if case .verified(let transaction) = result, transaction.productID == productId, !finishedIds.contains(transaction.id) {
-                await complete(transaction)
-                found = true
-            }
+        var known = finishedProductIds.contains(productId)
+        for (_, transaction) in unfinished where transaction.productID == productId {
+            await complete(transaction)
+            known = true
         }
         for await result in Transaction.unfinished {
             if case .verified(let transaction) = result, transaction.productID == productId {
                 await complete(transaction)
-                found = true
+                known = true
             }
         }
-        if found {
+        if known {
             return true
         }
         for await result in Transaction.all {
@@ -79,6 +68,7 @@ actor TransactionStore {
 
     private func complete(_ transaction: Transaction) async {
         await transaction.finish()
+        unfinished[transaction.id] = nil
         finishedIds.insert(transaction.id)
         finishedProductIds.insert(transaction.productID)
     }
@@ -117,10 +107,10 @@ enum Bridge {
 
             switch result {
             case .success(let verification):
-                guard case .verified = verification else {
+                guard case .verified(let transaction) = verification else {
                     return Response(error: unverifiedError(verification))
                 }
-                await store.remember(verification)
+                await store.remember(transaction)
                 return Response(status: "success", transaction: TransactionDTO(verification))
             case .userCancelled:
                 return Response(status: "userCancelled")
@@ -147,6 +137,7 @@ enum Bridge {
             if transaction.productType == .consumable, await store.isFinished(transaction.id) {
                 return
             }
+            await store.remember(transaction)
             transactions.append(TransactionDTO(result))
         }
 
@@ -154,10 +145,6 @@ enum Bridge {
             await add(result)
         }
         for await result in Transaction.unfinished {
-            await store.remember(result)
-            await add(result)
-        }
-        for result in await store.pendingOrOwned() {
             await add(result)
         }
         return Response(transactions: transactions)
