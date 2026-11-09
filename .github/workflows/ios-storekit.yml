@@ -21,8 +21,8 @@ permissions:
 
 env:
   # An iOS SDK and Xcode pair that the runner image has. The workload's newest SDK can require a newer Xcode.
-  IOS_TFM: net10.0-ios26.5
-  XCODE_APP: /Applications/Xcode_26.5.app
+  IOS_TFM: net10.0-ios26.0
+  XCODE_APP: /Applications/Xcode_26.0.1.app
 
 jobs:
   verify:
