@@ -68,7 +68,7 @@ jobs:
       - name: Check the package contents
         run: |
           unzip -l artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg | tee contents.txt
-          grep -q 'buildTransitive/net10.0-ios/Plugin.InAppBilling.targets' contents.txt
+          grep -q 'buildTransitive/net10.0-ios15.0/Plugin.InAppBilling.targets' contents.txt
           grep -q 'native/ios/InAppBillingStoreKit.xcframework/Info.plist' contents.txt
           grep -q 'ios-arm64/InAppBillingStoreKit.framework/InAppBillingStoreKit' contents.txt
           grep -q 'ios-arm64_x86_64-simulator/InAppBillingStoreKit.framework/InAppBillingStoreKit' contents.txt

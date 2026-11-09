@@ -1,7 +1,8 @@
 In-App Billing Plugin for .NET MAUI
 
-> Project status: Android is actively maintained and tracks the current Google Play Billing Library. iOS, Mac, and Windows keep working as they are today and are not getting new features; iOS and Mac still use the original StoreKit APIs. Contributions are welcome, and you can always fork the library or pull the source into your project.
+> Project status: Android is actively maintained and tracks the current Google Play Billing Library. iOS uses StoreKit 2. Mac and Windows keep working as they are today and are not getting new features; Mac still uses the original StoreKit APIs. Contributions are welcome, and you can always fork the library or pull the source into your project.
 
+* iOS now uses StoreKit 2 and requires iOS 15+. Purchase tokens and restore behavior have changed, see docs/StoreKit2.md
 * v10.1 uses Android Billing v9 and requires Android API 23+. If restore fails with NU1107 on Xamarin.AndroidX.Lifecycle packages, see the README for the AndroidX versions to reference.
 * v10 now supports .NET 10+ and Android Billing v8
 

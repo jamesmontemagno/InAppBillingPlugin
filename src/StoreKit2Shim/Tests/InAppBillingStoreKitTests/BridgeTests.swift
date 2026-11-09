@@ -2,6 +2,7 @@ import StoreKitTest
 import XCTest
 @testable import InAppBillingStoreKit
 
+// Purchases need a real app, so they are covered end to end by src/InAppBillingTests/StoreKit2Smoke.
 final class BridgeTests: XCTestCase {
     private var session: SKTestSession!
 
@@ -30,53 +31,10 @@ final class BridgeTests: XCTestCase {
         }
     }
 
-    func testPurchaseReturnsSignedTransactionWithAccountToken() async throws {
-        let token = "8F14E45F-CEEA-467F-A8C5-1B2F0C9E3D10"
-        let response = await Bridge.purchase(productId: "test.nonconsumable", appAccountToken: token)
-
-        XCTAssertNil(response.error)
-        XCTAssertEqual(response.status, "success")
-
-        let transaction = try XCTUnwrap(response.transaction)
-        XCTAssertEqual(transaction.productId, "test.nonconsumable")
-        XCTAssertEqual(transaction.appAccountToken, token.lowercased())
-        XCTAssertEqual(transaction.jws.split(separator: ".").count, 3)
-        XCTAssertTrue(transaction.verified)
-        XCTAssertFalse(transaction.revoked)
-    }
-
     func testPurchaseOfUnknownProductFails() async {
         let response = await Bridge.purchase(productId: "test.missing", appAccountToken: nil)
 
         XCTAssertEqual(response.error?.kind, "invalidProduct")
-    }
-
-    func testUnfinishedConsumableStaysAvailableUntilFinished() async throws {
-        let purchase = await Bridge.purchase(productId: "test.consumable", appAccountToken: nil)
-        let id = try XCTUnwrap(purchase.transaction?.id)
-
-        let before = await Bridge.currentPurchases()
-        XCTAssertTrue(before.transactions?.contains { $0.id == id } == true)
-
-        let finished = await Bridge.finish(transactionIds: [id])
-        XCTAssertEqual(finished.results?.first?.success, true)
-
-        let after = await Bridge.currentPurchases()
-        XCTAssertFalse(after.transactions?.contains { $0.id == id } == true)
-
-        // Finishing is idempotent so a manual finish after auto finish still reports success.
-        let again = await Bridge.finish(transactionIds: [id])
-        XCTAssertEqual(again.results?.first?.success, true)
-    }
-
-    func testOwnedNonConsumableIsCurrentAfterFinishing() async throws {
-        let purchase = await Bridge.purchase(productId: "test.nonconsumable", appAccountToken: nil)
-        let id = try XCTUnwrap(purchase.transaction?.id)
-        _ = await Bridge.finish(productIds: ["test.nonconsumable"])
-
-        let current = await Bridge.currentPurchases()
-
-        XCTAssertTrue(current.transactions?.contains { $0.id == id } == true)
     }
 
     func testFinishingUnknownIdsFails() async {

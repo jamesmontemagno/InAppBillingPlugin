@@ -11,11 +11,11 @@ When users get a new device or re-install your application it is best practice t
 Task<IEnumerable<InAppBillingPurchase>> GetPurchasesAsync(ItemType itemType, CancellationToken cancellationToken = default);
 ```
 
-When you make a call to restore a purchase it will prompt for the user to sign in if they haven't yet, so take that into consideration.
+On Android, when you make a call to restore a purchase it will prompt for the user to sign in if they haven't yet, so take that into consideration. iOS doesn't prompt unless you call `InAppBillingImplementation.SyncPurchasesAsync`, see [iOS StoreKit 2](StoreKit2.md).
 
 Note, that on iOS this will only return your non-consumables, consumables that have already been `finished` are not tracked at all and your app should handle these situations.
 
-On iOS, we auto finish all transactions when you get purchases. If you have any consumables you should pass in a `List<string>` with ids that you do not want finished.
+On iOS, we auto finish all transactions when you get purchases. If you have any consumables you should set `InAppBillingImplementation.FinishAllTransactions = false` and finish them yourself.
 
 
 Example:
@@ -73,7 +73,7 @@ public async Task<bool> WasItemPurchased(string productId)
 
 ## Subscriptions
 
-On `Android` only valid on-going subscriptions will be returned (with the original purchase date). `iOS` returns all receipts for all instances of the subscripitions. Read the iOS documentation to learn more on strategies.
+On `Android` only valid on-going subscriptions will be returned (with the original purchase date). `iOS` returns the latest transaction of each active subscription. Read the iOS documentation to learn more on strategies.
 
 Learn more about `IInAppBillingVerifyPurchase` in the [Securing Purchases](SecuringPurchases.md) documentation.
 

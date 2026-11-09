@@ -23,7 +23,7 @@ public MyViewModel()
 To learn about unit testing strategies be sure to read my blog: [Unit Testing Plugins for Xamarin](http://motzcod.es/post/159267241302/unit-testing-plugins-for-xamarin)
 
 ## Disposing of In-App Billing Plugin
-This plugin also implements IDisposable on all implementations. This ensure that all events are unregistered from the platform. This include unregistering from the SKPaymentQueue on iOS. Only dispose when you need to and are no longer listening to events and you must call `Dispose` on the actual static class. The next time you gain access to the `CrossInAppBilling.Current` a new instance will be created.
+This plugin also implements IDisposable on all implementations. This ensure that all events are unregistered from the platform. This include stopping the StoreKit transaction listeners on iOS. Only dispose when you need to and are no longer listening to events and you must call `Dispose` on the actual static class. The next time you gain access to the `CrossInAppBilling.Current` a new instance will be created.
 
 ```csharp
 public async Task<bool> MakePurchase()
