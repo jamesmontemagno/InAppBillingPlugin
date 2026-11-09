@@ -6,19 +6,36 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+#if IOS
+using StoreKit1Implementation = Plugin.InAppBilling.LegacyInAppBillingImplementation;
+#else
+using StoreKit1Implementation = Plugin.InAppBilling.InAppBillingImplementation;
+#endif
 
 namespace Plugin.InAppBilling
 {
 	/// <summary>
-	/// Implementation for InAppBilling
+	/// Original StoreKit implementation. On iOS, register LegacyInAppBillingImplementation before using CrossInAppBilling.
 	/// </summary>
 	[Preserve(AllMembers = true)]
+#if IOS
+	public class LegacyInAppBillingImplementation : BaseInAppBilling
+#else
 	public class InAppBillingImplementation : BaseInAppBilling
+#endif
 	{
         /// <summary>
         /// Backwards compat flag that may be removed in the future to auto finish all transactions like in v4
         /// </summary>
+#if IOS
+        public static bool FinishAllTransactions
+        {
+            get => InAppBillingImplementation.FinishAllTransactions;
+            set => InAppBillingImplementation.FinishAllTransactions = value;
+        }
+#else
         public static bool FinishAllTransactions { get; set; } = true;
+#endif
 
 #if __IOS__ || __TVOS__
         internal static bool HasIntroductoryOffer => UIKit.UIDevice.CurrentDevice.CheckSystemVersion(11, 2);
@@ -142,23 +159,54 @@ namespace Plugin.InAppBilling
         /// <summary>
         /// Gets or sets a callback for out of band purchases to complete.
         /// </summary>
-        public static Action<InAppBillingPurchase> OnPurchaseComplete { get; set; } = null;
+        public static Action<InAppBillingPurchase> OnPurchaseComplete
+        {
+#if IOS
+            get => InAppBillingImplementation.OnPurchaseComplete;
+            set => InAppBillingImplementation.OnPurchaseComplete = value;
+#else
+            get;
+            set;
+#endif
+        }
 
 
         /// <summary>
         /// Gets or sets a callback for out of band failures to complete.
         /// </summary>
-        public static Action<InAppBillingPurchase> OnPurchaseFailure { get; set; } = null;
+        public static Action<InAppBillingPurchase> OnPurchaseFailure
+        {
+#if IOS
+            get => InAppBillingImplementation.OnPurchaseFailure;
+            set => InAppBillingImplementation.OnPurchaseFailure = value;
+#else
+            get;
+            set;
+#endif
+        }
 
         /// <summary>
         ///
         /// </summary>
-		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
+		public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment
+        {
+#if IOS
+            get => InAppBillingImplementation.OnShouldAddStorePayment;
+            set => InAppBillingImplementation.OnShouldAddStorePayment = value;
+#else
+            get;
+            set;
+#endif
+        }
 
 		/// <summary>
 		/// Default constructor for In App Billing on iOS
 		/// </summary>
+#if IOS
+		public LegacyInAppBillingImplementation()
+#else
 		public InAppBillingImplementation()
+#endif
 		{
 			Init();
 		}
@@ -721,14 +769,14 @@ namespace Plugin.InAppBilling
 
 						onPurchaseSuccess?.Invoke(transaction.ToIABPurchase());
 
-                        if(InAppBillingImplementation.FinishAllTransactions)
+                        if(StoreKit1Implementation.FinishAllTransactions)
                             SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
                         break;
 					case SKPaymentTransactionState.Failed:
 						TransactionCompleted?.Invoke(transaction, false);
                         onPurchaseFailure?.Invoke(transaction?.ToIABPurchase());
 
-                        if (InAppBillingImplementation.FinishAllTransactions)
+                        if (StoreKit1Implementation.FinishAllTransactions)
                             SKPaymentQueue.DefaultQueue.FinishTransaction(transaction);
                         break;
 					default:
@@ -751,7 +799,7 @@ namespace Plugin.InAppBilling
 
 			TransactionsRestored?.Invoke(allTransactions);
 
-            if (InAppBillingImplementation.FinishAllTransactions)
+            if (StoreKit1Implementation.FinishAllTransactions)
             {
                 foreach (var transaction in allTransactions)
                 {
@@ -878,7 +926,7 @@ namespace Plugin.InAppBilling
 
         public static SubscriptionPeriod ToSubscriptionPeriod(this SKProduct p)
         {
-            if (!InAppBillingImplementation.HasIntroductoryOffer)
+            if (!StoreKit1Implementation.HasIntroductoryOffer)
                 return null;
 
             if (p?.SubscriptionPeriod?.Unit == null)
@@ -902,7 +950,7 @@ namespace Plugin.InAppBilling
 
         public static InAppBillingProductDiscount ToProductDiscount(this SKProductDiscount pd)
         {
-            if (!InAppBillingImplementation.HasIntroductoryOffer)
+            if (!StoreKit1Implementation.HasIntroductoryOffer)
                 return null;
 
             if (pd == null)
@@ -936,7 +984,7 @@ namespace Plugin.InAppBilling
                 _ => PaymentMode.Unknown,
             };
 
-            if(InAppBillingImplementation.HasProductDiscounts)
+            if(StoreKit1Implementation.HasProductDiscounts)
             {
                 discount.Id = pd.Identifier;
                 discount.Type = pd.Type switch

@@ -1,10 +1,30 @@
 ## iOS StoreKit 2
 
-On iOS the plugin uses Apple's StoreKit 2 and requires iOS 15 or newer. Mac Catalyst and macOS still use the original StoreKit APIs.
+On iOS the plugin defaults to Apple's StoreKit 2 and requires iOS 15 or newer. Mac Catalyst and macOS still use the original StoreKit APIs.
 
 StoreKit 2 is a Swift-only API, so the plugin includes a small Swift framework (`src/StoreKit2Shim`) that is linked into your app automatically. There is nothing extra to install or configure.
 
+### Staying on the original StoreKit API
+
+If you aren't ready to migrate receipt validation or restore behavior, register the legacy backend at startup, before anything accesses `CrossInAppBilling.Current` **or** `CrossInAppBilling.IsSupported`:
+
+```csharp
+#if IOS
+CrossInAppBilling.RegisterImplementation(() => new LegacyInAppBillingImplementation());
+#endif
+```
+
+For MAUI apps, put this in `MauiProgram.CreateMauiApp` before building the app or resolving services. For .NET iOS apps, register it in `AppDelegate.FinishedLaunching` before using billing. If you instantiate billing through your own DI container instead of `CrossInAppBilling`, register `LegacyInAppBillingImplementation` as your `IInAppBilling` singleton there.
+
+The legacy backend retains the original receipt tokens, restore flow, `applicationUsername`, and payment-queue callbacks. Existing configuration on `InAppBillingImplementation.FinishAllTransactions`, `OnPurchaseComplete`, `OnPurchaseFailure`, and `OnShouldAddStorePayment` also applies to the legacy backend. Set callbacks before the first billing access, as the legacy observer captures them when it starts.
+
+The factory runs lazily and `CrossInAppBilling` owns the resulting instance. `CrossInAppBilling.Dispose()` disposes it but retains the registration, so the next access creates another legacy instance. Registration after initialization throws instead of silently switching backends. Don't change backends during a purchase or restore; choose one at startup and keep it for the app session.
+
+To migrate to StoreKit 2 later, remove the legacy registration and replace `OnShouldAddStorePayment` with `OnPurchaseIntent`. No registration is needed for the default backend. There is no automatic fallback: StoreKit 2 failures won't retry a payment using StoreKit 1. Apple has deprecated StoreKit 1; this opt-out preserves its existing behavior and limitations rather than providing new StoreKit 2 features.
+
 ### What changed
+
+The following changes apply to the default StoreKit 2 backend, not the legacy opt-out.
 
 | Area | Original StoreKit | StoreKit 2 |
 |------|-------------------|------------|
@@ -14,7 +34,7 @@ StoreKit 2 is a Swift-only API, so the plugin includes a small Swift framework (
 | Restore button | `GetPurchasesAsync` | `GetPurchasesAsync` is normally enough. Call `InAppBillingImplementation.SyncPurchasesAsync` from a restore button if the user reports missing purchases, as it may prompt for sign-in. |
 | Ask to Buy | `PurchaseAsync` never completed | `PurchaseAsync` returns a purchase with `PurchaseState.Deferred`. The result arrives later through `OnPurchaseComplete`. |
 | `obfuscatedAccountId` | `applicationUsername`, any string | `appAccountToken`, which must be a UUID. See below. |
-| Promoted purchases | `OnShouldAddStorePayment` | `OnPurchaseIntent`, on iOS 16.4+. See [Getting Started](GettingStarted.md). The old property is now a compile error. |
+| Promoted purchases | `OnShouldAddStorePayment` | `OnPurchaseIntent`, on iOS 16.4+. See [Getting Started](GettingStarted.md). The old property remains available for the legacy backend only. |
 | `OnPurchaseComplete` | Also raised for restored purchases | Raised for purchases, renewals, and purchases made outside of the app, but not for `GetPurchasesAsync`. |
 | `OnPurchaseFailure` | Failed transactions | Failed purchases, transactions that fail verification, and revoked transactions (`PurchaseState.Canceled`). |
 | `ReceiptData` | App receipt | Still available, but Apple has deprecated receipts. Prefer `PurchaseToken`. |

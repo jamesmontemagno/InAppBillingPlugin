@@ -7,7 +7,7 @@ A simple In-App Purchase plugin for .NET MAUI and Windows to query item informat
 Subscriptions are supported on iOS, Android, Mac, and Windows.
 
 ## Important Version Information
-* iOS now uses StoreKit 2 and requires iOS 15+. Purchase tokens and restore behavior have changed, see [iOS StoreKit 2](docs/StoreKit2.md)
+* iOS now defaults to StoreKit 2 and requires iOS 15+. Purchase tokens and restore behavior have changed. A legacy StoreKit opt-out is available, see [iOS StoreKit 2](docs/StoreKit2.md).
 * Windows now uses `Windows.Services.Store` and supports WinUI 3 and Windows App SDK apps, subscriptions, and consumables. This changes some Windows behavior, see the [migration notes](docs/Windows.md#migrating-from-earlier-versions)
 * v10.1 uses Android Billing v9 and requires Android API 23+ (see [AndroidX versions](#androidx-versions-for-android-billing-v9))
 * v10 now supports .NET 10+ and Android Billing v8

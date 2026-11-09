@@ -13,9 +13,10 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>
 
-  <!-- The StoreKit 2 mapping is plain C#, so it is compiled here to be tested without an Apple SDK. -->
+  <!-- Registration and StoreKit 2 mapping are plain C#, so they can be tested without an Apple SDK. -->
   <ItemGroup>
     <Compile Include="..\Plugin.InAppBilling\Shared\*.cs" LinkBase="Shared" />
+    <Compile Include="..\Plugin.InAppBilling\CrossInAppBilling.shared.cs" Link="CrossInAppBilling.shared.cs" />
     <Compile Include="..\Plugin.InAppBilling\StoreKit2\StoreKit2Models.ios.cs" Link="StoreKit2Models.ios.cs" />
   </ItemGroup>
 

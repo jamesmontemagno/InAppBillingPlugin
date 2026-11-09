@@ -7,13 +7,42 @@ namespace Plugin.InAppBilling
     /// </summary>
     public class CrossInAppBilling
     {
-        static Lazy<IInAppBilling> implementation = new(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        static readonly object implementationLock = new();
+        static Func<IInAppBilling> implementationFactory = CreateInAppBilling;
+        static Lazy<IInAppBilling> implementation = new(() => implementationFactory());
+
+        /// <summary>
+        /// Registers the factory used to create Current. Call at startup, before accessing Current or IsSupported.
+        /// The registration is retained when Dispose is called.
+        /// </summary>
+        /// <param name="factory">Creates a new billing instance, which CrossInAppBilling owns and disposes.</param>
+        /// <exception cref="ArgumentNullException">The factory is null.</exception>
+        /// <exception cref="InvalidOperationException">Billing has already been initialized, or the factory returns null.</exception>
+        public static void RegisterImplementation(Func<IInAppBilling> factory)
+        {
+            ArgumentNullException.ThrowIfNull(factory);
+
+            lock (implementationLock)
+            {
+                if (implementation.IsValueCreated)
+                    throw new InvalidOperationException("Register billing before accessing Current or IsSupported. Dispose the existing instance before changing its registration.");
+
+                implementationFactory = () => factory() ?? throw new InvalidOperationException("The billing factory must return an implementation.");
+                implementation = new Lazy<IInAppBilling>(() => implementationFactory());
+            }
+        }
+
+        static IInAppBilling GetImplementation()
+        {
+            lock (implementationLock)
+                return implementation.Value;
+        }
 
 
 		/// <summary>
 		/// Gets if the plugin is supported on the current platform.
 		/// </summary>
-		public static bool IsSupported => implementation.Value == null ? false : true;
+		public static bool IsSupported => GetImplementation() != null;
 
 		/// <summary>
 		/// Current plugin implementation to use
@@ -22,7 +51,7 @@ namespace Plugin.InAppBilling
         {
             get
             {
-                var ret = implementation.Value;
+                var ret = GetImplementation();
                 if (ret == null)
                 {
                     throw NotImplementedInReferenceAssembly();
@@ -46,11 +75,13 @@ namespace Plugin.InAppBilling
         /// </summary>
         public static void Dispose()
         {
-            if (implementation != null && implementation.IsValueCreated)
+            lock (implementationLock)
             {
-                implementation.Value.Dispose();
+                if (!implementation.IsValueCreated)
+                    return;
 
-                implementation = new Lazy<IInAppBilling>(() => CreateInAppBilling(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+                implementation.Value?.Dispose();
+                implementation = new Lazy<IInAppBilling>(() => implementationFactory());
             }
         }
     }

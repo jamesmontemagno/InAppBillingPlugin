@@ -87,6 +87,10 @@
     <Compile Remove="**\**\*.maccatalyst.cs" />
     <None Include="**\**\*.maccatalyst.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
   </ItemGroup>
+  <!-- The original StoreKit backend is shared by Mac Catalyst and the optional legacy iOS implementation. -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+    <Compile Include="InAppBilling.maccatalyst.cs" />
+  </ItemGroup>
     <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-macos')) != true">
       <Compile Remove="**\**\*.macos.cs" />
       <None Include="**\**\*.macos.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />

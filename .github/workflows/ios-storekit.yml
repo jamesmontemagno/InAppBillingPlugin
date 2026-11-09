@@ -11,6 +11,8 @@ on:
       - src/Plugin.InAppBilling/StoreKit2/**
       - src/Plugin.InAppBilling/buildTransitive/**
       - src/Plugin.InAppBilling/InAppBilling.ios.cs
+      - src/Plugin.InAppBilling/InAppBilling.maccatalyst.cs
+      - src/Plugin.InAppBilling/CrossInAppBilling.shared.cs
       - src/Plugin.InAppBilling/Plugin.InAppBilling.csproj
       - .github/workflows/ios-storekit.yml
 
@@ -104,3 +106,6 @@ jobs:
           xcrun simctl install "$UDID" "$app"
           perl -e 'alarm 180; exec @ARGV' xcrun simctl launch --console-pty "$UDID" com.refractored.iabstorekit2smoke | tee smoke.log || true
           grep -q SMOKE_OK smoke.log
+          SIMCTL_CHILD_IAB_USE_LEGACY_STOREKIT=1 perl -e 'alarm 180; exec @ARGV' \
+            xcrun simctl launch --console-pty "$UDID" com.refractored.iabstorekit2smoke | tee legacy-smoke.log || true
+          grep -q SMOKE_LEGACY_OK legacy-smoke.log

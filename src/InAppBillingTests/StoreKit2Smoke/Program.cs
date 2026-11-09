@@ -25,7 +25,29 @@ public class SmokeAppDelegate : UIApplicationDelegate
         try
         {
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(120));
+            var useLegacy = Environment.GetEnvironmentVariable("IAB_USE_LEGACY_STOREKIT") == "1";
+            if (useLegacy)
+            {
+                // Existing setup code remains source-compatible and configures the registered legacy backend.
+                InAppBillingImplementation.FinishAllTransactions = false;
+                InAppBillingImplementation.OnShouldAddStorePayment = (_, _, _) => true;
+                InAppBillingImplementation.OnPurchaseComplete = _ => Console.WriteLine("SMOKE legacy purchase callback");
+                InAppBillingImplementation.OnPurchaseFailure = _ => Console.WriteLine("SMOKE legacy failure callback");
+                CrossInAppBilling.RegisterImplementation(() => new LegacyInAppBillingImplementation());
+            }
+
             var billing = CrossInAppBilling.Current;
+            var expectedType = useLegacy ? typeof(LegacyInAppBillingImplementation) : typeof(InAppBillingImplementation);
+            if (billing.GetType() != expectedType)
+                throw new InvalidOperationException($"Expected {expectedType.Name}, got {billing.GetType().Name}");
+
+            Console.WriteLine($"SMOKE backend={billing.GetType().Name}");
+
+            if (useLegacy && (LegacyInAppBillingImplementation.FinishAllTransactions
+                || !LegacyInAppBillingImplementation.OnShouldAddStorePayment(null!, null!, null!)
+                || LegacyInAppBillingImplementation.OnPurchaseComplete != InAppBillingImplementation.OnPurchaseComplete
+                || LegacyInAppBillingImplementation.OnPurchaseFailure != InAppBillingImplementation.OnPurchaseFailure))
+                throw new InvalidOperationException("The legacy backend lost the existing static configuration.");
 
             Console.WriteLine($"SMOKE canMakePayments={billing.CanMakePayments}");
 
@@ -34,6 +56,18 @@ public class SmokeAppDelegate : UIApplicationDelegate
 
             await ExpectStoreError("purchase", PurchaseError.InvalidProduct, () =>
                 billing.PurchaseAsync("smoke.missing", ItemType.InAppPurchase, "user-42", cancellationToken: timeout.Token));
+
+            if (useLegacy)
+            {
+                // Legacy restore requires an App Store account. Exercise its observer disposal/recreation without prompting.
+                CrossInAppBilling.Dispose();
+                if (CrossInAppBilling.Current is not LegacyInAppBillingImplementation)
+                    throw new InvalidOperationException("The legacy registration was lost after disposal.");
+                CrossInAppBilling.Dispose();
+                Console.WriteLine("SMOKE_LEGACY_OK");
+                Environment.Exit(0);
+                return;
+            }
 
             var purchases = await billing.GetPurchasesAsync(ItemType.InAppPurchase, timeout.Token);
             Console.WriteLine($"SMOKE purchases={purchases.Count()}");

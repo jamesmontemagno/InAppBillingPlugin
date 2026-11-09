@@ -37,9 +37,9 @@ namespace Plugin.InAppBilling
         public static Func<string, bool> OnPurchaseIntent { get; set; } = null;
 
         /// <summary>
-        /// No longer invoked because StoreKit 2 does not use the payment queue.
+        /// Gets or sets the promoted purchase callback for LegacyInAppBillingImplementation.
+        /// StoreKit 2 ignores this callback; use OnPurchaseIntent with the default implementation.
         /// </summary>
-        [Obsolete("StoreKit 2 does not use SKPaymentQueue. Use OnPurchaseIntent instead.", error: true)]
         public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
 
         bool listening;

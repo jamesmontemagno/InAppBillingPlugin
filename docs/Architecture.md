@@ -19,6 +19,12 @@ public MyViewModel()
 }
 ```
 
+### Registering an implementation
+
+`CrossInAppBilling.RegisterImplementation(() => new MyBillingImplementation())` replaces the default factory. Register once at startup, before accessing `Current` or `IsSupported`. The factory runs lazily, returns an `IInAppBilling`, and must create a fresh instance when called again after disposal. The plugin owns and disposes that instance. Late registration and null factories/results throw; failures do not fall back to another backend.
+
+On iOS, StoreKit 2 is the default. Apps that need the original StoreKit behavior can register `() => new LegacyInAppBillingImplementation()`, see [the migration guide](StoreKit2.md#staying-on-the-original-storekit-api). Registration affects `CrossInAppBilling`, not instances constructed directly or by your own DI container.
+
 ### What About Unit Testing?
 To learn about unit testing strategies be sure to read my blog: [Unit Testing Plugins for Xamarin](http://motzcod.es/post/159267241302/unit-testing-plugins-for-xamarin)
 
