@@ -25,11 +25,15 @@ public MyViewModel()
 
 On iOS and Mac Catalyst, StoreKit 2 is the default. Apps that need the original StoreKit behavior can register `() => new LegacyInAppBillingImplementation()`, see [the migration guide](StoreKit2.md#staying-on-the-original-storekit-api). Registration affects `CrossInAppBilling`, not instances constructed directly or by your own DI container.
 
+StoreKit 2 requires one active instance per process, so register it as a singleton when using your own container. An additional active instance is rejected rather than replacing another instance's listeners.
+
 ### What About Unit Testing?
 To learn about unit testing strategies be sure to read my blog: [Unit Testing Plugins for Xamarin](http://motzcod.es/post/159267241302/unit-testing-plugins-for-xamarin)
 
 ## Disposing of In-App Billing Plugin
 This plugin also implements IDisposable on all implementations. This ensure that all events are unregistered from the platform. This include stopping the StoreKit transaction listeners on iOS and Mac Catalyst. Only dispose when you need to and are no longer listening to events and you must call `Dispose` on the actual static class. The next time you gain access to the `CrossInAppBilling.Current` a new instance will be created.
+
+`CrossInAppBilling.Dispose()` also clears a cached factory failure, allowing the retained registration to retry initialization on the next access.
 
 ```csharp
 public async Task<bool> MakePurchase()

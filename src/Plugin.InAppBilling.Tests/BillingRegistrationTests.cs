@@ -106,6 +106,24 @@ public sealed class BillingRegistrationTests : IDisposable
         Assert.Same(failure, Assert.Throws<NotSupportedException>(() => CrossInAppBilling.Current));
     }
 
+    [Fact]
+    public void Dispose_allows_retrying_a_failed_factory_without_replacing_registration()
+    {
+        var attempts = 0;
+        var expected = new TestBilling();
+        CrossInAppBilling.RegisterImplementation(() =>
+            ++attempts == 1 ? throw new NotSupportedException("Try again") : expected);
+
+        Assert.Throws<NotSupportedException>(() => CrossInAppBilling.Current);
+        Assert.Throws<NotSupportedException>(() => CrossInAppBilling.Current);
+        Assert.Equal(1, attempts);
+
+        CrossInAppBilling.Dispose();
+
+        Assert.Same(expected, CrossInAppBilling.Current);
+        Assert.Equal(2, attempts);
+    }
+
     sealed class TestBilling : BaseInAppBilling
     {
         public bool Disposed { get; private set; }

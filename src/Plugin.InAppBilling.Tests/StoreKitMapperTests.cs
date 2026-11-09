@@ -60,6 +60,16 @@ public class StoreKitMapperTests
     }
 
     [Fact]
+    public void Non_subscription_products_keep_an_empty_discount_list()
+    {
+        var response = StoreKitMapper.ParseResponse("""{"products":[{"id":"coins","price":"0.99"}]}""");
+        var product = StoreKitMapper.ToProduct(response.Products.Single());
+
+        Assert.NotNull(product.AppleExtras.Discounts);
+        Assert.Empty(product.AppleExtras.Discounts);
+    }
+
+    [Fact]
     public void Price_parsing_ignores_the_device_culture()
     {
         var original = CultureInfo.CurrentCulture;

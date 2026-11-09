@@ -77,11 +77,16 @@ namespace Plugin.InAppBilling
         {
             lock (implementationLock)
             {
-                if (!implementation.IsValueCreated)
-                    return;
-
-                implementation.Value?.Dispose();
-                implementation = new Lazy<IInAppBilling>(() => implementationFactory());
+                var previous = implementation;
+                try
+                {
+                    if (previous.IsValueCreated)
+                        previous.Value?.Dispose();
+                }
+                finally
+                {
+                    implementation = new Lazy<IInAppBilling>(() => implementationFactory());
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Plugin.InAppBilling
@@ -23,10 +24,10 @@ namespace Plugin.InAppBilling
 #if !MACCATALYST
         [DllImport(Library)] static extern void iab_sk2_present_offer_code_sheet();
 #endif
-        [DllImport(Library)] static extern void iab_sk2_start_listeners(delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_start_listeners(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
         [DllImport(Library)] static extern void iab_sk2_stop_listeners();
 
-        static Action<StoreKitEvent> eventHandler;
+        static readonly StoreKit2EventDispatcher events = new();
 
         public static bool CanMakePayments => iab_sk2_can_make_payments() != 0;
 
@@ -42,8 +43,12 @@ namespace Plugin.InAppBilling
         public static Task<StoreKitResponse> ProductsAsync(string[] ids) =>
             Invoke((context, callback) => iab_sk2_products(StoreKitMapper.SerializeIds(ids), context, callback));
 
-        public static Task<StoreKitResponse> PurchaseAsync(string productId, string appAccountToken) =>
-            Invoke((context, callback) => iab_sk2_purchase(productId, appAccountToken, context, callback));
+        public static Task<StoreKitResponse> PurchaseAsync(string productId, string appAccountToken, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(productId);
+            cancellationToken.ThrowIfCancellationRequested();
+            return Invoke((context, callback) => iab_sk2_purchase(productId, appAccountToken, context, callback));
+        }
 
         public static Task<StoreKitResponse> CurrentPurchasesAsync() =>
             Invoke((context, callback) => iab_sk2_current_purchases(context, callback));
@@ -60,17 +65,11 @@ namespace Plugin.InAppBilling
         public static Task<StoreKitResponse> StorefrontAsync() =>
             Invoke((context, callback) => iab_sk2_storefront(context, callback));
 
-        public static void StartListeners(Action<StoreKitEvent> handler)
-        {
-            eventHandler = handler;
-            iab_sk2_start_listeners(&OnEvent);
-        }
+        public static (nuint Context, CancellationToken Token) StartListeners(Func<StoreKitEvent, CancellationToken, Task> handler) =>
+            events.Start(handler, context => iab_sk2_start_listeners(context, &OnEvent));
 
-        public static void StopListeners()
-        {
-            iab_sk2_stop_listeners();
-            eventHandler = null;
-        }
+        public static void StopListeners(nuint context) =>
+            events.Stop(context, iab_sk2_stop_listeners);
 
         delegate void NativeCall(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
 
@@ -115,9 +114,7 @@ namespace Plugin.InAppBilling
             try
             {
                 var storeEvent = StoreKitMapper.ParseEvent(Marshal.PtrToStringUTF8((nint)json));
-                var handler = eventHandler;
-                if (handler != null)
-                    Task.Run(() => handler(storeEvent));
+                events.Enqueue(context, storeEvent);
             }
             catch (Exception ex)
             {

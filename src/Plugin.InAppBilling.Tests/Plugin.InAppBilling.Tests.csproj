@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,11 +14,13 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>
 
-  <!-- Registration and StoreKit 2 mapping are plain C#, so they can be tested without an Apple SDK. -->
+  <!-- Registration, mapping, and event dispatch can be tested without an Apple SDK. Native calls are only used by the Apple smoke app. -->
   <ItemGroup>
     <Compile Include="..\Plugin.InAppBilling\Shared\*.cs" LinkBase="Shared" />
     <Compile Include="..\Plugin.InAppBilling\CrossInAppBilling.shared.cs" Link="CrossInAppBilling.shared.cs" />
     <Compile Include="..\Plugin.InAppBilling\StoreKit2\StoreKit2Models.apple.cs" Link="StoreKit2Models.apple.cs" />
+    <Compile Include="..\Plugin.InAppBilling\StoreKit2\StoreKit2EventDispatcher.apple.cs" Link="StoreKit2EventDispatcher.apple.cs" />
+    <Compile Include="..\Plugin.InAppBilling\StoreKit2\StoreKit2Native.apple.cs" Link="StoreKit2Native.apple.cs" />
   </ItemGroup>
 
 </Project>

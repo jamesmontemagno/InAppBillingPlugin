@@ -51,6 +51,21 @@ public class SmokeAppDelegate : UIApplicationDelegate
 
             Console.WriteLine($"SMOKE canMakePayments={billing.CanMakePayments}");
 
+            if (!useLegacy)
+            {
+                await ExpectException<InvalidOperationException>("competing listener", () =>
+                {
+                    using var competing = new InAppBillingImplementation();
+                    return Task.CompletedTask;
+                });
+                await ExpectException<ArgumentNullException>("null purchase", () =>
+                    billing.PurchaseAsync(null!, ItemType.InAppPurchase));
+                using var canceled = new CancellationTokenSource();
+                canceled.Cancel();
+                await ExpectException<OperationCanceledException>("pre-canceled purchase", () =>
+                    billing.PurchaseAsync("smoke.missing", ItemType.InAppPurchase, cancellationToken: canceled.Token));
+            }
+
 #if MACCATALYST
             if (!useLegacy)
             {
@@ -92,6 +107,13 @@ public class SmokeAppDelegate : UIApplicationDelegate
                 throw new InvalidOperationException($"An unknown transaction was finalized: {finished}");
             Console.WriteLine("SMOKE finalize reported the unknown transaction");
 
+            CrossInAppBilling.Dispose();
+            await ExpectException<ObjectDisposedException>("disposed listener", () =>
+                billing.GetPurchasesAsync(ItemType.InAppPurchase, timeout.Token));
+            if (ReferenceEquals(billing, CrossInAppBilling.Current))
+                throw new InvalidOperationException("Disposal did not replace the StoreKit 2 instance.");
+            CrossInAppBilling.Dispose();
+
             Console.WriteLine("SMOKE_OK");
             Environment.Exit(0);
         }
@@ -115,5 +137,19 @@ public class SmokeAppDelegate : UIApplicationDelegate
         {
             Console.WriteLine($"SMOKE {name} error={ex.PurchaseError} expected={expected} message={ex.Message}");
         }
+    }
+
+    static async Task ExpectException<T>(string name, Func<Task> call) where T : Exception
+    {
+        try
+        {
+            await call();
+        }
+        catch (T)
+        {
+            Console.WriteLine($"SMOKE {name} rejected");
+            return;
+        }
+        throw new InvalidOperationException($"Expected {name} to throw {typeof(T).Name}.");
     }
 }

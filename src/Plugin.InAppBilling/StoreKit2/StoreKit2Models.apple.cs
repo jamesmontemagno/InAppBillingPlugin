@@ -151,6 +151,7 @@ namespace Plugin.InAppBilling
                 SubscriptionPeriod = ToPeriod(product.SubscriptionPeriod),
                 IntroductoryOffer = ToDiscount(product.IntroductoryOffer, product.CurrencyCode),
                 Discounts = product.PromotionalOffers?.Select(o => ToDiscount(o, product.CurrencyCode)).ToList()
+                    ?? new List<InAppBillingProductDiscount>()
             }
         };
 

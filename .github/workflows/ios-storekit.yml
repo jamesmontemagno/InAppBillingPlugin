@@ -77,9 +77,11 @@ jobs:
         run: |
           unzip -l artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg | tee contents.txt
           grep -q 'buildTransitive/net10.0-ios15.0/Plugin.InAppBilling.targets' contents.txt
-          grep -q 'native/apple/InAppBillingStoreKit.xcframework/Info.plist$' contents.txt
-          grep -q 'ios-arm64/InAppBillingStoreKit.framework/InAppBillingStoreKit$' contents.txt
-          grep -q 'ios-arm64_x86_64-simulator/InAppBillingStoreKit.framework/InAppBillingStoreKit$' contents.txt
+          unzip -p artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg \
+            native/apple/InAppBillingStoreKit.xcframework.zip > packaged-shim.zip
+          unzip -l packaged-shim.zip | tee shim-contents.txt
+          grep -q 'ios-arm64/InAppBillingStoreKit.framework/InAppBillingStoreKit$' shim-contents.txt
+          grep -q 'ios-arm64_x86_64-simulator/InAppBillingStoreKit.framework/InAppBillingStoreKit$' shim-contents.txt
 
       - name: Build the smoke app from the package for a device
         run: >
@@ -156,9 +158,15 @@ jobs:
         run: |
           unzip -l artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg | tee contents.txt
           grep -q 'buildTransitive/net10.0-maccatalyst15.0/Plugin.InAppBilling.targets' contents.txt
-          grep -q 'ios-arm64_x86_64-maccatalyst/InAppBillingStoreKit.framework/InAppBillingStoreKit$' contents.txt
-          binary=src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework/ios-arm64_x86_64-maccatalyst/InAppBillingStoreKit.framework/InAppBillingStoreKit
-          lipo "$binary" -verify_arch arm64 x86_64
+          unzip -p artifacts/Plugin.InAppBilling.0.0.0-smoke.nupkg \
+            native/apple/InAppBillingStoreKit.xcframework.zip > packaged-shim.zip
+          ditto -x -k packaged-shim.zip packaged-shim
+          framework=packaged-shim/InAppBillingStoreKit.xcframework/ios-arm64_x86_64-maccatalyst/InAppBillingStoreKit.framework
+          test -L "$framework/Versions/Current"
+          test -L "$framework/InAppBillingStoreKit"
+          test -L "$framework/Resources"
+          test -f "$framework/Versions/A/Resources/Info.plist"
+          lipo "$framework/InAppBillingStoreKit" -verify_arch arm64 x86_64
 
       - name: Build the packaged smoke app for Apple Silicon and Intel
         run: |
@@ -173,6 +181,8 @@ jobs:
         run: |
           [ "$(uname -m)" = "arm64" ] && rid=maccatalyst-arm64 || rid=maccatalyst-x64
           app=src/InAppBillingTests/StoreKit2Smoke/bin/Release/$CATALYST_TFM/$rid/StoreKit2Smoke.app
+          test -L "$app/Contents/Frameworks/InAppBillingStoreKit.framework/Versions/Current"
+          codesign --verify --deep --strict --verbose=2 "$app"
           perl -e 'alarm 180; exec @ARGV' "$app/Contents/MacOS/StoreKit2Smoke" 2>&1 | tee smoke.log
           grep -q SMOKE_OK smoke.log
           IAB_USE_LEGACY_STOREKIT=1 perl -e 'alarm 180; exec @ARGV' \

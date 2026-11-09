@@ -42,7 +42,9 @@ namespace Plugin.InAppBilling
         /// </summary>
         public static Func<SKPaymentQueue, SKPayment, SKProduct, bool> OnShouldAddStorePayment { get; set; } = null;
 
-        bool listening;
+        readonly object lifecycleLock = new();
+        nuint listenerContext;
+        CancellationToken listenerToken;
         Storefront storefront;
 
         /// <summary>
@@ -55,12 +57,15 @@ namespace Plugin.InAppBilling
 
         void Init()
         {
-            if (listening)
-                return;
+            lock (lifecycleLock)
+            {
+                ObjectDisposedException.ThrowIf(disposed, this);
+                if (listenerContext != 0)
+                    return;
 
-            listening = true;
-            StoreKit2Native.StartListeners(storeEvent => _ = HandleEventAsync(storeEvent));
-            _ = RefreshStorefrontAsync();
+                (listenerContext, listenerToken) = StoreKit2Native.StartListeners(HandleEventAsync);
+                _ = RefreshStorefrontAsync();
+            }
         }
 
         async Task RefreshStorefrontAsync()
@@ -150,7 +155,7 @@ namespace Plugin.InAppBilling
             var transactions = response.Transactions ?? new List<StoreKitTransaction>();
 
             if (FinishAllTransactions && transactions.Count > 0)
-                await StoreKit2Native.FinishTransactionsAsync(transactions.Select(t => t.Id).ToArray());
+                await StoreKit2Native.FinishTransactionsAsync(transactions.Select(t => t.Id).ToArray()).WaitAsync(cancellationToken);
 
             return transactions.Select(StoreKitMapper.ToPurchase).ToList();
         }
@@ -180,8 +185,11 @@ namespace Plugin.InAppBilling
         /// <returns>The purchase. Its state is Deferred when it needs approval, the result then arrives through OnPurchaseComplete.</returns>
         public override async Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, string obfuscatedAccountId = null, string obfuscatedProfileId = null, string subOfferToken = null, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(productId);
+            cancellationToken.ThrowIfCancellationRequested();
             Init();
-            var pending = StoreKit2Native.PurchaseAsync(productId, StoreKitMapper.ToAppAccountToken(obfuscatedAccountId));
+            var lifetime = listenerToken;
+            var pending = StoreKit2Native.PurchaseAsync(productId, StoreKitMapper.ToAppAccountToken(obfuscatedAccountId), cancellationToken);
 
             StoreKitResponse response;
             try
@@ -191,18 +199,18 @@ namespace Plugin.InAppBilling
             catch (OperationCanceledException)
             {
                 // The payment sheet can't be dismissed from here, so a purchase may still go through after the caller stops waiting.
-                _ = CompleteAbandonedPurchaseAsync(productId, pending);
+                _ = CompleteAbandonedPurchaseAsync(productId, pending, lifetime);
                 throw;
             }
 
-            return await CompletePurchaseAsync(productId, response);
+            return await CompletePurchaseAsync(productId, response, lifetime);
         }
 
-        static async Task CompleteAbandonedPurchaseAsync(string productId, Task<StoreKitResponse> pending)
+        static async Task CompleteAbandonedPurchaseAsync(string productId, Task<StoreKitResponse> pending, CancellationToken lifetime)
         {
             try
             {
-                await CompletePurchaseAsync(productId, await pending);
+                await CompletePurchaseAsync(productId, await pending, lifetime);
             }
             catch (Exception ex)
             {
@@ -210,11 +218,11 @@ namespace Plugin.InAppBilling
             }
         }
 
-        static async Task<InAppBillingPurchase> CompletePurchaseAsync(string productId, StoreKitResponse response)
+        static async Task<InAppBillingPurchase> CompletePurchaseAsync(string productId, StoreKitResponse response, CancellationToken lifetime)
         {
             if (response.Error != null)
             {
-                NotifyPurchaseFailed(productId);
+                NotifyPurchaseFailed(productId, lifetime);
                 throw StoreKitMapper.ToException(response.Error);
             }
 
@@ -225,32 +233,35 @@ namespace Plugin.InAppBilling
                         await StoreKit2Native.FinishTransactionsAsync(new[] { response.Transaction.Id });
 
                     var purchase = StoreKitMapper.ToPurchase(response.Transaction);
-                    Notify(OnPurchaseComplete, purchase);
+                    Notify(OnPurchaseComplete, purchase, lifetime);
                     return purchase;
                 case "pending":
                     return StoreKitMapper.ToDeferredPurchase(productId);
                 case "userCancelled":
-                    NotifyPurchaseFailed(productId);
+                    NotifyPurchaseFailed(productId, lifetime);
                     throw new InAppBillingPurchaseException(PurchaseError.UserCancelled);
                 default:
-                    NotifyPurchaseFailed(productId);
+                    NotifyPurchaseFailed(productId, lifetime);
                     throw new InAppBillingPurchaseException(PurchaseError.GeneralError, $"Unknown purchase status: {response.Status}");
             }
         }
 
-        async Task HandleEventAsync(StoreKitEvent storeEvent)
+        async Task HandleEventAsync(StoreKitEvent storeEvent, CancellationToken cancellationToken)
         {
             try
             {
                 switch (storeEvent?.Kind)
                 {
                     case "transaction":
-                        await HandleTransactionUpdateAsync(storeEvent.Transaction);
+                        await HandleTransactionUpdateAsync(storeEvent.Transaction, cancellationToken);
                         break;
                     case "purchaseIntent":
-                        await HandlePurchaseIntentAsync(storeEvent.ProductId);
+                        await HandlePurchaseIntentAsync(storeEvent.ProductId, cancellationToken);
                         break;
                 }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
             }
             catch (Exception ex)
             {
@@ -258,42 +269,77 @@ namespace Plugin.InAppBilling
             }
         }
 
-        static async Task HandleTransactionUpdateAsync(StoreKitTransaction transaction)
+        static async Task HandleTransactionUpdateAsync(StoreKitTransaction transaction, CancellationToken cancellationToken)
         {
             // An unverified transaction stays unfinished so that it isn't acknowledged by accident.
             if (FinishAllTransactions && transaction.Verified)
-                await StoreKit2Native.FinishTransactionsAsync(new[] { transaction.Id });
+                await StoreKit2Native.FinishTransactionsAsync(new[] { transaction.Id }).WaitAsync(cancellationToken);
 
             var purchase = StoreKitMapper.ToPurchase(transaction);
-            Notify(purchase.State == PurchaseState.Purchased ? OnPurchaseComplete : OnPurchaseFailure, purchase);
+            await NotifyEventAsync(purchase.State == PurchaseState.Purchased ? OnPurchaseComplete : OnPurchaseFailure, purchase, cancellationToken);
         }
 
-        async Task HandlePurchaseIntentAsync(string productId)
+        async Task HandlePurchaseIntentAsync(string productId, CancellationToken cancellationToken)
         {
             var handler = OnPurchaseIntent;
             if (handler == null)
                 return;
 
             var shouldPurchase = false;
-            DispatchQueue.MainQueue.DispatchSync(() => shouldPurchase = handler(productId));
+            DispatchQueue.MainQueue.DispatchSync(() =>
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                    shouldPurchase = handler(productId);
+            });
 
             // The product type is not used on iOS and the result is reported through the purchase callbacks.
             if (shouldPurchase)
-                await PurchaseAsync(productId, ItemType.InAppPurchase);
+                await PurchaseAsync(productId, ItemType.InAppPurchase, cancellationToken: cancellationToken);
         }
 
-        static void NotifyPurchaseFailed(string productId) =>
+        static void NotifyPurchaseFailed(string productId, CancellationToken lifetime) =>
             Notify(OnPurchaseFailure, new InAppBillingPurchase
             {
                 ProductId = productId,
                 ProductIds = new[] { productId },
                 State = PurchaseState.Failed
-            });
+            }, lifetime);
 
-        static void Notify(Action<InAppBillingPurchase> callback, InAppBillingPurchase purchase)
+        static void Notify(Action<InAppBillingPurchase> callback, InAppBillingPurchase purchase, CancellationToken lifetime)
         {
             if (callback != null)
-                DispatchQueue.MainQueue.DispatchAsync(() => callback(purchase));
+                DispatchQueue.MainQueue.DispatchAsync(() =>
+                {
+                    if (!lifetime.IsCancellationRequested)
+                        callback(purchase);
+                });
+        }
+
+        static Task NotifyEventAsync(Action<InAppBillingPurchase> callback, InAppBillingPurchase purchase, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (callback == null)
+                return Task.CompletedTask;
+
+            var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            DispatchQueue.MainQueue.DispatchAsync(() =>
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    callback(purchase);
+                    completion.SetResult();
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    completion.SetCanceled(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    completion.SetException(ex);
+                }
+            });
+            return completion.Task;
         }
 
         /// <summary>
@@ -366,13 +412,16 @@ namespace Plugin.InAppBilling
         /// <param name="disposing"></param>
         public override void Dispose(bool disposing)
         {
-            if (!disposed && disposing)
+            lock (lifecycleLock)
             {
-                disposed = true;
-                if (listening)
+                if (!disposed && disposing)
                 {
-                    StoreKit2Native.StopListeners();
-                    listening = false;
+                    disposed = true;
+                    if (listenerContext != 0)
+                    {
+                        StoreKit2Native.StopListeners(listenerContext);
+                        listenerContext = 0;
+                    }
                 }
             }
 

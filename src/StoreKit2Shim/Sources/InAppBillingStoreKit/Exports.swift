@@ -75,7 +75,7 @@ private let listenerLock = NSLock()
 private var listeners: [Task<Void, Never>] = []
 
 @_cdecl("iab_sk2_start_listeners")
-public func iabStartListeners(_ callback: IABCallback) {
+public func iabStartListeners(_ context: UInt, _ callback: IABCallback) {
     listenerLock.lock()
     defer { listenerLock.unlock() }
 
@@ -83,11 +83,13 @@ public func iabStartListeners(_ callback: IABCallback) {
     listeners = [
         Task.detached {
             for await result in Transaction.updates {
+                guard !Task.isCancelled else { break }
                 if case .verified(let transaction) = result {
                     await Bridge.store.remember(transaction)
                 }
+                guard !Task.isCancelled else { break }
                 let json = Event(kind: "transaction", transaction: TransactionDTO(result)).json
-                json.withCString { callback(0, $0) }
+                json.withCString { callback(context, $0) }
             }
         }
     ]
@@ -95,8 +97,9 @@ public func iabStartListeners(_ callback: IABCallback) {
     if #available(iOS 16.4, macCatalyst 16.4, *) {
         listeners.append(Task.detached {
             for await intent in PurchaseIntent.intents {
+                guard !Task.isCancelled else { break }
                 let json = Event(kind: "purchaseIntent", productId: intent.product.id).json
-                json.withCString { callback(0, $0) }
+                json.withCString { callback(context, $0) }
             }
         })
     }

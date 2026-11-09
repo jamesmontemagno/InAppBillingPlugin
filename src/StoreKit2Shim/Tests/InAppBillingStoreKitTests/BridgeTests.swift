@@ -100,4 +100,21 @@ final class BridgeTests: XCTestCase {
 
         XCTAssertEqual(response.results?.map(\.success), [false, false])
     }
+
+    func testUnfinishedRestoreExcludesInactiveTransactionsWithoutExcludingConsumables() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let cases: [(Date?, Date?, Bool, Bool)] = [
+            (nil, nil, false, true),
+            (now.addingTimeInterval(-1), nil, false, false),
+            (now, nil, false, false),
+            (now.addingTimeInterval(1), nil, false, true),
+            (nil, now, false, false),
+            (now.addingTimeInterval(1), nil, true, false)
+        ]
+        for (expiration, revocation, upgraded, expected) in cases {
+            XCTAssertEqual(Bridge.isActiveUnfinished(expirationDate: expiration,
+                                                     revocationDate: revocation,
+                                                     isUpgraded: upgraded, now: now), expected)
+        }
+    }
 }

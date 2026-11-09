@@ -16,7 +16,9 @@ compile() { # <sdk> <target triple> <output binary>
     local sdk
     sdk="$(xcrun --sdk "$1" --show-sdk-path)"
     local sdk_flags=(-sdk "$sdk")
+    local install_name="@rpath/$NAME.framework/$NAME"
     if [ "$1" = "macosx" ]; then
+        install_name="@rpath/$NAME.framework/Versions/A/$NAME"
         sdk_flags+=(
             -F "$sdk/System/iOSSupport/System/Library/Frameworks"
             -I "$sdk/System/iOSSupport/usr/include"
@@ -29,7 +31,7 @@ compile() { # <sdk> <target triple> <output binary>
         -swift-version 5 \
         -O -whole-module-optimization \
         -emit-library \
-        -Xlinker -install_name -Xlinker "@rpath/$NAME.framework/$NAME" \
+        -Xlinker -install_name -Xlinker "$install_name" \
         -module-cache-path "$WORK/module-cache" \
         -o "$3" \
         "${sdk_flags[@]}" \
@@ -40,14 +42,23 @@ package_framework() { # <supported platform> <binary> <output directory>
     local framework="$3/$NAME.framework"
     local minimum_key=MinimumOSVersion
     local minimum_version="$MIN_IOS"
+    local binary_root="$framework"
+    local resource_root="$framework"
     if [ "$1" = "MacOSX" ]; then
         # Mac Catalyst 15 maps to macOS 12, not macOS 15.
         minimum_key=LSMinimumSystemVersion
         minimum_version=12.0
+        binary_root="$framework/Versions/A"
+        resource_root="$binary_root/Resources"
     fi
-    mkdir -p "$framework"
-    cp "$2" "$framework/$NAME"
-    cat > "$framework/Info.plist" <<EOF
+    mkdir -p "$resource_root"
+    if [ "$1" = "MacOSX" ]; then
+        ln -s A "$framework/Versions/Current"
+        ln -s "Versions/Current/$NAME" "$framework/$NAME"
+        ln -s Versions/Current/Resources "$framework/Resources"
+    fi
+    cp "$2" "$binary_root/$NAME"
+    cat > "$resource_root/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -65,7 +76,7 @@ package_framework() { # <supported platform> <binary> <output directory>
 </dict>
 </plist>
 EOF
-    plutil -convert binary1 "$framework/Info.plist"
+    plutil -convert binary1 "$resource_root/Info.plist"
 }
 
 compile iphoneos "arm64-apple-ios$MIN_IOS" "$WORK/device"
@@ -86,5 +97,7 @@ xcodebuild -create-xcframework \
     -framework "$WORK/maccatalyst/$NAME.framework" \
     -output "$OUT/$NAME.xcframework"
 
+# NuGet does not retain symlinks; the Apple SDK extracts this zip with them intact.
+(cd "$OUT" && /usr/bin/zip -qry "$NAME.xcframework.zip" "$NAME.xcframework")
 rm -rf "$WORK"
-echo "Created $OUT/$NAME.xcframework"
+echo "Created $OUT/$NAME.xcframework.zip"

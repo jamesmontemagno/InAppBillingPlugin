@@ -22,6 +22,8 @@ The legacy backend retains the original receipt tokens, restore flow, `applicati
 
 The factory runs lazily and `CrossInAppBilling` owns the resulting instance. `CrossInAppBilling.Dispose()` disposes it but retains the registration, so the next access creates another legacy instance. Registration after initialization throws instead of silently switching backends. Don't change backends during a purchase or restore; choose one at startup and keep it for the app session.
 
+StoreKit 2 allows one active billing instance per process. Use `CrossInAppBilling.Current` or a singleton in your DI container; creating another active `InAppBillingImplementation` throws. Disposing it invalidates its listener generation and queued callbacks before a replacement can start. Transaction notifications are processed in order, including their asynchronous finishing and main-thread callbacks.
+
 To migrate to StoreKit 2 later, remove the legacy registration and replace `OnShouldAddStorePayment` with `OnPurchaseIntent`. No registration is needed for the default backend. There is no automatic fallback: StoreKit 2 failures won't retry a payment using StoreKit 1. Apple has deprecated StoreKit 1; this opt-out preserves its existing behavior and limitations rather than providing new StoreKit 2 features.
 
 ### What changed
@@ -63,10 +65,12 @@ src/StoreKit2Shim/build-xcframework.sh
 
 The published package includes the framework, and CI builds it for each package. The build produces iOS device, universal iOS simulator, and universal Mac Catalyst slices. Both Apple targets are built from the same C# sources.
 
+The Catalyst slice uses Apple's versioned framework layout. The package carries `InAppBillingStoreKit.xcframework.zip` so NuGet does not discard its symlinks; the .NET Apple SDK extracts and links this archive automatically.
+
 A project reference to the plugin doesn't link the framework automatically, so add this to your iOS or Mac Catalyst app:
 
 ```xml
-<NativeReference Include="path/to/src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework">
+<NativeReference Include="path/to/src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework.zip">
   <Kind>Framework</Kind>
 </NativeReference>
 ```

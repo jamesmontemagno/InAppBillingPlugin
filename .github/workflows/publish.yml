@@ -24,7 +24,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: storekit-shim
-          path: src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework
+          path: src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework.zip
           if-no-files-found: error
 
   build:
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: storekit-shim
-          path: src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework
+          path: src/StoreKit2Shim/build
 
       - name: Test StoreKit 2 mapping
         run: dotnet test src/Plugin.InAppBilling.Tests/Plugin.InAppBilling.Tests.csproj

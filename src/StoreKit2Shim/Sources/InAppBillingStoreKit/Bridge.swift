@@ -136,8 +136,16 @@ enum Bridge {
         var seen: Set<UInt64> = []
         var transactions: [TransactionDTO] = []
 
-        func add(_ result: VerificationResult<Transaction>) async {
-            guard case .verified(let transaction) = result, seen.insert(transaction.id).inserted else {
+        func add(_ result: VerificationResult<Transaction>, unfinishedOnly: Bool = false) async {
+            guard case .verified(let transaction) = result else {
+                return
+            }
+            if unfinishedOnly && !isActiveUnfinished(expirationDate: transaction.expirationDate,
+                                                     revocationDate: transaction.revocationDate,
+                                                     isUpgraded: transaction.isUpgraded) {
+                return
+            }
+            guard seen.insert(transaction.id).inserted else {
                 return
             }
             // StoreKit can still list a consumable right after it finishes, and returning it would let an app credit it twice.
@@ -152,9 +160,13 @@ enum Bridge {
             await add(result)
         }
         for await result in Transaction.unfinished {
-            await add(result)
+            await add(result, unfinishedOnly: true)
         }
         return Response(transactions: transactions)
+    }
+
+    static func isActiveUnfinished(expirationDate: Date?, revocationDate: Date?, isUpgraded: Bool, now: Date = Date()) -> Bool {
+        revocationDate == nil && !isUpgraded && (expirationDate.map { $0 > now } ?? true)
     }
 
     static func finish(transactionIds: [String]) async -> Response {
