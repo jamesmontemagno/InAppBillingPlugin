@@ -81,9 +81,7 @@ public func iabStartListeners(_ callback: IABCallback) {
     listeners = [
         Task.detached {
             for await result in Transaction.updates {
-                if case .verified(let transaction) = result {
-                    await Bridge.store.remember(transaction)
-                }
+                await Bridge.store.remember(result)
                 let json = Event(kind: "transaction", transaction: TransactionDTO(result)).json
                 json.withCString { callback(0, $0) }
             }
