@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 env:
-  # An iOS SDK and Xcode pair that the runner image has. The workload's newest SDK can require a newer Xcode.
+  # An iOS SDK and Xcode pair the runner image has for the .NET build. The workload's newest SDK can require a newer Xcode.
   IOS_TFM: net10.0-ios26.0
   XCODE_APP: /Applications/Xcode_26.0.1.app
 
@@ -38,11 +38,8 @@ jobs:
       - name: Install the iOS workload
         run: dotnet workload install ios
 
-      - name: Select Xcode
-        run: |
-          sudo xcode-select -s "$XCODE_APP"
-          xcodebuild -version
-          dotnet workload list
+      - name: Show the default Xcode
+        run: xcodebuild -version
 
       - name: Pick a simulator
         id: simulator
@@ -60,6 +57,9 @@ jobs:
 
       - name: Build the shim
         run: src/StoreKit2Shim/build-xcframework.sh
+
+      - name: Select the Xcode for the .NET build
+        run: sudo xcode-select -s "$XCODE_APP"
 
       - name: Pack the plugin
         run: >
@@ -96,6 +96,8 @@ jobs:
           dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" -p:TargetFramework=$IOS_TFM \
             -p:RestoreAdditionalProjectSources=$PWD/artifacts -p:RestorePackagesPath=$PWD/.nuget-smoke
           app=$(find "$project/bin" -name '*.app' -type d | head -1)
+          # The build's Xcode has no simulator runtime, so go back to the default one to run.
+          sudo xcode-select -r
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" "$app"
