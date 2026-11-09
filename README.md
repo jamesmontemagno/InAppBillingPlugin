@@ -1,13 +1,14 @@
 ## In-App Billing Plugin for .NET MAUI  and Windows
 
-> **Project status:** Android is actively maintained and tracks the current Google Play Billing Library. iOS uses StoreKit 2. Mac and Windows keep working as they are today and are not getting new features; Mac still uses the original StoreKit APIs. Contributions are welcome, and you can always fork the library or pull the source into your project.
+> **Project status:** Android and Windows are actively maintained and track the current Google Play Billing Library and Microsoft Store APIs. iOS uses StoreKit 2, while Mac still uses the original StoreKit APIs. Contributions are welcome, and you can always fork the library or pull the source into your project.
 
 A simple In-App Purchase plugin for .NET MAUI and Windows to query item information, purchase items, restore items, and more.
 
-Subscriptions are supported on iOS, Android, and Mac. Windows/UWP/WinUI 3 - does not support subscriptions at this time.
+Subscriptions are supported on iOS, Android, Mac, and Windows.
 
 ## Important Version Information
 * iOS now uses StoreKit 2 and requires iOS 15+. Purchase tokens and restore behavior have changed, see [iOS StoreKit 2](docs/StoreKit2.md)
+* Windows now uses `Windows.Services.Store` and supports WinUI 3 and Windows App SDK apps, subscriptions, and consumables. This changes some Windows behavior, see the [migration notes](docs/Windows.md#migrating-from-earlier-versions)
 * v10.1 uses Android Billing v9 and requires Android API 23+ (see [AndroidX versions](#androidx-versions-for-android-billing-v9))
 * v10 now supports .NET 10+ and Android Billing v8
 * v9 now supports .NET 9+ and Android Billing v7
@@ -151,4 +152,3 @@ The MIT License (MIT), see [LICENSE](LICENSE) file.
 
 ### Want To Support This Project?
 All I have ever asked is to be active by submitting bugs, features, and sending those pull requests down! Want to go further? Make sure to subscribe to my weekly development podcast [Merge Conflict](http://mergeconflict.fm), where I talk all about awesome Xamarin goodies and you can optionally support the show by becoming a [supporter on Patreon](https://www.patreon.com/mergeconflictfm).
-

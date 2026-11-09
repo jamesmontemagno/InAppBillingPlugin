@@ -5,7 +5,7 @@ Subscriptions are purchases that expire (or sometimes auto-renew) after a set pe
 Each app store calls them something slightly different:
 * Apple: Auto-Renewable and Non-Renewing Subscription
 * Android: Subscription
-* Microsoft: Durable with expiration period
+* Microsoft: Subscription add-on (see [Windows and the Microsoft Store](Windows.md))
 
 All purchases go through the `PurchaseAsync` method and you must always `ConnectAsync` before making calls and `DisconnectAsync` after making calls:
 

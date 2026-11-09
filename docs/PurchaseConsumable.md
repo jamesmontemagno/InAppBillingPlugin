@@ -32,9 +32,11 @@ Task<InAppBillingPurchase> PurchaseAsync(string productId, ItemType itemType, st
 #### obfuscatedAccountId & obfuscatedProfileId
 * iOS: Optional, only obfuscatedAccountId is used at this time. It is sent as the appAccountToken, see [Account tokens](StoreKit2.md#account-tokens).
 * Android: Optional, see [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder](Android documentation) for more info
+* Windows: Optional, stored with the purchase in the Store's developer offer ID
 
 ### Consume Purchase
 * Android & Windows: You must consume your purchase when your user uses it before buying another one.
+* Windows: For a Store-managed consumable, `ConsumePurchaseAsync` consumes the whole balance, so grant `purchase.Quantity` units. See [Windows and the Microsoft Store](Windows.md) to consume part of a balance.
 
 * iOS: Beta - In version 4 we auto finalized all transactions and after testing I decided to keep this feature on in 5/6... you can no turn that off in your iOS application with `InAppBillingImplementation.FinishAllTransactions = false;`. This would be required if you are using consumables and don't want to auto finish. You will need to finalize manually with `ConsumePurchaseAsync` or `FinalizePurchaseAsync`.
 

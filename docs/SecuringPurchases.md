@@ -21,8 +21,11 @@ Based on the platform this data is a bit different and is returned as part of th
 * Signature, OriginalJson, DeveloperPayload can all be used.
 * See https://developer.android.com/google/play/billing/developer-payload for more information
 
-### UWP
-No additional authentication is provided.
+### Windows
+The Microsoft Store has no client-side receipt. `ReceiptData` is empty, and `Signature` is not set. Instead:
+
+* `OriginalJson` contains the Store's collection data for the purchase, including `transactionId` and `orderId`.
+* To verify a purchase on your server, use the [Microsoft Store collection API](https://learn.microsoft.com/windows/uwp/monetize/view-and-grant-products-from-a-service). Get the required ID key on the device with `GetStoreContext().GetCustomerCollectionsIdAsync(serviceTicket, publisherUserId)` from `InAppBillingImplementation`.
 
 
 ### Android Security

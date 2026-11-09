@@ -59,6 +59,9 @@ jobs:
       - name: Test StoreKit 2 mapping
         run: dotnet test src/Plugin.InAppBilling.Tests/Plugin.InAppBilling.Tests.csproj
 
+      - name: Test Windows Store logic
+        run: dotnet test src/InAppBillingTests/Plugin.InAppBilling.Tests/Plugin.InAppBilling.Tests.csproj -c Release
+
       - name: Compute package version
         id: version
         shell: pwsh

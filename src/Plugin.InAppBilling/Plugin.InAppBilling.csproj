@@ -109,8 +109,8 @@
   </ItemGroup>
   <!-- Windows -->
   <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-windows')) != true">
-    <Compile Remove="**\*.uwp.cs" />
-    <None Include="**\*.uwp.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <Compile Remove="**\*.windows.cs" />
+    <None Include="**\*.windows.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
   </ItemGroup>
   <!-- .NET (generic) -->
   <ItemGroup Condition="!($(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.EndsWith('.0')) == true AND $(TargetFramework.Contains('-')) != true)">
@@ -120,7 +120,7 @@
   </ItemGroup>
   
   <!--<ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
-    <Compile Include="**\*.uwp.cs" />
+    <Compile Include="**\*.windows.cs" />
   </ItemGroup>
   
   <ItemGroup Condition=" $(TargetFramework.Contains('-android')) ">
