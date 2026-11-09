@@ -2,7 +2,8 @@
 
   <!-- Launched on a simulator by .github/workflows/ios-storekit.yml to prove the packed plugin links and calls the Swift shim. -->
   <PropertyGroup>
-    <TargetFramework>net10.0-ios</TargetFramework>
+    <IosTargetFramework Condition="'$(IosTargetFramework)' == ''">net10.0-ios</IosTargetFramework>
+    <TargetFramework>$(IosTargetFramework)</TargetFramework>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

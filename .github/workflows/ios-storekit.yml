@@ -82,7 +82,7 @@ jobs:
         run: >
           dotnet build src/InAppBillingTests/StoreKit2Smoke/StoreKit2Smoke.csproj
           -c Release -r ios-arm64 -p:EnableCodeSigning=false
-          -p:TargetFramework=$IOS_TFM
+          -p:IosTargetFramework=$IOS_TFM
           -p:RestoreAdditionalProjectSources=$PWD/artifacts
           -p:RestorePackagesPath=$PWD/.nuget-smoke
 
@@ -93,7 +93,7 @@ jobs:
           project=src/InAppBillingTests/StoreKit2Smoke
           rm -rf "$project/bin" "$project/obj"
           arch=$(uname -m); [ "$arch" = "x86_64" ] && rid=iossimulator-x64 || rid=iossimulator-arm64
-          dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" -p:TargetFramework=$IOS_TFM \
+          dotnet build "$project/StoreKit2Smoke.csproj" -c Release -r "$rid" -p:IosTargetFramework=$IOS_TFM \
             -p:RestoreAdditionalProjectSources=$PWD/artifacts -p:RestorePackagesPath=$PWD/.nuget-smoke
           app=$(find "$project/bin" -name '*.app' -type d | head -1)
           # The build's Xcode has no simulator runtime, so go back to the default one to run.
