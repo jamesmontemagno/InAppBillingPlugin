@@ -34,6 +34,9 @@ jobs:
       - name: Install workloads
         run: dotnet workload install maui macos
 
+      - name: Test Windows Store logic
+        run: dotnet test src/InAppBillingTests/Plugin.InAppBilling.Tests/Plugin.InAppBilling.Tests.csproj -c Release
+
       - name: Compute package version
         id: version
         shell: pwsh

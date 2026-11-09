@@ -47,19 +47,31 @@ You will not be able to test any StoreKit functionality until you have an iOS Pa
 * If you see "The publisher cannot purchase this item": This means you are trying to buy it on your developer account, and that isn't allowed, you need a different account.
 
 
-## UWP Testing & Troubleshooting
-* Read the UWP developer [In App Purchases API Docs](https://msdn.microsoft.com/en-us/windows/uwp/monetize/in-app-purchases-and-trials)
-* You must setup an in app purchase
-* Read through the [testing documentation](https://msdn.microsoft.com/en-us/windows/uwp/monetize/in-app-purchases-and-trials#testing)
+## Windows Testing & Troubleshooting
+* Read Microsoft's [In-app purchases and trials documentation](https://learn.microsoft.com/windows/uwp/monetize/in-app-purchases-and-trials), and see [Windows and the Microsoft Store](Windows.md).
+* To test against the real Store, your add-ons and app must be published (they can be hidden), your project must be associated with the app in Partner Center, and you must install the app from the Store once to get a license. After that you can debug locally.
+* `PurchaseError.DeveloperError` with 0x803F6107 means the Store doesn't know your app, so the association or license above is missing.
+* `PurchaseError.DeveloperError` with 0x80070578 or a missing window message means you need to set `InAppBillingImplementation.WindowHandleProvider`.
 
 ### Turning on Testing Mode
-In UWP, in-app purchases get can be tested by using the `CurrentAppSimulator` class instead of `CurrentApp`. 
-
-To switch the UWP's `InAppBillingImplementation` to testing mode, set the `InTestingMode`  boolean property.
+`Windows.Services.Store` has no simulator, so the plugin includes an in-memory one. Nothing is persisted between runs and no money is involved. Add your catalog and turn on `InTestingMode`:
 
 ```csharp
+#if WINDOWS
+var simulator = InAppBillingImplementation.Simulator;
+simulator.AddProduct("gold", ItemType.InAppPurchase, "Gold", 4.99m);
+simulator.AddProduct("potion", ItemType.InAppPurchaseConsumable);
+simulator.AddProduct("coins", ItemType.InAppPurchaseConsumable, storeManagedQuantity: 100);
+simulator.AddProduct("monthly", ItemType.Subscription, hasTrial: true);
+
+// Optionally force a failure for the next purchase
+simulator.NextPurchaseStatus = WindowsStorePurchaseStatus.NetworkError;
+#endif
+
 CrossInAppBilling.Current.InTestingMode = true;
 ```
+
+Testing mode doesn't show any Store UI and doesn't need a packaged app. Make sure it is off in release builds.
 
 
 <= Back to [Table of Contents](README.md)

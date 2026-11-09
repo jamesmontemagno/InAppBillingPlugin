@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Plugin.InAppBilling.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <!-- The Store logic has no Windows dependency, so link it to run on any OS. WindowsStoreClient and InAppBillingImplementation need WinRT and are excluded. -->
+  <ItemGroup>
+    <Compile Include="..\..\Plugin.InAppBilling\Shared\*.cs" LinkBase="Linked\Shared" />
+    <Compile Include="..\..\Plugin.InAppBilling\WindowsStoreModels.windows.cs" LinkBase="Linked" />
+    <Compile Include="..\..\Plugin.InAppBilling\WindowsStoreBilling*.windows.cs" LinkBase="Linked" />
+    <Compile Include="..\..\Plugin.InAppBilling\WindowsStoreSimulator.windows.cs" LinkBase="Linked" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1" />
+  </ItemGroup>
+
+</Project>

@@ -1,12 +1,13 @@
 ## In-App Billing Plugin for .NET MAUI  and Windows
 
-> **Project status:** Android is actively maintained and tracks the current Google Play Billing Library. iOS, Mac, and Windows keep working as they are today and are not getting new features; iOS and Mac still use the original StoreKit APIs. Contributions are welcome, and you can always fork the library or pull the source into your project.
+> **Project status:** Android and Windows are actively maintained and track the current Google Play Billing Library and Microsoft Store APIs. iOS and Mac keep working as they are today and are not getting new features; they still use the original StoreKit APIs. Contributions are welcome, and you can always fork the library or pull the source into your project.
 
 A simple In-App Purchase plugin for .NET MAUI and Windows to query item information, purchase items, restore items, and more.
 
-Subscriptions are supported on iOS, Android, and Mac. Windows/UWP/WinUI 3 - does not support subscriptions at this time.
+Subscriptions are supported on iOS, Android, Mac, and Windows.
 
 ## Important Version Information
+* Windows now uses `Windows.Services.Store` and supports WinUI 3 and Windows App SDK apps, subscriptions, and consumables. This changes some Windows behavior, see the [migration notes](docs/Windows.md#migrating-from-earlier-versions)
 * v10.1 uses Android Billing v9 and requires Android API 23+ (see [AndroidX versions](#androidx-versions-for-android-billing-v9))
 * v10 now supports .NET 10+ and Android Billing v8
 * v9 now supports .NET 9+ and Android Billing v7
