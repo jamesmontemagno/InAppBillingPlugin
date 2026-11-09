@@ -60,7 +60,7 @@ Due to the complex nature of In-App Billing I highly recommend reading exactly h
 
 * [Apple's iOS/tvOS Documentation](https://developer.apple.com/in-app-purchase/)
 * [Android Documentation](https://developer.android.com/google/play/billing/billing_integrate.html)
-* [Microsoft's UWP Documentation](https://docs.microsoft.com/en-us/windows/uwp/monetize/in-app-purchases-and-trials)
+* [Microsoft Store Documentation](https://learn.microsoft.com/windows/uwp/monetize/in-app-purchases-and-trials) and [using this plugin on Windows](Windows.md)
 
 In addition to this core reading I recommend the following:
 * [Xamarin.iOS Setup Documentation](https://developer.xamarin.com/guides/ios/application_fundamentals/in-app_purchasing/part_1_-_in-app_purchase_basics_and_configuration/)

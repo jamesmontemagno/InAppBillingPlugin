@@ -79,7 +79,115 @@ namespace Plugin.InAppBilling
         /// Gets the list of keywords associated with the add-on (also called an in-app product or IAP). These strings correspond to the value of the Keywords field in the properties page for the add-on in Partner Center. 
         /// </summary>
         public IEnumerable<string> Keywords { get; set; }
+
+        /// <summary>
+        /// The 12-character Store ID of the add-on.
+        /// </summary>
+        public string StoreId { get; set; }
+
+        /// <summary>
+        /// The product ID entered for the add-on in Partner Center.
+        /// </summary>
+        public string InAppOfferToken { get; set; }
+
+        /// <summary>
+        /// The Store product kind: Durable, Consumable (Store-managed), or UnmanagedConsumable (developer-managed).
+        /// </summary>
+        public string ProductKind { get; set; }
+
+        /// <summary>
+        /// The Store listing page of the add-on.
+        /// </summary>
+        public Uri LinkUri { get; set; }
+
+        /// <summary>
+        /// If the current user has an entitlement to the add-on.
+        /// </summary>
+        public bool IsInUserCollection { get; set; }
+
+        /// <summary>
+        /// The recurring price of a subscription, formatted for the market of the current user.
+        /// </summary>
+        public string FormattedRecurrencePrice { get; set; }
+
+        /// <summary>
+        /// If the add-on is a subscription with recurring billing.
+        /// </summary>
+        public bool IsSubscription { get; set; }
+
+        /// <summary>
+        /// The billing period of a subscription.
+        /// </summary>
+        public SubscriptionPeriod SubscriptionPeriod { get; set; }
+
+        /// <summary>
+        /// The trial period currently offered to the user, or null if there is none.
+        /// </summary>
+        public SubscriptionPeriod TrialPeriod { get; set; }
+
+        /// <summary>
+        /// The SKUs of the add-on. A subscription whose trial is still available to the user has the trial SKU first and the full SKU second.
+        /// </summary>
+        public List<InAppBillingProductWindowsSku> Skus { get; set; }
     }
+
+    /// <summary>
+    /// A specific version of a Microsoft Store add-on with its own price.
+    /// </summary>
+    [Preserve(AllMembers = true)]
+    public class InAppBillingProductWindowsSku
+    {
+        /// <summary>
+        /// The SKU Store ID. Pass it as the subOfferToken of PurchaseAsync to buy this SKU.
+        /// </summary>
+        public string StoreId { get; set; }
+
+        /// <summary>
+        /// The title of the SKU.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// The description of the SKU.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The purchase price, formatted for the market of the current user.
+        /// </summary>
+        public string FormattedPrice { get; set; }
+
+        /// <summary>
+        /// The recurring price of a subscription, formatted for the market of the current user.
+        /// </summary>
+        public string FormattedRecurrencePrice { get; set; }
+
+        /// <summary>
+        /// The purchase price in micro-units, or 0 if the Store did not report one.
+        /// </summary>
+        public long MicrosPrice { get; set; }
+
+        /// <summary>
+        /// If this is a trial SKU.
+        /// </summary>
+        public bool IsTrial { get; set; }
+
+        /// <summary>
+        /// If this SKU is a subscription with recurring billing.
+        /// </summary>
+        public bool IsSubscription { get; set; }
+
+        /// <summary>
+        /// The billing period, if this SKU is a subscription.
+        /// </summary>
+        public SubscriptionPeriod SubscriptionPeriod { get; set; }
+
+        /// <summary>
+        /// The trial period, if this SKU is a subscription with a trial.
+        /// </summary>
+        public SubscriptionPeriod TrialPeriod { get; set; }
+    }
+
     /// <summary>
     /// Extras specific to Android
     /// </summary>

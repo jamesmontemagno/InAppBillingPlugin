@@ -12,4 +12,5 @@ Here you will find detailed documentation on setting up and using the In-App Bil
 * [Check & Restore Purchases](CheckAndRestorePurchases.md)
 * [Securing Purchases](SecuringPurchases.md)
 * [Testing & Troubleshooting](TestingAndTroubleshooting.md)
+* [Windows and the Microsoft Store](Windows.md)
 * [Architecture](Architecture.md)

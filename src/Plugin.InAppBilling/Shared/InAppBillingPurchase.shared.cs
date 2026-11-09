@@ -13,6 +13,58 @@ namespace Plugin.InAppBilling
 	}
 
 	/// <summary>
+	/// Purchase info specific to the Microsoft Store
+	/// </summary>
+	[Preserve(AllMembers = true)]
+	public class InAppBillingPurchaseWindowsExtras
+	{
+		/// <summary>
+		/// The 12-character Store ID of the add-on.
+		/// </summary>
+		public string StoreId { get; set; }
+
+		/// <summary>
+		/// The Store ID of the purchased SKU.
+		/// </summary>
+		public string SkuStoreId { get; set; }
+
+		/// <summary>
+		/// The product ID entered for the add-on in Partner Center.
+		/// </summary>
+		public string InAppOfferToken { get; set; }
+
+		/// <summary>
+		/// The Store product kind: Durable, Consumable (Store-managed), or UnmanagedConsumable (developer-managed).
+		/// </summary>
+		public string ProductKind { get; set; }
+
+		/// <summary>
+		/// When the entitlement ends in UTC, or null if it does not expire.
+		/// </summary>
+		public DateTime? ExpirationDateUtc { get; set; }
+
+		/// <summary>
+		/// If the entitlement is a trial.
+		/// </summary>
+		public bool IsTrial { get; set; }
+
+		/// <summary>
+		/// The custom campaign value that was passed with the purchase request.
+		/// </summary>
+		public string DeveloperOfferId { get; set; }
+
+		/// <summary>
+		/// The promotion campaign associated with the purchase.
+		/// </summary>
+		public string CampaignId { get; set; }
+
+		/// <summary>
+		/// The country or region the purchase was made in.
+		/// </summary>
+		public string PurchasedCountry { get; set; }
+	}
+
+	/// <summary>
 	/// Purchase from in app billing
 	/// </summary>
 	[Preserve(AllMembers = true)]
@@ -99,6 +151,11 @@ namespace Plugin.InAppBilling
 
         public string OriginalJson { get; set; }
         public string Signature { get; set; }
+
+        /// <summary>
+        /// Extra information for Windows platforms
+        /// </summary>
+        public InAppBillingPurchaseWindowsExtras WindowsExtras { get; set; } = null;
 
         public static bool operator ==(InAppBillingPurchase left, InAppBillingPurchase right) =>
 			Equals(left, right);
