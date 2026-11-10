@@ -11,8 +11,25 @@ permissions:
   contents: read
 
 jobs:
+  storekit-shim:
+    name: Build StoreKit 2 shim
+    # Swift for iOS and Mac Catalyst can only be compiled with Xcode.
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build xcframework
+        run: src/StoreKit2Shim/build-xcframework.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: storekit-shim
+          path: src/StoreKit2Shim/build/InAppBillingStoreKit.xcframework.zip
+          if-no-files-found: error
+
   build:
     name: Build and pack
+    needs: storekit-shim
     # The net10.0-windows target is only added on Windows, and the macOS workload installs there too.
     runs-on: windows-2025-vs2026
     outputs:
@@ -33,6 +50,14 @@ jobs:
 
       - name: Install workloads
         run: dotnet workload install maui macos
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: storekit-shim
+          path: src/StoreKit2Shim/build
+
+      - name: Test StoreKit 2 mapping
+        run: dotnet test src/Plugin.InAppBilling.Tests/Plugin.InAppBilling.Tests.csproj
 
       - name: Test Windows Store logic
         run: dotnet test src/InAppBillingTests/Plugin.InAppBilling.Tests/Plugin.InAppBilling.Tests.csproj -c Release

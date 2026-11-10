@@ -1,0 +1,9 @@
+<Project>
+  <!-- Links the StoreKit 2 shim shipped in this package into the consuming iOS or Mac Catalyst app. -->
+  <ItemGroup>
+    <NativeReference Include="$(MSBuildThisFileDirectory)../../native/apple/InAppBillingStoreKit.xcframework.zip">
+      <Kind>Framework</Kind>
+      <SmartLink>false</SmartLink>
+    </NativeReference>
+  </ItemGroup>
+</Project>

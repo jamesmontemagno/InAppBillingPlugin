@@ -39,6 +39,7 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <!-- platform version number information -->
@@ -76,15 +77,10 @@
     <!--<Compile Include="**\*.shared.cs" />-->
   </ItemGroup>
 
-  <!-- iOS & MacCatalyst -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-ios')) != true">
-    <Compile Remove="**\**\*.ios.cs" />
-    <None Include="**\**\*.ios.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-maccatalyst')) != true">
-    <Compile Remove="**\**\*.maccatalyst.cs" />
-    <None Include="**\**\*.maccatalyst.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  <!-- iOS and Mac Catalyst share both StoreKit backends; native macOS keeps its existing implementation. -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-ios')) != true AND $(TargetFramework.Contains('-maccatalyst')) != true">
+    <Compile Remove="**\*.apple.cs" />
+    <None Include="**\*.apple.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
   </ItemGroup>
     <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-macos')) != true">
       <Compile Remove="**\**\*.macos.cs" />
@@ -146,5 +142,17 @@
     <None Include="..\..\art\icon.png" PackagePath="icon.png" Pack="true" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+
+  <!-- StoreKit 2 shim for iOS and Mac Catalyst, built on macOS by ..\StoreKit2Shim\build-xcframework.sh -->
+  <ItemGroup>
+    <None Include="buildTransitive\Plugin.InAppBilling.targets" Pack="true" PackagePath="buildTransitive/net10.0-ios15.0/Plugin.InAppBilling.targets;buildTransitive/net10.0-maccatalyst15.0/Plugin.InAppBilling.targets" />
+    <!-- Preserve the Catalyst framework's versioned bundle and symlinks through NuGet delivery. -->
+    <None Include="..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework.zip" Pack="true" PackagePath="native/apple/" />
+  </ItemGroup>
+
+  <Target Name="ValidateStoreKitShimForPack" BeforeTargets="GenerateNuspec" Condition="!Exists('..\StoreKit2Shim\build\InAppBillingStoreKit.xcframework.zip')">
+    <Error Condition="'$(ContinuousIntegrationBuild)' == 'true'" Text="The StoreKit 2 shim is missing, so iOS and Mac Catalyst purchases would fail. Run src/StoreKit2Shim/build-xcframework.sh on macOS first." />
+    <Warning Condition="'$(ContinuousIntegrationBuild)' != 'true'" Text="The StoreKit 2 shim is missing, so this package will not work on iOS or Mac Catalyst. Run src/StoreKit2Shim/build-xcframework.sh on macOS first." />
+  </Target>
 
 </Project>

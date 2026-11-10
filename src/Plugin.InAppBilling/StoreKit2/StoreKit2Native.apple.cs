@@ -1,0 +1,125 @@
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Plugin.InAppBilling
+{
+    /// <summary>
+    /// P/Invoke layer over the Swift shim in src/StoreKit2Shim, linked through buildTransitive/Plugin.InAppBilling.targets.
+    /// </summary>
+    internal static unsafe class StoreKit2Native
+    {
+        const string Library = "__Internal";
+
+        [DllImport(Library)] static extern void iab_sk2_products([MarshalAs(UnmanagedType.LPUTF8Str)] string idsJson, nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_purchase([MarshalAs(UnmanagedType.LPUTF8Str)] string productId, [MarshalAs(UnmanagedType.LPUTF8Str)] string appAccountToken, nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_current_purchases(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_finish_transactions([MarshalAs(UnmanagedType.LPUTF8Str)] string idsJson, nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_finish_products([MarshalAs(UnmanagedType.LPUTF8Str)] string idsJson, nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_sync(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_storefront(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern int iab_sk2_can_make_payments();
+#if !MACCATALYST
+        [DllImport(Library)] static extern void iab_sk2_present_offer_code_sheet();
+#endif
+        [DllImport(Library)] static extern void iab_sk2_start_listeners(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+        [DllImport(Library)] static extern void iab_sk2_stop_listeners();
+
+        static readonly StoreKit2EventDispatcher events = new();
+
+        public static bool CanMakePayments => iab_sk2_can_make_payments() != 0;
+
+        public static void PresentOfferCodeSheet()
+        {
+#if MACCATALYST
+            throw new PlatformNotSupportedException("Apple does not support offer code redemption sheets on Mac Catalyst. Redeem the code in the App Store instead.");
+#else
+            iab_sk2_present_offer_code_sheet();
+#endif
+        }
+
+        public static Task<StoreKitResponse> ProductsAsync(string[] ids) =>
+            Invoke((context, callback) => iab_sk2_products(StoreKitMapper.SerializeIds(ids), context, callback));
+
+        public static Task<StoreKitResponse> PurchaseAsync(string productId, string appAccountToken, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(productId);
+            cancellationToken.ThrowIfCancellationRequested();
+            return Invoke((context, callback) => iab_sk2_purchase(productId, appAccountToken, context, callback));
+        }
+
+        public static Task<StoreKitResponse> CurrentPurchasesAsync() =>
+            Invoke((context, callback) => iab_sk2_current_purchases(context, callback));
+
+        public static Task<StoreKitResponse> FinishTransactionsAsync(string[] ids) =>
+            Invoke((context, callback) => iab_sk2_finish_transactions(StoreKitMapper.SerializeIds(ids), context, callback));
+
+        public static Task<StoreKitResponse> FinishProductsAsync(string[] ids) =>
+            Invoke((context, callback) => iab_sk2_finish_products(StoreKitMapper.SerializeIds(ids), context, callback));
+
+        public static Task<StoreKitResponse> SyncAsync() =>
+            Invoke((context, callback) => iab_sk2_sync(context, callback));
+
+        public static Task<StoreKitResponse> StorefrontAsync() =>
+            Invoke((context, callback) => iab_sk2_storefront(context, callback));
+
+        public static (nuint Context, CancellationToken Token) StartListeners(Func<StoreKitEvent, CancellationToken, Task> handler) =>
+            events.Start(handler, context => iab_sk2_start_listeners(context, &OnEvent));
+
+        public static void StopListeners(nuint context) =>
+            events.Stop(context, iab_sk2_stop_listeners);
+
+        delegate void NativeCall(nuint context, delegate* unmanaged<nuint, byte*, void> callback);
+
+        static Task<StoreKitResponse> Invoke(NativeCall call)
+        {
+            // The callback arrives on a Swift concurrency thread, so continuations must not run inline on it.
+            var completion = new TaskCompletionSource<StoreKitResponse>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var handle = GCHandle.Alloc(completion);
+            try
+            {
+                call((nuint)(nint)GCHandle.ToIntPtr(handle), &OnResponse);
+            }
+            catch
+            {
+                handle.Free();
+                throw;
+            }
+            return completion.Task;
+        }
+
+        // An exception escaping an UnmanagedCallersOnly method terminates the process, so nothing may escape these two.
+        [UnmanagedCallersOnly]
+        static void OnResponse(nuint context, byte* json)
+        {
+            var handle = GCHandle.FromIntPtr((nint)context);
+            var completion = (TaskCompletionSource<StoreKitResponse>)handle.Target;
+            handle.Free();
+
+            try
+            {
+                completion.TrySetResult(StoreKitMapper.ParseResponse(Marshal.PtrToStringUTF8((nint)json)));
+            }
+            catch (Exception ex)
+            {
+                completion.TrySetException(ex);
+            }
+        }
+
+        [UnmanagedCallersOnly]
+        static void OnEvent(nuint context, byte* json)
+        {
+            try
+            {
+                var storeEvent = StoreKitMapper.ParseEvent(Marshal.PtrToStringUTF8((nint)json));
+                events.Enqueue(context, storeEvent);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Unable to process StoreKit event: " + ex);
+            }
+        }
+    }
+}

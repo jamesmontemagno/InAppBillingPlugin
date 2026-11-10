@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Launched on an iOS simulator or Mac Catalyst by .github/workflows/ios-storekit.yml to prove the packed plugin links and calls the Swift shim. -->
+  <PropertyGroup>
+    <AppleTargetFramework Condition="'$(AppleTargetFramework)' == ''">net10.0-ios</AppleTargetFramework>
+    <TargetFramework>$(AppleTargetFramework)</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <ApplicationId>com.refractored.iabstorekit2smoke</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <PluginVersion Condition="'$(PluginVersion)' == ''">0.0.0-smoke</PluginVersion>
+    <!-- Removes everything that isn't statically reachable, as a store build can. -->
+    <TrimMode>full</TrimMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Plugin.InAppBilling" Version="$(PluginVersion)" />
+  </ItemGroup>
+
+</Project>

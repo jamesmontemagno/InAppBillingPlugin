@@ -1,0 +1,58 @@
+# XcodeGen spec for the shim's tests. StoreKit test sessions need a hosted test bundle, which a Swift package can't provide.
+# Run with an iOS Simulator destination or "platform=macOS,variant=Mac Catalyst".
+name: InAppBillingStoreKit
+options:
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    GENERATE_INFOPLIST_FILE: YES
+    SUPPORTS_MACCATALYST: YES
+    DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+targets:
+  InAppBillingStoreKit:
+    type: framework
+    platform: iOS
+    sources:
+      - Sources/InAppBillingStoreKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.refractored.InAppBillingStoreKit
+  TestHost:
+    type: application
+    platform: iOS
+    sources:
+      - Tests/TestHost
+    dependencies:
+      - target: InAppBillingStoreKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.refractored.iabstorekit2.testhost
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+  HostedTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/InAppBillingStoreKitTests
+        excludes:
+          - Products.storekit
+      - path: Tests/InAppBillingStoreKitTests/Products.storekit
+        buildPhase: resources
+    dependencies:
+      - target: TestHost
+      - target: InAppBillingStoreKit
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.refractored.iabstorekit2.tests
+schemes:
+  HostedTests:
+    build:
+      targets:
+        HostedTests: all
+    test:
+      targets:
+        - HostedTests

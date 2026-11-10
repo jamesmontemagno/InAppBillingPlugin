@@ -77,22 +77,30 @@ Each app store has you create them in a different area.
 
 ## iOS
 
-**ONLY if you are enabling "promoted items" through the app store:**
+The plugin uses StoreKit 2 on iOS and Mac Catalyst and requires iOS/Mac Catalyst 15+, see [StoreKit 2](StoreKit2.md).
+
+**ONLY if you are enabling "promoted items" through the app store (requires iOS/Mac Catalyst 16.4+):**
 
 iOS also has the ability to make In-App Purchases from the app store if you mark them as so. To support this you must open your `AppDelegate` and add the following to your `FinishedLaunching`. 
 
 ```csharp
-Plugin.InAppBilling.InAppBillingImplementation.OnShouldAddStorePayment = OnShouldAddStorePayment;
+Plugin.InAppBilling.InAppBillingImplementation.OnPurchaseIntent = OnPurchaseIntent;
+Plugin.InAppBilling.InAppBillingImplementation.OnPurchaseComplete = OnPurchaseComplete;
 var current = Plugin.InAppBilling.CrossInAppBilling.Current; //initializes
 ```
 
-Then add this method in the `AppDelegate`:
+Then add these methods in the `AppDelegate`. Return `true` to start the purchase now. Promoted purchases don't go through a `PurchaseAsync` call in your app, so the result arrives through `OnPurchaseComplete` and `OnPurchaseFailure`:
 
 ```csharp
- bool OnShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
+bool OnPurchaseIntent(string productId)
 {
-    //Process and check purchases
+    //Check if the user can purchase this product now
     return true;
+}
+
+void OnPurchaseComplete(InAppBillingPurchase purchase)
+{
+    //Unlock the purchase
 }
 ```
 
@@ -100,9 +108,6 @@ For .NET MAUI apps you can override FinishedLaunching in the AppDelegate or you 
 ```csharp
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
-#if IOS
-using StoreKit;
-#endif
 
 namespace MauiApp4;
 
@@ -120,22 +125,28 @@ public static class MauiProgram
             })
              .ConfigureLifecycleEvents(AppLifecycle =>
              {
-#if IOS
+#if IOS || MACCATALYST
                  AppLifecycle.AddiOS(ios =>
                      ios.FinishedLaunching((del, b) =>
                     {
-                        Plugin.InAppBilling.InAppBillingImplementation.OnShouldAddStorePayment = OnShouldAddStorePayment;
+                        Plugin.InAppBilling.InAppBillingImplementation.OnPurchaseIntent = OnPurchaseIntent;
+                        Plugin.InAppBilling.InAppBillingImplementation.OnPurchaseComplete = OnPurchaseComplete;
                         var current = Plugin.InAppBilling.CrossInAppBilling.Current;
                         return true;
                     }));
 #endif
              });
 
-#if IOS
-        bool OnShouldAddStorePayment(SKPaymentQueue queue, SKPayment payment, SKProduct product)
+#if IOS || MACCATALYST
+        bool OnPurchaseIntent(string productId)
         {
-            //Process and check purchases
+            //Check if the user can purchase this product now
             return true;
+        }
+
+        void OnPurchaseComplete(Plugin.InAppBilling.InAppBillingPurchase purchase)
+        {
+            //Unlock the purchase
         }
 #endif
 

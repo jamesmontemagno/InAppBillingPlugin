@@ -11,8 +11,10 @@ Each platform handles security of In-App Purchases a bit different. To handle th
 
 Based on the platform this data is a bit different and is returned as part of the InAppBillingPurchase:
 
-### iOS
-* [Full Receipt as a string in Base 64 Encoding](https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Introduction.html#//apple_ref/doc/uid/TP40010573) and is available through `CrossInAppBilling.Current.ReceiptData` .
+### iOS and Mac Catalyst
+* `PurchaseToken` is the transaction signed by the App Store as a JWS. StoreKit 2 has already verified it on the device, and transactions that fail are not returned as purchases. Verify it on your server for stronger protection.
+* `OriginalJson` is the JSON representation of the transaction.
+* `CrossInAppBilling.Current.ReceiptData` still returns the Base 64 app receipt, but Apple has deprecated receipts.
 * signature: Always empty string
 
 ### Android

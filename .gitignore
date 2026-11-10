@@ -239,3 +239,10 @@ _Pvt_Extensions
 src/Plugin.InAppBilling/.DS_Store
 src/.DS_Store
 .DS_Store
+
+# StoreKit 2 shim build output
+src/StoreKit2Shim/build/
+src/StoreKit2Shim/.build/
+src/StoreKit2Shim/.swiftpm/
+.nuget-smoke/
+src/StoreKit2Shim/InAppBillingStoreKit.xcodeproj/
