@@ -181,9 +181,10 @@ namespace Plugin.InAppBilling
             var skuDetailsParams = QueryProductDetailsParams.NewBuilder().SetProductList(productList);
 
             var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams.Build());
-            //ParseBillingResult(skuDetailsResult?.ProductDetailsList, IgnoreInvalidProducts);
+            ParseBillingResult(skuDetailsResult?.Result, IgnoreInvalidProducts);
 
-            return skuDetailsResult.ProductDetailsList.Select(product => product.ToIAPProduct());
+            // The async binding populates ProductDetails, not the native ProductDetailsList property.
+            return skuDetailsResult.ProductDetails?.Select(product => product.ToIAPProduct()) ?? Enumerable.Empty<InAppBillingProduct>();
         }
 
 
@@ -241,9 +242,9 @@ namespace Plugin.InAppBilling
 
             var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams);
 
-            //ParseBillingResult(skuDetailsResult.Result);
+            ParseBillingResult(skuDetailsResult?.Result);
 
-            var skuDetails = skuDetailsResult.ProductDetailsList.FirstOrDefault() ?? throw new ArgumentException($"{newProductId} does not exist");
+            var skuDetails = skuDetailsResult.ProductDetails?.FirstOrDefault() ?? throw new ArgumentException($"{newProductId} does not exist");
 
             //1 - BillingFlowParams.ProrationMode.ImmediateWithTimeProration
             //2 - BillingFlowParams.ProrationMode.ImmediateAndChargeProratedPrice
@@ -345,10 +346,10 @@ namespace Plugin.InAppBilling
 
             var skuDetailsResult = await BillingClient.QueryProductDetailsAsync(skuDetailsParams.Build());
 
-            //ParseBillingResult(skuDetailsResult.Result);
+            ParseBillingResult(skuDetailsResult?.Result);
 
 
-            var skuDetails = skuDetailsResult.ProductDetailsList.FirstOrDefault() ?? throw new ArgumentException($"{productSku} does not exist");
+            var skuDetails = skuDetailsResult.ProductDetails?.FirstOrDefault() ?? throw new ArgumentException($"{productSku} does not exist");
             BillingFlowParams.ProductDetailsParams productDetailsParamsList;
 
             if (itemType == ProductType.Subs)
